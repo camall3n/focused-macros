@@ -1,6 +1,5 @@
 from cube.cubeenv import CubeEnv
 
 c = CubeEnv()
-c.scramble(5)
+c.reset()
 c.render()
-print(c.formula)

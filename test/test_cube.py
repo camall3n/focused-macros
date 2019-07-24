@@ -1,11 +1,9 @@
-from cube.cube import Cube
+import cube.cube as cube
 
-c = Cube()
-# c.render()
-c.transform('L')
-# c.transform('R')
-# c.transform('F')
-# c.transform('U')
-c.transform('D')
-c.transform('B')
-c.render()
+c = cube.Cube()
+d = cube.Cube()
+
+c.scramble(30)
+assert c != d
+c.apply(cube.inverse_formula(c.formula))
+assert c == d

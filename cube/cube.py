@@ -1,5 +1,6 @@
 import copy
 import enum
+import random
 
 from .util import fill
 
@@ -23,12 +24,12 @@ class Pos(enum.IntEnum):
     SE = 8
 
 class Face(enum.IntEnum):
-    F = 0
-    B = 1
-    L = 2
-    R = 3
-    U = 4
-    D = 5
+    F = 0 # front
+    B = 1 # back
+    L = 2 # left
+    R = 3 # right
+    U = 4 # up
+    D = 5 # down
 
 Action = {# (face, inverse)
     'L':   (Face.L, False),
@@ -44,6 +45,19 @@ Action = {# (face, inverse)
     'F\'': (Face.F, True),
     'B\'': (Face.B, True),
 }
+
+def inverse_move(move):
+    if '\'' in move:
+        return move.strip('\'')
+    else:
+        return move+'\''
+
+def inverse_formula(formula):
+    result = copy.copy(formula)
+    result.reverse()
+    for i, move in enumerate(result):
+        result[i] = inverse_move(move)
+    return result
 
 initial_colors = {
     "U": color.W,
@@ -164,6 +178,7 @@ def swap_list(move):
 
 class Cube:
     def __init__(self):
+        self.formula = []
         self.faces = {
             Face.F: [initial_colors['F'] for _ in range(9)],
             Face.B: [initial_colors['B'] for _ in range(9)],
@@ -185,16 +200,19 @@ class Cube:
         for ((start_face, start_pos), (end_face, end_pos)) in swaps:
             self.faces[end_face][end_pos] = cube_copy.faces[start_face][start_pos]
 
+    def apply(self, formula):
+        for move in formula:
+            self.transform(move)
+        self.formula += formula
+
+    def scramble(self, n=30):
+        formula = [random.choice(list(Action.keys())) for _ in range(n)]
+        self.apply(formula)
+
     def __eq__(self, another):
-        """
-        Check if two Cubes are the same.
-        """
         return self.faces == another.faces
 
     def __ne__(self, another):
-        """
-        Check if two Cubes aren't the same.
-        """
         return not self.__eq__(another)
 
     def render(self, color=True):
