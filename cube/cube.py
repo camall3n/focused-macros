@@ -59,6 +59,11 @@ def inverse_formula(formula):
         result[i] = inverse_move(move)
     return result
 
+def inverse_swaps(swap_list):
+    start, end = zip(*swap_list)
+    result = list(zip(end, start))
+    return result
+
 initial_colors = {
     "U": color.W,
     "D": color.Y,
@@ -187,23 +192,35 @@ class Cube:
             Face.U: [initial_colors['U'] for _ in range(9)],
             Face.D: [initial_colors['D'] for _ in range(9)],
         }
+        self.indices = {
+            Face.F: [(Face.F, Pos(i)) for i in range(9)],
+            Face.B: [(Face.B, Pos(i)) for i in range(9)],
+            Face.L: [(Face.L, Pos(i)) for i in range(9)],
+            Face.R: [(Face.R, Pos(i)) for i in range(9)],
+            Face.U: [(Face.U, Pos(i)) for i in range(9)],
+            Face.D: [(Face.D, Pos(i)) for i in range(9)],
+        }
 
     def transform(self, move):
         face, inverse = Action[move]
         swaps = swap_list(face)
         need_flip = (face in [Face.B, Face.L, Face.D])
         if (need_flip and not inverse) or (inverse and not need_flip):
-            start, end = zip(*swaps)
-            swaps = list(zip(end, start))
+            swaps = inverse_swaps(swaps)
+        self.apply(swap_list=swaps)
 
-        cube_copy = copy.deepcopy(self)
-        for ((start_face, start_pos), (end_face, end_pos)) in swaps:
-            self.faces[end_face][end_pos] = cube_copy.faces[start_face][start_pos]
-
-    def apply(self, formula):
-        for move in formula:
-            self.transform(move)
-        self.formula += formula
+    def apply(self, formula=None, swap_list=None):
+        assert formula or swap_list
+        if swap_list:
+            cube_copy = copy.deepcopy(self)
+            for ((start_face, start_pos), (end_face, end_pos)) in swap_list:
+                self.faces[end_face][end_pos] = cube_copy.faces[start_face][start_pos]
+                self.indices[end_face][end_pos] = cube_copy.indices[start_face][start_pos]
+        else:
+            for move in formula:
+                self.transform(move)
+        if formula:
+            self.formula += formula
 
     def scramble(self, n=30):
         formula = [random.choice(list(Action.keys())) for _ in range(n)]
@@ -263,19 +280,28 @@ class Cube:
             self.faces[Face.L][Pos.SW], self.faces[Face.R][Pos.SW],
             self.faces[Face.L][Pos.SW], self.faces[Face.R][Pos.SW],
             B_NW=self.faces[Face.B][Pos.NW]*6, B__N=self.faces[Face.B][Pos.N]*6, B_NE=self.faces[Face.B][Pos.NE]*6,
-            B__W=self.faces[Face.B][Pos.W]*6, B__M=self.faces[Face.B][Pos.M]*6, B__E=self.faces[Face.B][Pos.E]*6,
+            B__W=self.faces[Face.B][Pos.W]*6,  B__M=self.faces[Face.B][Pos.M]*6, B__E=self.faces[Face.B][Pos.E]*6,
             B_SW=self.faces[Face.B][Pos.SW]*6, B__S=self.faces[Face.B][Pos.S]*6, B_SE=self.faces[Face.B][Pos.SE]*6,
             U_NW=self.faces[Face.U][Pos.NW]*6, U__N=self.faces[Face.U][Pos.N]*6, U_NE=self.faces[Face.U][Pos.NE]*6,
-            U__W=self.faces[Face.U][Pos.W]*6, U__M=self.faces[Face.U][Pos.M]*6, U__E=self.faces[Face.U][Pos.E]*6,
+            U__W=self.faces[Face.U][Pos.W]*6,  U__M=self.faces[Face.U][Pos.M]*6, U__E=self.faces[Face.U][Pos.E]*6,
             U_SW=self.faces[Face.U][Pos.SW]*6, U__S=self.faces[Face.U][Pos.S]*6, U_SE=self.faces[Face.U][Pos.SE]*6,
             F_NW=self.faces[Face.F][Pos.NW]*6, F__N=self.faces[Face.F][Pos.N]*6, F_NE=self.faces[Face.F][Pos.NE]*6,
-            F__W=self.faces[Face.F][Pos.W]*6, F__M=self.faces[Face.F][Pos.M]*6, F__E=self.faces[Face.F][Pos.E]*6,
+            F__W=self.faces[Face.F][Pos.W]*6,  F__M=self.faces[Face.F][Pos.M]*6, F__E=self.faces[Face.F][Pos.E]*6,
             F_SW=self.faces[Face.F][Pos.SW]*6, F__S=self.faces[Face.F][Pos.S]*6, F_SE=self.faces[Face.F][Pos.SE]*6,
             D_NW=self.faces[Face.D][Pos.NW]*6, D__N=self.faces[Face.D][Pos.N]*6, D_NE=self.faces[Face.D][Pos.NE]*6,
-            D__W=self.faces[Face.D][Pos.W]*6, D__M=self.faces[Face.D][Pos.M]*6, D__E=self.faces[Face.D][Pos.E]*6,
+            D__W=self.faces[Face.D][Pos.W]*6,  D__M=self.faces[Face.D][Pos.M]*6, D__E=self.faces[Face.D][Pos.E]*6,
             D_SW=self.faces[Face.D][Pos.SW]*6, D__S=self.faces[Face.D][Pos.S]*6, D_SE=self.faces[Face.D][Pos.SE]*6,
         )
         if color:
             for letter in 'WYGBRO':
                 diagram = diagram.replace(letter, fill[letter])
         print(diagram)
+
+    def summarize_effects(self, baseline=None):
+        if not baseline:
+            baseline = Cube()
+        src_indices = [idx for _,face in baseline.indices.items() for idx in face]
+        dst_indices = [idx for _,face in self.indices.items() for idx in face]
+        swap_list = list(zip(dst_indices, src_indices))
+        swap_list = [swap for swap in swap_list if swap[0] != swap[1]]
+        return swap_list
