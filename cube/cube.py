@@ -64,6 +64,30 @@ def inverse_swaps(swap_list):
     result = list(zip(end, start))
     return result
 
+def mirror_move(move):
+    opposite = {
+        'L':   'R\'',
+        'R':   'L\'',
+        'U':   'U\'',
+        'D':   'D\'',
+        'F':   'F\'',
+        'B':   'B\'',
+        'L\'': 'R',
+        'R\'': 'L',
+        'U\'': 'U',
+        'D\'': 'D',
+        'F\'': 'F',
+        'B\'': 'B',
+    }
+    return opposite[move]
+
+def mirror_formula(formula):
+    """Flip a formula left/right to use opposite face(s)."""
+    result = copy.copy(formula)
+    for i, move in enumerate(result):
+        result[i] = mirror_move(move)
+    return result
+
 initial_colors = {
     "U": color.W,
     "D": color.Y,
