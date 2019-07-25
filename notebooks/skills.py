@@ -5,6 +5,7 @@ from cube import cube
 
 def random_skill(length=3):
     formula = [random.choice(list(cube.Action.keys())) for _ in range(length)]
+    formula = cube.simplify_formula(formula)
     return formula
 
 def random_conjugate(prefix_length=1, body_length=1):
@@ -14,6 +15,7 @@ def random_conjugate(prefix_length=1, body_length=1):
     suffix = cube.inverse_formula(prefix)
     body = random_skill(body_length)
     formula = prefix + body + suffix
+    formula = cube.simplify_formula(formula)
     return formula
 
 def random_commutator(x_length=3, y_length=1):
@@ -24,6 +26,7 @@ def random_commutator(x_length=3, y_length=1):
     Y = random_skill(y_length)
     Yinv = cube.inverse_formula(Y)
     formula = X + Y + Xinv + Yinv
+    formula = cube.simplify_formula(formula)
     return formula
 
 ' '.join(random_conjugate(5,2))
@@ -36,11 +39,9 @@ len(orient_corners)
 len(swap_corners)
 c = cube.Cube()
 c.apply(orient_corners)
-print('orient_corners:',len(c.summarize_effects()))
 
 c = cube.Cube()
 c.apply(swap_corners)
-print('swap_corners:',len(c.summarize_effects()))
 
 #%%
 effects = []
@@ -50,9 +51,10 @@ for length in range(1,25):
     effect = 0
     for trial in range(n_trials):
         d = cube.Cube()
-        d.apply(random_skill(length))
+        f = random_skill(length)
+        d.apply(f)
         effect = len(d.summarize_effects())
-        lengths.append(length)
+        lengths.append(len(f))
         effects.append(effect)
 # print('len={}:'.format(length), avg_effects)
 lengths = [l-0.1 for l in lengths]
@@ -65,12 +67,12 @@ for prefix_length in range(1,9):
     for body_length in range(1,9):
         n_trials = 100
         effect = 0
-        L = len(random_conjugate(prefix_length, body_length))
         for trial in range(n_trials):
             d = cube.Cube()
-            d.apply(random_conjugate(prefix_length, body_length))
+            f = random_conjugate(prefix_length, body_length)
+            d.apply(f)
             effect = len(d.summarize_effects())
-            lengths.append(L)
+            lengths.append(len(f))
             effects.append(effect)
 plt.scatter(lengths, effects, marker='^', label='Conjugates')
 
@@ -83,9 +85,10 @@ for x_length in range(1,7):
         L = len(random_commutator(x_length, y_length))
         for trial in range(n_trials):
             d = cube.Cube()
-            d.apply(random_commutator(x_length, y_length))
+            f = random_commutator(x_length, y_length)
+            d.apply(f)
             effect = len(d.summarize_effects())
-            lengths.append(L)
+            lengths.append(len(f))
             effects.append(effect)
 lengths = [l+0.1 for l in lengths]
 

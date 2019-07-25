@@ -89,18 +89,37 @@ def mirror_formula(formula):
     return result
 
 def simplify_formula(formula):
-    s = ' '.join(formula)
+    s = ''.join(formula).strip()
+    for move in 'FBLRUD':
+        s = s.replace(move+'\'', move.lower())
+
+    noops = ["Ff","Bb","Ll","Rr","Uu","Dd"]
+    noops += [op[::-1] for op in noops]
+    triples = [op*3 for op in 'FBLRUDfblrud']
+    singles = [op for op in 'fblrudFBLRUD']
+    outers = ["Ff","Bb","Ll","Rr","Uu","Dd",'fF', 'bB', 'lL', 'rR', 'uU', 'dD']
+    inners = ['B','F','R','L','D','U']*2
     while True:
-        s_prev = copy.copy(s)
-        for noop in ["F F'", "F' F", "B B'", "B' B", "L L'", "L' L",
-                    "R R'", "R' R", "U U'", "U' U", "D D'", "D' D"]:
+        s_prev = s
+        # Noops: [F F'] -> []
+        for noop in noops:
             s = s.replace(noop, '')
-        s = s.replace('  ', ' ')
+        # Triples: [F F F] -> [F']
+        for op3, op1 in zip(triples, singles):
+            s = s.replace(op3, op1)
+        # Sandwiches: [F B F'] -> [B]; [L R R L'] -> [R R]
+        for outer, inner in zip(outers, inners):
+            sandwich1 = outer[0]+inner+outer[1]
+            s = s.replace(sandwich1, inner)
+            sandwich2 = outer[0]+inner.lower()+outer[1]
+            s = s.replace(sandwich2, inner.lower())
+            sandwich1 = outer[0]+inner*2+outer[1]
+            s = s.replace(sandwich1, inner*2)
+            sandwich2 = outer[0]+inner.lower()*2+outer[1]
+            s = s.replace(sandwich2, inner.lower()*2)
         if s == s_prev:
             break
-    simplified = s.split(' ')
-    if simplified == ['']:
-        simplified = []
+    simplified = [move if move in 'FBLRUD' else (move.upper()+'\'') for move in s]
     return simplified
 
 initial_colors = {
@@ -249,7 +268,7 @@ class Cube:
         self.apply(swap_list=swaps)
 
     def apply(self, formula=None, swap_list=None):
-        assert formula or swap_list
+        assert formula is not None or swap_list is not None
         if swap_list:
             cube_copy = copy.deepcopy(self)
             for ((start_face, start_pos), (end_face, end_pos)) in swap_list:
