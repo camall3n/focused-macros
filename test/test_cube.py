@@ -18,3 +18,8 @@ d = cube.Cube()
 c.apply(f)
 d.apply(g)
 assert d == c
+
+# Test simplify
+f = "L R F B U D L' R' F' B' U' D'".split()
+s = cube.simplify_formula(f + cube.inverse_formula(f))
+assert s == []

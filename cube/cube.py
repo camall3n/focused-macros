@@ -88,6 +88,21 @@ def mirror_formula(formula):
         result[i] = mirror_move(move)
     return result
 
+def simplify_formula(formula):
+    s = ' '.join(formula)
+    while True:
+        s_prev = copy.copy(s)
+        for noop in ["F F'", "F' F", "B B'", "B' B", "L L'", "L' L",
+                    "R R'", "R' R", "U U'", "U' U", "D D'", "D' D"]:
+            s = s.replace(noop, '')
+        s = s.replace('  ', ' ')
+        if s == s_prev:
+            break
+    simplified = s.split(' ')
+    if simplified == ['']:
+        simplified = []
+    return simplified
+
 initial_colors = {
     "U": color.W,
     "D": color.Y,
