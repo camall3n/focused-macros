@@ -64,28 +64,61 @@ def inverse_swaps(swap_list):
     result = list(zip(end, start))
     return result
 
-def mirror_move(move):
-    opposite = {
-        'L':   'R\'',
-        'R':   'L\'',
-        'U':   'U\'',
-        'D':   'D\'',
-        'F':   'F\'',
-        'B':   'B\'',
-        'L\'': 'R',
-        'R\'': 'L',
-        'U\'': 'U',
-        'D\'': 'D',
-        'F\'': 'F',
-        'B\'': 'B',
+def mirror_move(move, face=Face.R):
+    table = {
+        Face.R: {
+            'L':   'R\'',
+            'R':   'L\'',
+            'U':   'U\'',
+            'D':   'D\'',
+            'F':   'F\'',
+            'B':   'B\'',
+            'L\'': 'R',
+            'R\'': 'L',
+            'U\'': 'U',
+            'D\'': 'D',
+            'F\'': 'F',
+            'B\'': 'B',
+        },
+        Face.U: {
+            'U':   'D\'',
+            'D':   'U\'',
+            'L':   'L\'',
+            'R':   'R\'',
+            'F':   'F\'',
+            'B':   'B\'',
+            'U\'': 'D',
+            'D\'': 'U',
+            'L\'': 'L',
+            'R\'': 'R',
+            'F\'': 'F',
+            'B\'': 'B',
+        },
+        Face.F: {
+            'F':   'B\'',
+            'B':   'F\'',
+            'L':   'L\'',
+            'R':   'R\'',
+            'U':   'U\'',
+            'D':   'D\'',
+            'F\'': 'B',
+            'B\'': 'F',
+            'L\'': 'L',
+            'R\'': 'R',
+            'U\'': 'U',
+            'D\'': 'D',
+        },
     }
-    return opposite[move]
+    table[Face.L] = table[Face.R]
+    table[Face.D] = table[Face.U]
+    table[Face.B] = table[Face.F]
+    return table[face][move]
 
-def mirror_formula(formula):
+def mirror_formula(formula, face=Face.R):
     """Flip a formula left/right to use opposite face(s)."""
     result = copy.copy(formula)
     for i, move in enumerate(result):
-        result[i] = mirror_move(move)
+        result[i] = mirror_move(move, face)
     return result
 
 def rotate_move(move, axis, n=1):
