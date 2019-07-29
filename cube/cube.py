@@ -222,6 +222,7 @@ def rotate_formula(formula, axis, n=1):
     return result
 
 def formula_collection(formula):
+    # Consider each possible orientation of the cube
     collection = []
     f0 = formula
     l0 = rotate_formula(formula, Face.U, 1)
@@ -234,10 +235,12 @@ def formula_collection(formula):
     for n in range(4):
         for f, face in zip(formulas, faces):
             f = rotate_formula(f, face, n)
-            g = mirror_formula(f)
             collection.append(f)
-            collection.append(g)
 
+    collection += [mirror_formula(x) for x in collection]# Add mirrored algs
+    collection += [inverse_formula(x) for x in collection]# Add inverse algs
+
+    # Remove duplicate formulas
     collection = [' '.join(x) for x in collection]
     collection = list(set(collection))
     collection = [x.split() for x in collection]

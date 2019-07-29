@@ -74,7 +74,8 @@ f = "R F B U L D".split()
 g = cube.rotate_formula(f, cube.Face.U, n=0)
 assert f == g
 
-# Test collection
+
+# Test collections
 f = ["R"]
 c = ' '.join([' '.join(x) for x in sorted(cube.formula_collection(f))])
 actions = ' '.join(sorted(cube.Action.keys()))
@@ -82,4 +83,4 @@ assert c == actions
 
 f = "R B' R' U' B' U F U' B U R B R' F'".split()
 c = cube.formula_collection(f)
-assert len(c) == 48
+assert len(c) == 96
