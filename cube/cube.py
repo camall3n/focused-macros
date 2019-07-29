@@ -88,6 +88,128 @@ def mirror_formula(formula):
         result[i] = mirror_move(move)
     return result
 
+def rotate_move(move, axis, n=1):
+    if n==0:
+        return move
+    table = {
+        Face.U: {
+            'U':   'U',
+            'D':   'D',
+            'U\'': 'U\'',
+            'D\'': 'D\'',
+            'F':   'L',
+            'L':   'B',
+            'B':   'R',
+            'R':   'F',
+            'F\'': 'L\'',
+            'L\'': 'B\'',
+            'B\'': 'R\'',
+            'R\'': 'F\'',
+        },
+        Face.D: {
+            'U':   'U',
+            'D':   'D',
+            'U\'': 'U\'',
+            'D\'': 'D\'',
+            'L':   'F',
+            'F':   'R',
+            'R':   'B',
+            'B':   'L',
+            'L\'': 'F\'',
+            'F\'': 'R\'',
+            'R\'': 'B\'',
+            'B\'': 'L\'',
+        },
+        Face.R: {
+            'R':     'R',
+            'L':     'L',
+            'R\'':   'R\'',
+            'L\'':   'L\'',
+            'U':     'B',
+            'B':     'D',
+            'D':     'F',
+            'F':     'U',
+            'U\'':   'B\'',
+            'B\'':   'D\'',
+            'D\'':   'F\'',
+            'F\'':   'U\'',
+        },
+        Face.L: {
+            'R':     'R',
+            'L':     'L',
+            'R\'':   'R\'',
+            'L\'':   'L\'',
+            'U':     'F',
+            'F':     'D',
+            'D':     'B',
+            'B':     'U',
+            'U\'':   'F\'',
+            'F\'':   'D\'',
+            'D\'':   'B\'',
+            'B\'':   'U\'',
+        },
+        Face.F: {
+            'F':     'F',
+            'B':     'B',
+            'F\'':   'F\'',
+            'B\'':   'B\'',
+            'R':     'D',
+            'D':     'L',
+            'L':     'U',
+            'U':     'R',
+            'R\'':   'D\'',
+            'D\'':   'L\'',
+            'L\'':   'U\'',
+            'U\'':   'R\'',
+        },
+        Face.B: {
+            'F':     'F',
+            'B':     'B',
+            'F\'':   'F\'',
+            'B\'':   'B\'',
+            'R':     'U',
+            'U':     'L',
+            'L':     'D',
+            'D':     'R',
+            'R\'':   'U\'',
+            'U\'':   'L\'',
+            'L\'':   'D\'',
+            'D\'':   'R\'',
+        }
+    }
+    for i in range(n):
+        move = table[axis][move]
+    return move
+
+def rotate_formula(formula, axis, n=1):
+    """Rotate a formula clockwise around the specified cube face."""
+    result = copy.copy(formula)
+    for i, move in enumerate(result):
+        result[i] = rotate_move(move, axis, n)
+    return result
+
+def formula_collection(formula):
+    collection = []
+    f0 = formula
+    l0 = rotate_formula(formula, Face.U, 1)
+    b0 = rotate_formula(formula, Face.U, 2)
+    r0 = rotate_formula(formula, Face.D, 1)
+    u0 = rotate_formula(formula, Face.L, 1)
+    d0 = rotate_formula(formula, Face.R, 1)
+    formulas = [f0, l0, b0, r0, u0, d0]
+    faces = [Face.F, Face.L, Face.B, Face.R, Face.D, Face.U]
+    for n in range(4):
+        for f, face in zip(formulas, faces):
+            f = rotate_formula(f, face, n)
+            g = mirror_formula(f)
+            collection.append(f)
+            collection.append(g)
+
+    collection = [' '.join(x) for x in collection]
+    collection = list(set(collection))
+    collection = [x.split() for x in collection]
+    return collection
+
 def simplify_formula(formula):
     s = ''.join(formula).strip()
     for move in 'FBLRUD':
@@ -279,6 +401,7 @@ class Cube:
                 self.transform(move)
         if formula:
             self.formula += formula
+        return self
 
     def scramble(self, n=30):
         formula = [random.choice(list(Action.keys())) for _ in range(n)]

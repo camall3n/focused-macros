@@ -57,3 +57,29 @@ assert s == []
 f = ['D', 'D', 'U', 'D', 'D', "U'"]
 s = cube.simplify_formula(f)
 assert s == []
+
+
+# Test rotate
+f = "R B' R' U' B' U F U' B U R B R' F'"
+g = ' '.join(cube.rotate_formula(f.split(), cube.Face.U))
+h = ' '.join(cube.rotate_formula(g.split(), cube.Face.D))
+assert h==f
+g = ' '.join(cube.rotate_formula(f.split(), cube.Face.F, 2))
+h = ' '.join(cube.rotate_formula(f.split(), cube.Face.B, 2))
+assert h==g
+g = ' '.join(cube.rotate_formula(f.split(), cube.Face.L, 3))
+h = ' '.join(cube.rotate_formula(f.split(), cube.Face.R, 1))
+assert h==g
+f = "R F B U L D".split()
+g = cube.rotate_formula(f, cube.Face.U, n=0)
+assert f == g
+
+# Test collection
+f = ["R"]
+c = ' '.join([' '.join(x) for x in sorted(cube.formula_collection(f))])
+actions = ' '.join(sorted(cube.Action.keys()))
+assert c == actions
+
+f = "R B' R' U' B' U F U' B U R B R' F'".split()
+c = cube.formula_collection(f)
+assert len(c) == 48
