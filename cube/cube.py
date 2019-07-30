@@ -424,6 +424,7 @@ class Cube:
         if (need_flip and not inverse) or (inverse and not need_flip):
             swaps = inverse_swaps(swaps)
         self.apply(swap_list=swaps)
+        return self
 
     def apply(self, formula=None, swap_list=None):
         assert formula is not None or swap_list is not None
