@@ -4,11 +4,10 @@ from tqdm import tqdm
 
 from cube import cube
 
-swap_3_edges = "L' R U U R' L F F".split()
-swap_3_edges_alt = "L' R B B R' L U U".split()
+swap_3_edges_face = "R R U R U R' U' R' U' R' U R'".split()
+swap_3_edges_mid = "L' R U U R' L F F".split()
 swap_4_edges = "L L R R D D R' R' L' L' U U".split()
 swap_5_edges = "F' R' F B' D B".split()
-swap_5_edges_alt = "F' R F B' D' B".split()
 swap_3_corners = "R U' R' D R U R' D'".split()
 orient_2_corners = "R B' R' U' B' U F U' B U R B R' F'".split()
 

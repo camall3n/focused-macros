@@ -3,16 +3,13 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 from cube import cube
+from cube import skills
 
-swap_3_edges_face = "R R U R U R' U' R' U' R' U R'".split()
-swap_3_edges_mid = "L' R U U R' L F F".split()
-swap_3_corners = "R U' R' D R U R' D'".split()
-orient_2_corners = "R B' R' U' B' U F U' B U R B R' F'".split()
 algs = [
-    swap_3_edges_face,
-    swap_3_edges_mid,
-    swap_3_corners,
-    orient_2_corners,
+    skills.swap_3_edges_face,
+    skills.swap_3_edges_mid,
+    skills.swap_3_corners,
+    skills.orient_2_corners,
 ]
 
 options = []
@@ -22,8 +19,7 @@ for alg in algs:
 
 models = []
 for o in options:
-    c = cube.Cube()
-    m = c.apply(o).summarize_effects()
+    m = cube.Cube().apply(o).summarize_effects()
     models.append(m)
 
 def random_action_skill(length=3):
