@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 from cube import cube
+from cube import formula
 from cube import skills
 
 algs = [
@@ -14,7 +15,7 @@ algs = [
 
 options = []
 for alg in algs:
-    variations = cube.formula_collection(alg)
+    variations = formula.variations(alg)
     options.extend(variations)
 
 models = []
@@ -23,9 +24,9 @@ for o in options:
     models.append(m)
 
 def random_action_skill(length=3):
-    formula = [random.choice(list(cube.Action.keys())) for _ in range(length)]
-    formula = cube.simplify_formula(formula)
-    return formula
+    f = [random.choice(list(cube.Action.keys())) for _ in range(length)]
+    f = formula.simplify(f)
+    return f
 
 def random_option_skill(length=3):
     idx_sequence = [random.choice(range(len(options))) for _ in range(length)]

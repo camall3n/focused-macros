@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 from cube import cube, skills

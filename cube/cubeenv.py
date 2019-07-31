@@ -22,8 +22,8 @@ class CubeEnv:
         self.n_actions = len(self.action_meanings)
 
     @property
-    def formula(self):
-        return self.cube.formula
+    def sequence(self):
+        return self.cube.sequence
 
     def reset(self, n=30):
         self.cube.scramble(n)
