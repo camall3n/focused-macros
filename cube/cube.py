@@ -45,6 +45,7 @@ Action = {# (face, inverse)
     'F\'': (Face.F, True),
     'B\'': (Face.B, True),
 }
+actions = list(Action.keys())
 
 initial_colors = {
     "U": color.W,
@@ -213,6 +214,7 @@ class Cube:
     def scramble(self, n=30):
         f = [random.choice(list(Action.keys())) for _ in range(n)]
         self.apply(f)
+        return self
 
     def __eq__(self, another):
         return self.faces == another.faces

@@ -7,6 +7,7 @@ swap_3_edges_face = "R R U R U R' U' R' U' R' U R'".split()
 swap_3_edges_mid = "L' R U U R' L F F".split()
 swap_4_edges = "L L R R D D R' R' L' L' U U".split()
 swap_5_edges = "F' R' F B' D B".split()
+orient_2_edges = "L R' F L R' D L R' B L R' U U L R' F L R' D L R' B L R'".split()
 swap_3_corners = "R U' R' D R U R' D'".split()
 orient_2_corners = "R B' R' U' B' U F U' B U R B R' F'".split()
 

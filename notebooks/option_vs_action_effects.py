@@ -5,23 +5,7 @@ from tqdm import tqdm
 from cube import cube
 from cube import formula
 from cube import skills
-
-algs = [
-    skills.swap_3_edges_face,
-    skills.swap_3_edges_mid,
-    skills.swap_3_corners,
-    skills.orient_2_corners,
-]
-
-options = []
-for alg in algs:
-    variations = formula.variations(alg)
-    options.extend(variations)
-
-models = []
-for o in options:
-    m = cube.Cube().apply(o).summarize_effects()
-    models.append(m)
+from cube import expert
 
 def random_action_skill(length=3):
     f = [random.choice(list(cube.Action.keys())) for _ in range(length)]
@@ -29,9 +13,9 @@ def random_action_skill(length=3):
     return f
 
 def random_option_skill(length=3):
-    idx_sequence = [random.choice(range(len(options))) for _ in range(length)]
-    o_seq = [options[idx] for idx in idx_sequence]
-    m_seq = [models[idx] for idx in idx_sequence]
+    idx_sequence = [random.choice(range(len(expert.options))) for _ in range(length)]
+    o_seq = [expert.options[idx] for idx in idx_sequence]
+    m_seq = [expert.models[idx] for idx in idx_sequence]
     return o_seq, m_seq
 
 def main():
