@@ -5,7 +5,7 @@ from tqdm import tqdm
 from cube import cube
 from cube import formula
 from cube import skills
-from cube import expert
+from cube import options
 from cube import pattern
 
 c = cube.Cube()
@@ -18,10 +18,12 @@ steps = []
 experiences = 0
 tqdm.write('experiences:{}--steps:{}--errors:{}'.format(experiences, len(steps),len(mods)))
 
+option_set = options.random
+
 max_depth = 2
 def option_sequences(depth, prefix=None):
     assert depth > 0, 'Depth must be > 0'
-    options = [o for o in random.sample(expert.options, len(expert.options))]
+    options = [o for o in random.sample(option_set.options, len(option_set.options))]
     if depth==1:
         return [[o] if prefix==None else prefix+[o] for o in options]
     else:
@@ -35,7 +37,7 @@ for i in range(max_depth):
     option_seq[i] = option_sequences(i+1)
 option_seq[1][:4]
 mdl = {}
-for op, m in zip(expert.options, expert.models):
+for op, m in zip(option_set.options, option_set.models):
     mdl[tuple(op)] = m
 
 for _ in range(100):

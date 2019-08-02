@@ -5,7 +5,7 @@ from tqdm import tqdm
 from cube import cube
 from cube import formula
 from cube import skills
-from cube import expert
+from cube.options import expert
 
 def random_action_skill(length=3):
     f = [random.choice(list(cube.Action.keys())) for _ in range(length)]

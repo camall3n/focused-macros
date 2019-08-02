@@ -5,7 +5,6 @@ from tqdm import tqdm
 from cube import cube
 from cube import formula
 from cube import skills
-from cube import expert
 from cube import pattern
 
 c = cube.Cube()
