@@ -8,12 +8,5 @@ alg_formulas = [
     skills.orient_2_corners,
 ]
 
-options = []
-for alg in alg_formulas:
-    variations = formula.variations(alg)
-    options.extend(variations)
-
-models = []
-for o in options:
-    m = cube.Cube().apply(o).summarize_effects()
-    models.append(m)
+options = [variation for f in alg_formulas for variation in formula.variations(f)]
+models = [cube.Cube().apply(o).summarize_effects() for o in options]
