@@ -18,7 +18,9 @@ def random_option_skill(length=3):
     m_seq = [expert.models[idx] for idx in idx_sequence]
     return o_seq, m_seq
 
-def main():
+def main(count_type=count_type):
+    assert count_type in ['decisions', 'actions']
+
     effects = []
     lengths = []
     for length in tqdm(range(1,41)):
@@ -39,23 +41,31 @@ def main():
     for length in tqdm(range(1,41)):
         n_trials = 50
         effect = 0
+        n_actions = 0
         for trial in range(n_trials):
             d = cube.Cube()
             o_seq, m_seq = random_option_skill(length)
             for o,m in zip(o_seq, m_seq):
+                n_actions += len(o)
                 d.apply(swap_list=m)
             effect += len(d.summarize_effects())
-        lengths.append(length)
+        if count_type == 'actions':
+            lengths.append(n_actions/n_trials)# count actions
+        else:
+            lengths.append(length)# count options
         effects.append(effect/n_trials)
     lengths = [l for l in lengths]
     plt.scatter(lengths, effects, marker='o', label='Options')
 
-    plt.hlines(48, 0, 40, linestyles='dotted')
+    x_max = 40 if count_type == 'decisions' else 500
+    plt.hlines(48, 0, x_max, linestyles='dotted')
     plt.legend(loc='lower right')
     plt.title('Average number of squares modified by sequence')
-    plt.xlabel('Effective number of steps per sequence')
+    plt.xlabel('Number of {} per sequence'.format(count_type))
     plt.ylim([0,50])
+    if count_type == 'actions':
+        plt.xlim([0,500])
     plt.show()
 
 if __name__ == '__main__':
-    main()
+    main(count_type='decisions')
