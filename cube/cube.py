@@ -168,6 +168,12 @@ def inverse_swaps(swap_list):
     result = list(zip(end, start))
     return result
 
+def combine_swaps(*swaps):
+    c = Cube()
+    for s in swaps:
+        c.apply(swap_list=s)
+    return c.summarize_effects()
+
 class Cube:
     def __init__(self):
         self.sequence = []

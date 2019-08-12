@@ -18,7 +18,7 @@ steps = []
 experiences = 0
 tqdm.write('experiences:{}--steps:{}--errors:{}'.format(experiences, len(steps),len(mods)))
 
-option_set = options.random
+option_set = options.expert
 
 max_depth = 2
 def option_sequences(depth, prefix=None):
