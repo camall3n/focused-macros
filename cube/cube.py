@@ -205,12 +205,12 @@ class Cube:
 
     def apply(self, sequence=None, swap_list=None):
         assert sequence is not None or swap_list is not None
-        if swap_list:
+        if swap_list is not None:
             cube_copy = copy.deepcopy(self)
             for ((start_face, start_pos), (end_face, end_pos)) in swap_list:
                 self.faces[end_face][end_pos] = cube_copy.faces[start_face][start_pos]
                 self.indices[end_face][end_pos] = cube_copy.indices[start_face][start_pos]
-        else:
+        elif sequence is not None:
             for move in sequence:
                 self.transform(move)
         if sequence:
@@ -299,5 +299,5 @@ class Cube:
         src_indices = [idx for _,face in baseline.indices.items() for idx in face]
         dst_indices = [idx for _,face in self.indices.items() for idx in face]
         swap_list = list(zip(dst_indices, src_indices))
-        swap_list = [swap for swap in swap_list if swap[0] != swap[1]]
+        swap_list = tuple([swap for swap in swap_list if swap[0] != swap[1]])
         return swap_list
