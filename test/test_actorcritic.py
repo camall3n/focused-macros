@@ -108,7 +108,9 @@ def test_rl():
                 break
 
         ep_rewards.append(ep_reward)
-    plt.plot(ep_rewards)
+    fig, ax = plt.subplots()
+    ax.plot(ep_rewards)
+    plt.show()
 
 if __name__ == '__main__':
     test_network_single()
