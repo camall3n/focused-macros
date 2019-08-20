@@ -11,8 +11,8 @@ def test_network_single():
     n_actions = 10
     net = Network(ndim_x, n_actions)
     x = torch.rand((ndim_x,),dtype=torch.float32)
-    y_logits = net(x)
-    assert y_logits.shape == torch.Size([n_actions])
+    y_preds = net(x)
+    assert y_preds.param_shape == torch.Size([n_actions])
 
 def test_network_batch():
     batch_size = 100
@@ -20,8 +20,8 @@ def test_network_batch():
     n_actions = 10
     net = Network(ndim_x, n_actions)
     x = torch.rand((batch_size,ndim_x),dtype=torch.float32)
-    y_logits = net(x)
-    assert y_logits.shape == torch.Size([batch_size,n_actions])
+    y_preds = net(x)
+    assert y_preds.param_shape == torch.Size([batch_size, n_actions])
 
 def get_batch(replay):
     batch = Experience(*map(lambda x: torch.stack(x, dim=0), zip(*replay)))
@@ -47,9 +47,7 @@ def test_train_mnist():
     accuracies = []
     for epoch in range(1, epochs + 1):
         for batch_idx, (data, target) in enumerate(tqdm(train_loader)):
-            x = torch.flatten(data, 1)
-            y = target
-            batch = Sample(x, y)
+            batch = Sample(x=torch.flatten(data, 1), y=target)
             t.train(batch)
             accuracy = t.accuracy(batch)
             accuracies.append(accuracy)
