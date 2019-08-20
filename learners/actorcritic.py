@@ -32,7 +32,6 @@ class Trainer:
     def __init__(self, net, discount):
         self.net = net
         self.discount = torch.as_tensor(discount)
-        self.loss_fn = nn.MSELoss()
         self.actor_optimizer = torch.optim.Adam(net.parameters())
         self.critic_optimizer = torch.optim.Adam(net.parameters())
 
