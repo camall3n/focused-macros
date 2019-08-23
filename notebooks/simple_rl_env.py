@@ -37,7 +37,7 @@ class SimpleGymEnv(gym.Env):
                 if grid[x,y]:
                     print('#',end='')
                 elif policy is not None:
-                    action_arrow = {'up': '˄', 'down': '˅', 'left': '˂', 'right': '˃', 'term': '⊗'}[policy[x,y]]
+                    action_arrow = {'up': '˄', 'down': '˅', 'left': '˂', 'right': '˃', 'term': '•'}[policy[x,y]]
                     print(action_arrow, end='')
                 else:
                     print('O' if tuple(self.state)==(x,y) else '.',end='')

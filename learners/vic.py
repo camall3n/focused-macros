@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from learners import actorcritic as a2c
 from learners import classifier
-from learners.util import get_batch
+from learners.util import get_batch, reset_seeds
 
 class VIC:
     def __init__(self, env, ndim_s, n_actions, n_skills, discount, max_timesteps=6, n_units=32):
@@ -150,7 +150,7 @@ def get_policy(vic, mdp, skill):
 
 plt.figure()
 #%%
-
+reset_seeds(8)
 from simple_rl.tasks import FourRoomMDP
 from notebooks.simple_rl_env import SimpleGymEnv
 env = SimpleGymEnv(FourRoomMDP(12,12,goal_locs=[(12,12)]))
@@ -164,21 +164,41 @@ n_units = 32
 vic = VIC(env, ndim_s, n_actions, n_skills, gamma, max_steps_per_skill, n_units)
 start_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
 #%%
-discrim_losses, critic_losses, actor_losses = vic.train(1000)
+discrim_losses, critic_losses, actor_losses = vic.train(10000)
+
+# #%%
+# fig, ax = plt.subplots(2,2)
+# ax = ax.flatten()
+# ax[0].plot(discrim_losses)
+# ax[1].plot(critic_losses)
+# ax[2].plot(actor_losses)
+# fig.tight_layout()
+# fig.show()
+
+# #%%
+# final_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
+#
+# for skill in range(n_skills):
+#     # env.render(start_policies[skill])
+#     env.render(final_policies[skill])
+#     print()
 
 #%%
-fig, ax = plt.subplots(2,2)
+fig, ax = plt.subplots(2,3,figsize=(8,6))
 ax = ax.flatten()
-ax[0].plot(discrim_losses)
-ax[1].plot(critic_losses)
-ax[2].plot(actor_losses)
-fig.tight_layout()
-fig.show()
-
-#%%
-final_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
-
+n_samples = 100
 for skill in range(n_skills):
-    # env.render(start_policies[skill])
-    env.render(final_policies[skill])
-    print()
+    final_states = np.zeros((env.mdp.width+1, env.mdp.height+1))
+    for i in range(n_samples):
+        vic.env.reset()
+        (x,y), _ = vic.run_skill(torch.tensor(skill))
+        final_states[x.int(),y.int()]+=1
+    ax[skill].imshow(final_states, cmap='hot', interpolation='nearest')
+    ax[skill].set_xlim([0.5, env.mdp.width+0.5])
+    ax[skill].set_ylim([0.5, env.mdp.height+0.5])
+    ax[skill].set_xticks(range(1,env.mdp.width+1,2))
+    ax[skill].set_yticks(range(1,env.mdp.height+1,2))
+    ax[skill].invert_yaxis()
+ax[5].axis('off')
+fig.tight_layout()
+plt.show()
