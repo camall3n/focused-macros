@@ -5,6 +5,7 @@ from torchvision import datasets, transforms
 from tqdm import tqdm
 
 from learners.classifier import Network, Trainer, Sample
+from learners.util import get_batch
 
 def test_network_single():
     ndim_x = 28*28

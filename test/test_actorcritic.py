@@ -4,13 +4,14 @@ import torch
 from tqdm import tqdm
 
 from learners.actorcritic import Network, Trainer, Experience
+from learners.util import get_batch
 
 def test_network_single():
     ndim_s = 48
     n_actions = 12
     n = Network(ndim_s, n_actions)
     state = torch.rand((ndim_s,),dtype=torch.float32)
-    action = n.action(state)
+    action = n.action_distr(state).sample()
     value, q_value, pi = n(state)
     assert value.shape == torch.Size([])
     assert q_value.shape == torch.Size([n_actions])
@@ -44,7 +45,7 @@ def test_train_critic():
     losses = []
     n_updates = 200
     for _ in range(n_updates):
-        losses.append(t.train_critic(batch).item())
+        losses.append(t.train_model(batch, t.critic_optimizer, t.critic_loss).item())
     assert losses[n_updates//2] < losses[0], '{} >= {}'.format(losses[n_updates//2], losses[0])
     assert losses[-1] < losses[n_updates//2], '{} >= {}'.format(losses[-1], losses[n_updates//2])
 
@@ -65,13 +66,9 @@ def test_train_actor():
     losses = []
     n_updates = 200
     for _ in range(n_updates):
-        losses.append(t.train_actor(batch).item())
+        losses.append(t.train_model(batch, t.actor_optimizer, t.actor_loss).item())
     assert losses[n_updates//2] < losses[0], '{} >= {}'.format(losses[n_updates//2], losses[0])
     assert losses[-1] < losses[n_updates//2], '{} >= {}'.format(losses[-1], losses[n_updates//2])
-
-def get_batch(replay):
-    batch = Experience(*map(lambda x: torch.stack(x, dim=0), zip(*replay)))
-    return batch
 
 def test_rl():
     batch_size = 100
@@ -88,7 +85,7 @@ def test_rl():
         ep_reward = 0
 
         for t in range(1000):
-            action = net.action(state)
+            action = net.action_distr(state).sample()
             next_state, reward, done, _ = env.step(action.item())
             ep_reward += reward
             next_state = torch.as_tensor(next_state, dtype=torch.float32)

@@ -23,10 +23,10 @@ class Network(nn.Module):
         v = torch.sum(pi.probs*q, dim=-1)
         return v, q, pi
 
-    def action(self, s):
+    def action_distr(self, s):
         with torch.no_grad():
             pi = self(s)[2]
-            return pi.sample()
+            return pi
 
 class Trainer:
     def __init__(self, net, discount):
@@ -35,7 +35,7 @@ class Trainer:
         self.actor_optimizer = torch.optim.Adam(net.parameters())
         self.critic_optimizer = torch.optim.Adam(net.parameters())
 
-    def critic_loss(self, batch):
+    def critic_loss(self, batch, mode='td'):
         a_onehot = nn.functional.one_hot(batch.a, self.net.n_actions)
 
         v_sp = self.net(batch.sp)[0]
@@ -43,7 +43,12 @@ class Trainer:
         q_s_acted = q_s * a_onehot.float()
 
         with torch.no_grad():
-            v_s_target = (batch.r + (1-batch.done).float() * self.discount * v_sp)
+            if mode in ['mc','montecarlo']:
+                v_s_target = batch.r
+            elif mode == 'td':
+                v_s_target = (batch.r + (1-batch.done).float() * self.discount * v_sp)
+            else:
+                assert mode in ['mc','montecarlo', 'td'], 'Invalid mode'
             q_s_target = q_s_acted.clone()
             idx = torch.arange(q_s_target.shape[0], dtype=torch.int64)
             q_s_target[idx, batch.a] = v_s_target
@@ -60,21 +65,18 @@ class Trainer:
         log_p = pi.log_prob(batch.a)
         return torch.mean(-log_p * adv, dim=0)
 
-    def train_actor(self, batch):
-        self.actor_optimizer.zero_grad()
-        loss = self.actor_loss(batch)
+    def train_model(self, batch, optimizer, loss_fn):
+        optimizer.zero_grad()
+        loss = loss_fn(batch)
         loss.backward()
-        self.actor_optimizer.step()
+        optimizer.step()
         return loss.detach()
 
-    def train_critic(self, batch):
-        self.critic_optimizer.zero_grad()
-        loss = self.critic_loss(batch)
-        loss.backward()
-        self.critic_optimizer.step()
-        return loss.detach()
-
-    def train(self, batch):
+    def train(self, batch, critic_mode='td'):
+        critic_loss_fn = lambda x: self.critic_loss(x, mode=critic_mode)
+        critic_loss = 0
         for _ in range(10):
-            self.train_critic(batch)
-        self.train_actor(batch)
+            critic_loss += self.train_model(batch, optimizer=self.critic_optimizer, loss_fn=critic_loss_fn)
+        critic_loss /= 10
+        actor_loss = self.train_model(batch, optimizer=self.actor_optimizer, loss_fn=self.actor_loss)
+        return critic_loss, actor_loss
