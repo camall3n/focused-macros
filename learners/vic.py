@@ -19,8 +19,10 @@ class VIC:
         self.n_skills = n_skills
         self.discount = discount
         self.max_timesteps = max_timesteps
-        a2c_net = a2c.Network(ndim_s+n_skills, n_actions+1, n_units)
-        self.a2c = a2c.Trainer(a2c_net, discount, lr=lr)
+        self.skill_policies = [None]*n_skills
+        for i in range(n_skills):
+            net = a2c.Network(ndim_s, n_actions+1, n_units)
+            self.skill_policies[i] = a2c.Trainer(net, discount, lr=lr)
 
         discrim_net = classifier.Network(ndim_s, n_skills, n_units)
         self.discriminator = classifier.Trainer(discrim_net, lr=lr)
@@ -35,10 +37,10 @@ class VIC:
 
     def _get_experiences(self, trajectory, skill):
         s,a,rewards,dones,sp = trajectory
-
-        skill_1hot = torch.nn.functional.one_hot(skill, self.n_skills).float()
-        s = [torch.cat((x, skill_1hot)) for x in s]
-        sp = [torch.cat((x, skill_1hot)) for x in sp]
+        #
+        # skill_1hot = torch.nn.functional.one_hot(skill, self.n_skills).float()
+        # s = [torch.cat((x, skill_1hot)) for x in s]
+        # sp = [torch.cat((x, skill_1hot)) for x in sp]
 
         returns = []
         bootstrap = 0
@@ -54,9 +56,7 @@ class VIC:
         return torch.as_tensor(tuple(self.env.state), dtype=torch.float32)
 
     def action_distr(self, state, skill, primitives_only=False):
-        skill_1hot = torch.nn.functional.one_hot(skill, self.n_skills).float()
-        policy_context = torch.cat((state, skill_1hot), dim=0)
-        distr = self.a2c.net.action_distr(policy_context)
+        distr = self.skill_policies[skill].net.action_distr(state)
         if primitives_only:
             primitive_logits = distr.logits[:-1]
             distr = torch.distributions.Categorical(logits=primitive_logits)
@@ -128,7 +128,7 @@ class VIC:
             experiences = self._get_experiences(trajectory, skill)
 
             # Use an RL algorithm update for π(a|Ω,s) to maximize r_I
-            critic_loss,actor_loss = self.a2c.train(get_batch(experiences), critic_mode='montecarlo')
+            critic_loss,actor_loss = self.skill_policies[skill].train(get_batch(experiences), critic_mode='montecarlo')
             critic_losses.append(critic_loss.item())
             actor_losses.append(actor_loss.item())
 
@@ -149,23 +149,25 @@ def get_policy(vic, mdp, skill):
     return policy
 
 plt.figure()
+
 #%%
 reset_seeds(0)
 from simple_rl.tasks import FourRoomMDP
 from notebooks.simple_rl_env import SimpleGymEnv
 env = SimpleGymEnv(FourRoomMDP(12,12,goal_locs=[(12,12)]))
+env.render()
 s0 = torch.as_tensor(env.reset(), dtype=torch.float32)
 ndim_s = len(env.observation_space)
 n_actions = env.action_space.n
-n_skills = 20
+n_skills = 40
 gamma = 0.99
 max_steps_per_skill = 10
 n_units = 32
-lr = 1e-4
+lr = 1e-3
 vic = VIC(env, ndim_s, n_actions, n_skills, gamma, max_steps_per_skill, n_units, lr)
 start_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
 #%%
-discrim_losses, critic_losses, actor_losses = vic.train(20000)
+discrim_losses, critic_losses, actor_losses = vic.train(40000)
 
 #%%
 fig, ax = plt.subplots(2,2)
@@ -177,19 +179,19 @@ fig.tight_layout()
 fig.show()
 
 #%%
-final_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
-
-for skill in range(n_skills):
-    # env.render(start_policies[skill])
-    env.render(final_policies[skill])
-    print()
+# final_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
+#
+# for skill in range(n_skills):
+#     # env.render(start_policies[skill])
+#     env.render(final_policies[skill])
+#     print()
 
 #%%
-ncols = int(np.floor(np.sqrt(n_skills)))
+ncols = 3#int(np.floor(np.sqrt(n_skills)))
 nrows = int(np.ceil(n_skills/ncols))
-fig, ax = plt.subplots(nrows, ncols, figsize=(10,10))
+fig, ax = plt.subplots(nrows, ncols, figsize=(3*ncols,3*nrows))
 ax = ax.flatten()
-n_samples = 100
+n_samples = 200
 for skill in range(n_skills):
     final_states = np.zeros((env.mdp.width+1, env.mdp.height+1))
     for i in range(n_samples):
@@ -202,6 +204,7 @@ for skill in range(n_skills):
     ax[skill].set_xticks(range(1,env.mdp.width+1,2))
     ax[skill].set_yticks(range(1,env.mdp.height+1,2))
     ax[skill].invert_yaxis()
-ax[5].axis('off')
+[a.axis('off') for a in ax[skill+1:]]
 fig.tight_layout()
+# plt.savefig('vic-40sk-40k.png')
 plt.show()
