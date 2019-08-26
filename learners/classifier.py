@@ -21,9 +21,9 @@ class Network(nn.Module):
         return predictions
 
 class Trainer:
-    def __init__(self, net):
+    def __init__(self, net, lr=1e-3):
         self.net = net
-        self.optimizer = torch.optim.Adam(net.parameters())
+        self.optimizer = torch.optim.Adam(net.parameters(), lr=lr)
 
     def classification_loss(self, batch):
         logits = self.net(batch.x).logits

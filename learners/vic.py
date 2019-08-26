@@ -12,7 +12,7 @@ from learners import classifier
 from learners.util import get_batch, reset_seeds
 
 class VIC:
-    def __init__(self, env, ndim_s, n_actions, n_skills, discount, max_timesteps=6, n_units=32):
+    def __init__(self, env, ndim_s, n_actions, n_skills, discount, max_timesteps=6, n_units=32, lr=1e-3):
         self.env = env
         self.n_actions = n_actions
         self.terminate_action = n_actions
@@ -20,10 +20,10 @@ class VIC:
         self.discount = discount
         self.max_timesteps = max_timesteps
         a2c_net = a2c.Network(ndim_s+n_skills, n_actions+1, n_units)
-        self.a2c = a2c.Trainer(a2c_net, discount)
+        self.a2c = a2c.Trainer(a2c_net, discount, lr=lr)
 
         discrim_net = classifier.Network(ndim_s, n_skills, n_units)
-        self.discriminator = classifier.Trainer(discrim_net)
+        self.discriminator = classifier.Trainer(discrim_net, lr=lr)
 
         self.skill_prior = torch.distributions.Categorical(logits=torch.ones(n_skills))
 
@@ -150,41 +150,44 @@ def get_policy(vic, mdp, skill):
 
 plt.figure()
 #%%
-reset_seeds(8)
+reset_seeds(0)
 from simple_rl.tasks import FourRoomMDP
 from notebooks.simple_rl_env import SimpleGymEnv
 env = SimpleGymEnv(FourRoomMDP(12,12,goal_locs=[(12,12)]))
 s0 = torch.as_tensor(env.reset(), dtype=torch.float32)
 ndim_s = len(env.observation_space)
 n_actions = env.action_space.n
-n_skills = 5
+n_skills = 20
 gamma = 0.99
-max_steps_per_skill = 4
+max_steps_per_skill = 10
 n_units = 32
-vic = VIC(env, ndim_s, n_actions, n_skills, gamma, max_steps_per_skill, n_units)
+lr = 1e-4
+vic = VIC(env, ndim_s, n_actions, n_skills, gamma, max_steps_per_skill, n_units, lr)
 start_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
 #%%
-discrim_losses, critic_losses, actor_losses = vic.train(10000)
-
-# #%%
-# fig, ax = plt.subplots(2,2)
-# ax = ax.flatten()
-# ax[0].plot(discrim_losses)
-# ax[1].plot(critic_losses)
-# ax[2].plot(actor_losses)
-# fig.tight_layout()
-# fig.show()
-
-# #%%
-# final_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
-#
-# for skill in range(n_skills):
-#     # env.render(start_policies[skill])
-#     env.render(final_policies[skill])
-#     print()
+discrim_losses, critic_losses, actor_losses = vic.train(20000)
 
 #%%
-fig, ax = plt.subplots(2,3,figsize=(8,6))
+fig, ax = plt.subplots(2,2)
+ax = ax.flatten()
+ax[0].plot(discrim_losses)
+ax[1].plot(critic_losses)
+ax[2].plot(actor_losses)
+fig.tight_layout()
+fig.show()
+
+#%%
+final_policies = [get_policy(vic, env.mdp, s) for s in range(n_skills)]
+
+for skill in range(n_skills):
+    # env.render(start_policies[skill])
+    env.render(final_policies[skill])
+    print()
+
+#%%
+ncols = int(np.floor(np.sqrt(n_skills)))
+nrows = int(np.ceil(n_skills/ncols))
+fig, ax = plt.subplots(nrows, ncols, figsize=(10,10))
 ax = ax.flatten()
 n_samples = 100
 for skill in range(n_skills):

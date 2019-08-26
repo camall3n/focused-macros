@@ -29,11 +29,11 @@ class Network(nn.Module):
             return pi
 
 class Trainer:
-    def __init__(self, net, discount):
+    def __init__(self, net, discount, lr=1e-3):
         self.net = net
         self.discount = torch.as_tensor(discount)
-        self.actor_optimizer = torch.optim.Adam(net.parameters())
-        self.critic_optimizer = torch.optim.Adam(net.parameters())
+        self.actor_optimizer = torch.optim.Adam(net.parameters(), lr=lr)
+        self.critic_optimizer = torch.optim.Adam(net.parameters(), lr=lr)
 
     def critic_loss(self, batch, mode='td'):
         a_onehot = nn.functional.one_hot(batch.a, self.net.n_actions)
