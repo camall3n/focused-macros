@@ -3,5 +3,6 @@
 data/
 env/
 __pycache__/
+results/
 
 
