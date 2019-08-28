@@ -5,12 +5,12 @@ import random
 from .util import fill
 
 class color: pass
-color.R = 'R'
+color.W = 'W'
 color.Y = 'Y'
 color.G = 'G'
-color.W = 'W'
-color.O = 'O'
 color.B = 'B'
+color.R = 'R'
+color.O = 'O'
 
 class Pos(enum.IntEnum):
     NW = 0
@@ -55,8 +55,6 @@ initial_colors = {
     "F": color.R,
     "B": color.O
 }
-
-NW, N, NE, W, M, E, SW, S, SE = range(9)
 
 def face_rotation(face):
     # rotate face CW w.r.t. 2-D plane in diagram
@@ -176,6 +174,9 @@ def combine_swaps(*swaps):
 
 class Cube:
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self.sequence = []
         self.faces = {
             Face.F: [initial_colors['F'] for _ in range(9)],

@@ -1,10 +1,11 @@
 from .cube import Cube
 import random
+import torch
 
 class CubeEnv:
     def __init__(self):
         self.cube = Cube()
-        self.goal = Cube()
+        self.goal = self.state
         self.action_meanings = {
             0:  'L',
             1:  'R',
@@ -25,18 +26,32 @@ class CubeEnv:
     def sequence(self):
         return self.cube.sequence
 
-    def reset(self, n=30):
-        self.cube.scramble(n)
+    @property
+    def state(self):
+        square_colors = [square for face in self.cube.faces.values() for i, square in enumerate(face) if i != 4]
+        color_codes = dict((c, i) for (i, c) in enumerate('WYGBRO'))
+        square_codes = [color_codes[color] for color in square_colors]
+        return square_codes
+
+    def reset(self, scramble=0, sequence=None):
+        self.cube.reset()
+        if sequence is None:
+            self.cube.scramble(scramble)
+        else:
+            self.cube.apply(sequence)
+        return self.state
 
     def random_action(self):
         return random.choice(self.n_actions)
 
     def step(self, action):
         assert(action < self.n_actions)
+        if type(action) is torch.Tensor:
+            action = action.item()
         self.cube.transform(self.action_meanings[action])
-        done = (self.cube == self.goal)
-        r = 1000 if done else -1
-        return self.cube, r, done
+        done = (self.state == self.goal)
+        r = 1000.0 if done else -1.0
+        return self.state, r, done, None
 
     def render(self):
         self.cube.render()
