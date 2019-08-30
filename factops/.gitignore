@@ -1,0 +1,17 @@
+**.idea/
+**.ipynb_checkpoints/
+data/
+env/
+images/
+cluster/logs/
+cluster/scripts/
+logs/
+models/
+notebooks/unversioned/*
+videos/
+results/
+scores/
+**__pycache__
+**.pyc
+**.DS_Store
+
