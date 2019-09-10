@@ -223,6 +223,9 @@ class Cube:
         self.apply(f)
         return self
 
+    def __hash__(self):
+        return hash(repr((self.faces, self.indices)))
+
     def __eq__(self, another):
         return self.faces == another.faces
 
