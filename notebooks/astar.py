@@ -51,6 +51,8 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
         if is_goal(current):
             if debug_fn:
                 print('found goal. reconstructing path...')
+            if max_transitions > 0:
+                progress.close()
             return reconstruct_path(current) + (n_expanded, n_transitions)
 
         if current.state in closed_set:
@@ -104,4 +106,6 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
     if debug_fn:
         print('no solution found; reconstructing path to best node...')
         debug_fn(best.state)
+    if max_transitions > 0:
+        progress.close()
     return reconstruct_path(best) + (n_expanded, n_transitions)
