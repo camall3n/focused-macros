@@ -1,5 +1,10 @@
 from cube import cube, formula, skills
 
+class primitive:
+    alg_formulas = [[a] for a in cube.Action.keys()]
+    actions = alg_formulas
+    models = [cube.Cube().apply(a).summarize_effects() for a in actions]
+
 class expert:
     alg_formulas = [
         skills.swap_3_edges_face,
