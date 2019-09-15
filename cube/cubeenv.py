@@ -28,7 +28,7 @@ class CubeEnv:
 
     @property
     def state(self):
-        square_colors = [square for face in self.cube.faces.values() for i, square in enumerate(face) if i != 4]
+        square_colors = [square for face in self.cube.faces for i, square in enumerate(face) if i != 4]
         color_codes = dict((c, i) for (i, c) in enumerate('WYGBRO'))
         square_codes = [color_codes[color] for color in square_colors]
         return square_codes

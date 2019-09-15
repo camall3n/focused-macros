@@ -228,6 +228,6 @@ def variations(formula):
 
     # Remove duplicate formulas
     variations = [' '.join(x) for x in variations]
-    variations = list(set(variations))
+    variations = sorted(list(set(variations)))
     variations = [x.split() for x in variations]
     return variations

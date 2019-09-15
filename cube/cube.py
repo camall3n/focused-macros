@@ -45,7 +45,7 @@ Action = {# (face, inverse)
     'F\'': (Face.F, True),
     'B\'': (Face.B, True),
 }
-actions = list(Action.keys())
+actions = sorted(list(Action.keys()))
 
 initial_colors = {
     "U": color.W,
@@ -178,22 +178,23 @@ class Cube:
 
     def reset(self):
         self.sequence = []
-        self.faces = {
-            Face.F: [initial_colors['F'] for _ in range(9)],
-            Face.B: [initial_colors['B'] for _ in range(9)],
-            Face.L: [initial_colors['L'] for _ in range(9)],
-            Face.R: [initial_colors['R'] for _ in range(9)],
-            Face.U: [initial_colors['U'] for _ in range(9)],
-            Face.D: [initial_colors['D'] for _ in range(9)],
-        }
-        self.indices = {
-            Face.F: [(Face.F, Pos(i)) for i in range(9)],
-            Face.B: [(Face.B, Pos(i)) for i in range(9)],
-            Face.L: [(Face.L, Pos(i)) for i in range(9)],
-            Face.R: [(Face.R, Pos(i)) for i in range(9)],
-            Face.U: [(Face.U, Pos(i)) for i in range(9)],
-            Face.D: [(Face.D, Pos(i)) for i in range(9)],
-        }
+        # Order = Front, Back, Left, Right, Up, Down
+        self.faces = [
+            [initial_colors['F'] for _ in range(9)],
+            [initial_colors['B'] for _ in range(9)],
+            [initial_colors['L'] for _ in range(9)],
+            [initial_colors['R'] for _ in range(9)],
+            [initial_colors['U'] for _ in range(9)],
+            [initial_colors['D'] for _ in range(9)],
+        ]
+        self.indices = [
+            [(Face.F, Pos(i)) for i in range(9)],
+            [(Face.B, Pos(i)) for i in range(9)],
+            [(Face.L, Pos(i)) for i in range(9)],
+            [(Face.R, Pos(i)) for i in range(9)],
+            [(Face.U, Pos(i)) for i in range(9)],
+            [(Face.D, Pos(i)) for i in range(9)],
+        ]
 
     def transform(self, move):
         face, inverse = Action[move]
@@ -219,7 +220,7 @@ class Cube:
         return self
 
     def scramble(self, n=30):
-        f = [random.choice(list(Action.keys())) for _ in range(n)]
+        f = [random.choice(actions) for _ in range(n)]
         self.apply(f)
         return self
 
@@ -300,8 +301,8 @@ class Cube:
     def summarize_effects(self, baseline=None):
         if not baseline:
             baseline = Cube()
-        src_indices = [idx for _,face in baseline.indices.items() for idx in face]
-        dst_indices = [idx for _,face in self.indices.items() for idx in face]
+        src_indices = [idx for face in baseline.indices for idx in face]
+        dst_indices = [idx for face in self.indices for idx in face]
         swap_list = list(zip(dst_indices, src_indices))
         swap_list = tuple([swap for swap in swap_list if swap[0] != swap[1]])
         return swap_list

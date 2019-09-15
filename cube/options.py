@@ -1,7 +1,7 @@
 from cube import cube, formula, skills
 
 class primitive:
-    alg_formulas = [[a] for a in cube.Action.keys()]
+    alg_formulas = [[a] for a in cube.actions]
     actions = alg_formulas
     models = [cube.Cube().apply(a).summarize_effects() for a in actions]
 
