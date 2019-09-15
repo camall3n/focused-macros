@@ -38,6 +38,7 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
     if debug_fn:
         print('adding root to open set')
         debug_fn(root.state)
+    candidates = [(n_transitions, root)]
     best = root
 
     with tqdm(total=max_transitions) as progress:
@@ -48,9 +49,10 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
                 print('pulled node of open set')
                 debug_fn(current.state)
             if is_goal(current):
+                candidates.append((n_transitions, current))
                 if debug_fn:
                     print('found goal. reconstructing path...')
-                return reconstruct_path(current) + (n_expanded, n_transitions)
+                return reconstruct_path(current) + (n_expanded, n_transitions, candidates)
 
             if current.state in closed_set:
                 if debug_fn:
@@ -70,6 +72,7 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
                     print('previous best was')
                     debug_fn(best.state)
                 best = current
+                candidates.append((n_transitions, current))
 
             if debug_fn:
                 print('considering successors...')
@@ -102,4 +105,4 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
         if debug_fn:
             print('no solution found; reconstructing path to best node...')
             debug_fn(best.state)
-        return reconstruct_path(best) + (n_expanded, n_transitions)
+        return reconstruct_path(best) + (n_expanded, n_transitions, candidates)
