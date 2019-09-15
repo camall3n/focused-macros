@@ -33,9 +33,9 @@ class PriorityQueue():
 
     def push(self, item):
         """Add ``item`` to the queue if doesn't already exist."""
-        if type(item) is tuple:
-            item = PriorityQueueItem(*item)
-            heapq.heappush(self.heap, item)
+        assert type(item) is tuple, 'argument must be a tuple'
+        item = PriorityQueueItem(*item)
+        heapq.heappush(self.heap, item)
 
 def test():
     queue = PriorityQueue()
