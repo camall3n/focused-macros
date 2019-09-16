@@ -2,7 +2,7 @@ import copy
 import enum
 import random
 
-from .util import fill
+from util import ansi_colors
 
 class color: pass
 color.W = 'W'
@@ -294,6 +294,14 @@ class Cube:
             D_SW=self.faces[Face.D][Pos.SW]*6, D__S=self.faces[Face.D][Pos.S]*6, D_SE=self.faces[Face.D][Pos.SE]*6,
         )
         if color:
+            fill = {
+                'W': ansi_colors.white+' '+ansi_colors.reset,
+                'Y': ansi_colors.yellow+' '+ansi_colors.reset,
+                'G': ansi_colors.green+' '+ansi_colors.reset,
+                'B': ansi_colors.cyan+' '+ansi_colors.reset,
+                'R': ansi_colors.red+' '+ansi_colors.reset,
+                'O': ansi_colors.orange+' '+ansi_colors.reset,
+            }
             for letter in 'WYGBRO':
                 diagram = diagram.replace(letter, fill[letter])
         print(diagram)

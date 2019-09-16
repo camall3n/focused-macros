@@ -2,7 +2,7 @@ import torch
 from tqdm import tqdm
 
 from learners.vic import VIC
-from learners.util import get_batch
+from learners.common import get_batch
 from learners import classifier
 
 class DIAYN(VIC):

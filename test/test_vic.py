@@ -4,7 +4,7 @@ import torch
 
 from learners.vic import VIC
 from learners.diayn import DIAYN
-from learners.util import reset_seeds
+from learners.common import reset_seeds
 
 def get_policy(alg, mdp, skill):
     policy = np.empty((mdp.width+1, mdp.height+1), dtype=np.object)

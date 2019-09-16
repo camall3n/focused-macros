@@ -4,7 +4,7 @@ import torch
 from tqdm import tqdm
 
 from learners.actorcritic import Network, Trainer, Experience
-from learners.util import get_batch
+from learners.common import get_batch
 
 def test_network_single():
     ndim_s = 48

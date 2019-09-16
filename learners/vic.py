@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from learners import actorcritic as a2c
 from learners import classifier
-from learners.util import get_batch
+from learners.common import get_batch
 
 class VIC:
     def __init__(self, env, ndim_s, n_actions, n_skills, discount, max_timesteps=6, n_units=32, lr=1e-3):
