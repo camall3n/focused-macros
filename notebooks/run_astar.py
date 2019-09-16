@@ -14,10 +14,13 @@ if 'ipykernel' in sys.argv[0]:
 parser = argparse.ArgumentParser()
 parser.add_argument('--scramble_seed','-s', type=int, default=1,
                     help='display a square of a given number')
+parser.add_argument('--skill_mode','-m', type=str, default='expert',
+                    choices=['primitive','expert','random'],
+                    help='display a square of a given number')
 args = parser.parse_args()
 
 seed = args.scramble_seed
-skill_mode = 'expert'
+skill_mode = args.skill_mode
 cost_mode = 'per-skill'
 max_transitions = 1e5
 debug = False
