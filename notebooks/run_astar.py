@@ -1,13 +1,22 @@
+import argparse
 import copy
 import pickle
 import os
+import sys
 from cube import cube
 from notebooks import astar
 from cube import options
 from cube import pattern
 from matplotlib import pyplot as plt
 
-seed = 1
+if 'ipykernel' in sys.argv[0]:
+    sys.argv = [sys.argv[0]]
+parser = argparse.ArgumentParser()
+parser.add_argument('--scramble_seed','-s', type=int, default=1,
+                    help='display a square of a given number')
+args = parser.parse_args()
+
+seed = args.scramble_seed
 skill_mode = 'expert'
 cost_mode = 'per-skill'
 max_transitions = 1e5
@@ -19,6 +28,8 @@ scramble = pattern.scramble(seed)
 
 start = copy.deepcopy(newcube)
 start.apply(scramble)
+print('Using scramble: {:03d}'.format(seed))
+start.render()
 
 # Define the skills
 if skill_mode == 'primitive':
@@ -48,5 +59,5 @@ search_results = astar.search(start, is_goal, step_cost, heuristic, get_successo
 
 #%% Save the results
 os.makedirs('results/planning', exist_ok=True)
-with open('results/planning/seed-{:03d}.pickle'.format(seed), 'wb') as f:
+with open('results/planning/seed-{:03d}-{}.pickle'.format(seed, skill_mode), 'wb') as f:
     pickle.dump(search_results, f)
