@@ -4,3 +4,6 @@ data/
 env/
 __pycache__/
 results/*/
+grid/logs/
+grid/scripts/
+
