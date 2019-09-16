@@ -1,3 +1,4 @@
+import random as pyrandom
 from cube import cube, formula, skills
 
 class primitive:
@@ -16,10 +17,21 @@ class expert:
     options = [variation for f in alg_formulas for variation in formula.variations(f)]
     models = [cube.Cube().apply(o).summarize_effects() for o in options]
 
-class random:
-    alg_formulas = [skills.random_skill(len(a)) for a in expert.alg_formulas]
-    options = [variation for f in alg_formulas for variation in formula.variations(f)]
-    models = [cube.Cube().apply(o).summarize_effects() for o in options]
+def set_random_skill_seed(seed):
+    st = pyrandom.getstate()
+    pyrandom.seed(seed)
+    formulas = [skills.random_skill(len(a)) for a in expert.alg_formulas]
+    pyrandom.setstate(st)
+
+    class uniform_random:
+        random_seed = seed
+        alg_formulas = formulas
+        options = [variation for f in alg_formulas for variation in formula.variations(f)]
+        models = [cube.Cube().apply(o).summarize_effects() for o in options]
+    global random
+    random = uniform_random
+
+set_random_skill_seed(0)
 
 # class conjugates:
 #     alg_formulas = [skills.random_conjugate(len(a)) for a in expert.alg_formulas]
