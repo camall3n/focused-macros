@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--scramble_seed','-s', type=int, default=1,
                     help='display a square of a given number')
 parser.add_argument('--skill_mode','-m', type=str, default='expert',
-                    choices=['primitive','expert','random'],
+                    choices=['primitive','expert','fixed_random','full_random'],
                     help='display a square of a given number')
 args = parser.parse_args()
 
@@ -41,7 +41,9 @@ if skill_mode == 'primitive':
 elif skill_mode == 'expert':
     skills = options.primitive.actions + options.expert.options
     models = options.primitive.models + options.expert.models
-elif skill_mode == 'random':
+elif 'random' in skill_mode:
+    if skill_mode == 'full_random':
+        options.set_random_skill_seed(seed)
     skills = options.primitive.actions + options.random.options
     models = options.primitive.models + options.random.models
 
