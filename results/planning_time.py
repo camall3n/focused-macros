@@ -12,12 +12,13 @@ primitive_results = glob.glob(results_dir+'*-primitive.pickle')
 expert_results = glob.glob(results_dir+'*-expert.pickle')
 random_results = glob.glob(results_dir+'*-random.pickle')
 full_random_results = glob.glob(results_dir+'*-full_random.pickle')
+generated_results = glob.glob(results_dir+'*-generated.pickle')
 
 #%%
 def generate_plot(filename, ax, color=None, label=None):
     with open(filename, 'rb') as f:
         search_results = pickle.load(f)
-    states, actions, n_expanded, n_transitions, candidates = search_results
+    states, actions, n_expanded, n_transitions, candidates = search_results[:5]
 
     n_errors = len(states[-1].summarize_effects())
     x = [c for c,n in candidates]
@@ -55,6 +56,9 @@ for i,f in enumerate(primitive_results):
 for i,f in enumerate(expert_results):
     label = None if i > 0 else 'actions + expert skills'
     generate_plot(f, ax, 'C1', label=label)
+for i,f in enumerate(generated_results):
+    label = None if i > 0 else 'actions + generated skills'
+    generate_plot(f, ax, 'C3', label=label)
 ax.legend()
 plt.savefig('results/plots/planning_time.png')
 plt.show()

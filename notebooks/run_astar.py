@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--scramble_seed','-s', type=int, default=1,
                     help='display a square of a given number')
 parser.add_argument('--skill_mode','-m', type=str, default='expert',
-                    choices=['primitive','expert','fixed_random','full_random'],
+                    choices=['primitive','expert','fixed_random','full_random','generated'],
                     help='display a square of a given number')
 args = parser.parse_args()
 
@@ -46,6 +46,9 @@ elif 'random' in skill_mode:
         options.set_random_skill_seed(seed)
     skills = options.primitive.actions + options.random.options
     models = options.primitive.models + options.random.models
+elif skill_mode == 'generated':
+    skills = options.primitive.actions + options.generated.options
+    models = options.primitive.models + options.generated.models
 
 # Set up the search problem
 is_goal = lambda node: node.state == newcube

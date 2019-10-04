@@ -1,5 +1,5 @@
 import notebooks.priorityqueue as pq
-from collections import defaultdict
+from collections import defaultdict, deque
 from tqdm import tqdm
 
 class Node:
@@ -26,7 +26,7 @@ def reconstruct_path(node):
         node = node.parent
     return states, actions
 
-def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions=0, debug_fn=None):
+def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions=0, save_best_n=1, debug_fn=None):
     n_expanded = 0
     n_transitions = 0
     open_set = pq.PriorityQueue()
@@ -40,6 +40,7 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
         debug_fn(root.state)
     candidates = [(n_transitions, root)]
     best = root
+    best_n = deque(maxlen=save_best_n)
 
     with tqdm(total=max_transitions) as progress:
         while open_set and n_transitions < max_transitions:
@@ -74,6 +75,9 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
                 best = current
                 candidates.append((n_transitions, current))
 
+            if current.h_score + current.g_score <= best.h_score+best.g_score:
+                best_n.append((current, reconstruct_path(current)[1]))
+
             if debug_fn:
                 print('considering successors...')
             successors = get_successors(current.state)
@@ -105,4 +109,7 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
         if debug_fn:
             print('no solution found; reconstructing path to best node...')
             debug_fn(best.state)
-        return reconstruct_path(best) + (n_expanded, n_transitions, candidates)
+        if save_best_n > 1:
+            return reconstruct_path(best) + (n_expanded, n_transitions, candidates, list(best_n))
+        else:
+            return reconstruct_path(best) + (n_expanded, n_transitions, candidates)

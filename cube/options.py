@@ -1,3 +1,4 @@
+import pickle
 import random as pyrandom
 from cube import cube, formula, skills
 
@@ -15,6 +16,14 @@ class expert:
         skills.orient_2_corners,
     ]
     options = [variation for f in alg_formulas for variation in formula.variations(f)]
+    models = [cube.Cube().apply(o).summarize_effects() for o in options]
+
+class generated:
+    version = '0.1'
+    results_dir = 'results/skillsearch/'
+    filename = results_dir+'v'+version+'-clean_skills.pickle'
+    with open(filename, 'rb') as f:
+        options = pickle.load(f)
     models = [cube.Cube().apply(o).summarize_effects() for o in options]
 
 def set_random_skill_seed(seed):
