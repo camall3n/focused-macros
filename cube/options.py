@@ -19,7 +19,7 @@ class expert:
     models = [cube.Cube().apply(o).summarize_effects() for o in options]
 
 class generated:
-    version = '0.1'
+    version = '0.2'
     results_dir = 'results/skillsearch/'
     filename = results_dir+'v'+version+'-clean_skills.pickle'
     with open(filename, 'rb') as f:
