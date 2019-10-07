@@ -6,7 +6,7 @@ import os
 from util import rsync
 from cube.cube import actions as primitive_actions
 
-version = '0.1'
+version = '0.2'
 results_dir = 'results/skillsearch/'
 filename = glob.glob(results_dir+'v'+version+'-results.pickle')[-1]
 with open(filename, 'rb') as f:
@@ -27,7 +27,13 @@ with open('results/skillsearch/v{}-clean_skills.pickle'.format(version), 'wb') a
     pickle.dump(clean_skills, f)
 
 
-#%% Print the generated skills
+#%% Print the generated skills v0.2
+states, actions, n_expanded, n_transitions, candidates, best_n = search_results
+actions
+for score, skill in best_n:
+    print(str(score),'-', ' '.join([s[0] for s in skill]))
+
+#%% Print the generated skills v0.1
 states, actions, n_expanded, n_transitions, candidates, best_n = search_results
 actions
 for node, skill in best_n:

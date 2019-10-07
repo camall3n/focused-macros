@@ -65,7 +65,7 @@ plt.show()
 
 #%%
 solves = 0
-for i,filename in enumerate(expert_results):
+for i,filename in enumerate(generated_results):
     with open(filename, 'rb') as f:
         search_results = pickle.load(f)
     states, actions, n_expanded, n_transitions, candidates = search_results

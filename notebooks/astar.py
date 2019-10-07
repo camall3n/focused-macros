@@ -40,7 +40,8 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
         debug_fn(root.state)
     candidates = [(n_transitions, root)]
     best = root
-    best_n = deque(maxlen=save_best_n)
+    # save best N skills, always ejecting the max priority element to make room
+    best_n = pq.PriorityQueue(maxlen=save_best_n, mode='max')
 
     with tqdm(total=max_transitions) as progress:
         while open_set and n_transitions < max_transitions:
@@ -75,8 +76,7 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
                 best = current
                 candidates.append((n_transitions, current))
 
-            if current.h_score + current.g_score <= best.h_score+best.g_score:
-                best_n.append((current, reconstruct_path(current)[1]))
+            best_n.push((current.h_score, reconstruct_path(current)[1]))
 
             if debug_fn:
                 print('considering successors...')
@@ -110,6 +110,6 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
             print('no solution found; reconstructing path to best node...')
             debug_fn(best.state)
         if save_best_n > 1:
-            return reconstruct_path(best) + (n_expanded, n_transitions, candidates, list(best_n))
+            return reconstruct_path(best) + (n_expanded, n_transitions, candidates, best_n.items())
         else:
             return reconstruct_path(best) + (n_expanded, n_transitions, candidates)

@@ -6,16 +6,31 @@ from typing import Any
 class PriorityQueueItem():
     priority: int
     data: Any=field(compare=False)
+    def __init__(self, priority, data, mode='min'):
+        assert mode in ['min','max']
+        self.priority = priority
+        self.data = data
+        self.mode = mode
+        if self.mode == 'max':
+            self.priority *= -1
     def unwrapped(self):
-        return (self.priority, self.data)
+        priority = self.priority
+        if self.mode == 'max':
+            priority *= -1
+        return (priority, self.data)
 
 class PriorityQueue():
-    def __init__(self, items=None):
+    def __init__(self, items=None, maxlen=None, mode='min'):
+        assert mode in ['min', 'max']
+        self.mode = mode
         if not items:
             items = []
         else:
             assert isinstance(items[0], tuple), 'PriorityQueue expects a list of tuples'
-            items = [PriorityQueueItem(*item) for item in items]
+            items = [PriorityQueueItem(*item, mode=self.mode) for item in items]
+        if maxlen is not None:
+            assert isinstance(maxlen, int), 'Expected maxlen to be of type int'
+        self.maxlen = maxlen
 
         self.heap = items
         heapq.heapify(self.heap)
@@ -34,8 +49,14 @@ class PriorityQueue():
     def push(self, item):
         """Add ``item`` to the queue if doesn't already exist."""
         assert type(item) is tuple, 'argument must be a tuple'
-        item = PriorityQueueItem(*item)
-        heapq.heappush(self.heap, item)
+        item = PriorityQueueItem(*item, mode=self.mode)
+        if self.maxlen is None or len(self) < self.maxlen:
+            heapq.heappush(self.heap, item)
+        else:
+            return heapq.heappushpop(self.heap, item)
+
+    def items(self):
+        return [item.unwrapped() for item in sorted(self.heap)]
 
 def test():
     queue = PriorityQueue()
@@ -67,6 +88,23 @@ def test():
     queue.push((1,Thing(3)))
     assert len(queue) == 3
     assert queue.pop() == (1,Thing(3))
+
+    queue = PriorityQueue(maxlen=3, mode='min')
+    queue.push( (10, 'foo') )
+    queue.push( (7, 'bar') )
+    queue.push( (15, 'baz') )
+    queue.push( (9, 'fiz') )
+    queue.push( (12, 'buz') )
+    assert queue.items() == [(10, 'foo'), (12, 'buz'), (15, 'baz')]
+
+    queue = PriorityQueue(maxlen=3, mode='max')
+    queue.push( (10, 'foo') )
+    queue.push( (7, 'bar') )
+    queue.push( (15, 'baz') )
+    queue.push( (9, 'fiz') )
+    queue.push( (12, 'buz') )
+    assert queue.items() == [(10, 'foo'), (9, 'fiz'), (7, 'bar')]
+
 
 if __name__ == '__main__':
     test()
