@@ -9,7 +9,7 @@ from cube import options
 from cube import pattern
 from matplotlib import pyplot as plt
 
-version = '0.2'
+version = '0.3'
 cost_mode = 'per-skill'
 max_transitions = 1e6
 save_best_n = 1200

@@ -6,7 +6,7 @@ import os
 from util import rsync
 from cube.cube import actions as primitive_actions
 
-version = '0.2'
+version = '0.3'
 results_dir = 'results/skillsearch/'
 filename = glob.glob(results_dir+'v'+version+'-results.pickle')[-1]
 with open(filename, 'rb') as f:
