@@ -5,14 +5,15 @@ import os
 
 from util import rsync
 
-rsync(source='brown:~/dev/skills-for-planning/results/planning',
-      dest='results/')
+# rsync(source='brown:~/dev/skills-for-planning/results/planning',
+      # dest='results/')
 results_dir = 'results/planning/'
-primitive_results = glob.glob(results_dir+'*-primitive.pickle')
-expert_results = glob.glob(results_dir+'*-expert.pickle')
-random_results = glob.glob(results_dir+'*-random.pickle')
-full_random_results = glob.glob(results_dir+'*-full_random.pickle')
-generated_results = glob.glob(results_dir+'*-generated.pickle')
+primitive_results = glob.glob(results_dir+'primitive/*.pickle')
+expert_results = glob.glob(results_dir+'expert/*.pickle')
+random_results = glob.glob(results_dir+'random/*.pickle')
+full_random_results = glob.glob(results_dir+'full_random/*.pickle')
+gen_version = '0.2'
+generated_results = glob.glob(results_dir+'generated-v'+gen_version+'/*.pickle')
 
 #%%
 def generate_plot(filename, ax, color=None, label=None):
@@ -57,7 +58,7 @@ for i,f in enumerate(expert_results):
     label = None if i > 0 else 'actions + expert skills'
     generate_plot(f, ax, 'C1', label=label)
 for i,f in enumerate(generated_results):
-    label = None if i > 0 else 'actions + generated skills'
+    label = None if i > 0 else 'actions + generated v0.2'
     generate_plot(f, ax, 'C3', label=label)
 ax.legend()
 plt.savefig('results/plots/planning_time.png')
@@ -73,4 +74,4 @@ for i,filename in enumerate(generated_results):
     n_errors = len(states[-1].summarize_effects())
     if n_errors == 0:
         solves += 1
-solves
+print(solves, 'out of', len(generated_results))

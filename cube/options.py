@@ -18,13 +18,16 @@ class expert:
     options = [variation for f in alg_formulas for variation in formula.variations(f)]
     models = [cube.Cube().apply(o).summarize_effects() for o in options]
 
-class generated:
-    version = '0.2'
-    results_dir = 'results/skillsearch/'
-    filename = results_dir+'v'+version+'-clean_skills.pickle'
-    with open(filename, 'rb') as f:
-        options = pickle.load(f)
-    models = [cube.Cube().apply(o).summarize_effects() for o in options]
+def load_generated_skills(version):
+    class generated_skills:
+        results_dir = 'results/skillsearch/'
+        filename = results_dir+'v'+version+'-clean_skills.pickle'
+        with open(filename, 'rb') as f:
+            options = pickle.load(f)
+        models = [cube.Cube().apply(o).summarize_effects() for o in options]
+    global generated
+    generated = generated_skills
+load_generated_skills('0.2')
 
 def set_random_skill_seed(seed):
     st = pyrandom.getstate()

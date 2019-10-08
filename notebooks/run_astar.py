@@ -13,10 +13,13 @@ if 'ipykernel' in sys.argv[0]:
     sys.argv = [sys.argv[0]]
 parser = argparse.ArgumentParser()
 parser.add_argument('--scramble_seed','-s', type=int, default=1,
-                    help='display a square of a given number')
+                    help='Seed to use for initial scramble')
 parser.add_argument('--skill_mode','-m', type=str, default='expert',
                     choices=['primitive','expert','fixed_random','full_random','generated'],
-                    help='display a square of a given number')
+                    help='Type of skills to consider during search')
+parser.add_argument('--skill_version','-v', type=str, default='0.3',
+                    choices=['0.1','0.2','0.3'],
+                    help='Which version to use for generated skills')
 args = parser.parse_args()
 
 seed = args.scramble_seed
@@ -47,6 +50,7 @@ elif 'random' in skill_mode:
     skills = options.primitive.actions + options.random.options
     models = options.primitive.models + options.random.models
 elif skill_mode == 'generated':
+    options.load_generated_skills(args.skill_version)
     skills = options.primitive.actions + options.generated.options
     models = options.primitive.models + options.generated.models
 
@@ -66,6 +70,10 @@ def get_successors(cube):
 search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions)
 
 #%% Save the results
-os.makedirs('results/planning', exist_ok=True)
-with open('results/planning/seed-{:03d}-{}.pickle'.format(seed, skill_mode), 'wb') as f:
+tag = skill_mode
+if skill_mode == 'generated':
+    tag += '-{}'.format(args.skill_version)
+results_dir = 'results/planning/{}/'.format(tag)
+os.makedirs(results_dir, exist_ok=True)
+with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
     pickle.dump(search_results, f)
