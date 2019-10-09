@@ -12,7 +12,7 @@ primitive_results = glob.glob(results_dir+'primitive/*.pickle')
 expert_results = glob.glob(results_dir+'expert/*.pickle')
 random_results = glob.glob(results_dir+'random/*.pickle')
 full_random_results = glob.glob(results_dir+'full_random/*.pickle')
-gen_version = '0.2'
+gen_version = '0.3'
 generated_results = glob.glob(results_dir+'generated-v'+gen_version+'/*.pickle')
 
 #%%
@@ -58,10 +58,10 @@ for i,f in enumerate(expert_results):
     label = None if i > 0 else 'actions + expert skills'
     generate_plot(f, ax, 'C1', label=label)
 for i,f in enumerate(generated_results):
-    label = None if i > 0 else 'actions + generated v0.2'
+    label = None if i > 0 else 'actions + generated v{}'.format(gen_version)
     generate_plot(f, ax, 'C3', label=label)
 ax.legend()
-plt.savefig('results/plots/planning_time.png')
+plt.savefig('results/plots/planning_time_v{}.png'.format(gen_version))
 plt.show()
 
 #%%

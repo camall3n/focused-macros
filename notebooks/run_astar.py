@@ -72,7 +72,7 @@ search_results = astar.search(start, is_goal, step_cost, heuristic, get_successo
 #%% Save the results
 tag = skill_mode
 if skill_mode == 'generated':
-    tag += '-{}'.format(args.skill_version)
+    tag += '-v{}'.format(args.skill_version)
 results_dir = 'results/planning/{}/'.format(tag)
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
