@@ -64,7 +64,7 @@ else:
 
 # Set up the search problem
 is_goal = lambda node: node.state == goal
-heuristic = lambda cube: len(cube.summarize_effects())
+heuristic = lambda cube: len(cube.summarize_effects(baseline=goal))
 
 if cost_mode == 'per-action':
     step_cost = lambda skill: len(skill)
