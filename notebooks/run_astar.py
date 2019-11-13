@@ -81,6 +81,10 @@ search_results = astar.search(start, is_goal, step_cost, heuristic, get_successo
 tag = skill_mode
 if skill_mode == 'generated':
     tag += '-v{}'.format(args.skill_version)
+if args.random_goal:
+    tag = 'random_goal/'+tag
+else:
+    tag = 'default_goal/'+tag
 results_dir = 'results/planning/{}/'.format(tag)
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
