@@ -17,6 +17,8 @@ parser.add_argument('--scramble_seed','-s', type=int, default=1,
 parser.add_argument('--skill_mode','-m', type=str, default='expert',
                     choices=['primitive','expert','fixed_random','full_random','generated'],
                     help='Type of skills to consider during search')
+parser.add_argument('--random-goal','-r', action='store_true', default=False,
+                    help='Generate a random goal instead of the default solve configuration')
 parser.add_argument('--skill_version','-v', type=str, default='0.3',
                     choices=['0.1','0.2','0.3'],
                     help='Which version to use for generated skills')
@@ -54,8 +56,14 @@ elif skill_mode == 'generated':
     skills = options.primitive.actions + options.generated.options
     models = options.primitive.models + options.generated.models
 
+if args.random_goal:
+    goal = cube.Cube().apply(pattern.scramble(seed+1000))
+    print('Using goal pattern: {:03d}'.format(seed+1000))
+else:
+    goal = newcube
+
 # Set up the search problem
-is_goal = lambda node: node.state == newcube
+is_goal = lambda node: node.state == goal
 heuristic = lambda cube: len(cube.summarize_effects())
 
 if cost_mode == 'per-action':

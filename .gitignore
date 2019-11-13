@@ -6,4 +6,5 @@ __pycache__/
 results/*/
 grid/logs/
 grid/scripts/
+paper/*.pdf
 
