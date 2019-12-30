@@ -22,12 +22,13 @@ parser.add_argument('--n_values', type=int, default=10,
                     help='Number of possible values for each variable')
 parser.add_argument('--max_vars_per_action', type=int, default=1,
                     help='Maximum number of variables changed per primitive action')
+parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
+                    help='Maximum number of variables changed per primitive action')
 args = parser.parse_args()
 #
 seed = args.random_seed
 skill_mode = args.skill_mode
 cost_mode = 'per-skill'
-max_transitions = 1e5
 
 # Set up the scramble
 random.seed(seed)
@@ -76,7 +77,7 @@ def get_successors(lock):
     return [(copy.deepcopy(lock).apply_macro(diff=m), s) for s,m in zip(skills, models)]
 
 #%% Run the search
-search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions)
+search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
 
 #%% Save the results
 tag = skill_mode
