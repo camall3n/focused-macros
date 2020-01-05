@@ -1,4 +1,5 @@
 import glob
+import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import os
@@ -9,7 +10,7 @@ from util import rsync
 
 # rsync(source='brown:~/dev/skills-for-planning/results/planning',
       # dest='results/')
-results_dir = 'results/suitcaselock/'
+results_dir = 'results/suitcaselock_binary/'
 primitive_results = glob.glob(results_dir+'*/primitive/*.pickle')
 # expert_results = glob.glob(results_dir+'expert/*.pickle')
 # random_results = glob.glob(results_dir+'random/*.pickle')
@@ -67,7 +68,7 @@ for i,f in enumerate(primitive_results):
 #     label = None if i > 0 else 'actions + generated v{}'.format(gen_version)
 #     generate_plot(f, ax, 'C3', label=label)
 ax.legend()
-plt.savefig('results/plots/planning_time_v{}.png'.format(gen_version))
+# plt.savefig('results/plots/planning_time_v{}.png'.format(gen_version))
 plt.show()
 
 #%%
@@ -88,14 +89,35 @@ for i,filename in enumerate(primitive_results):
         'transitions': n_transitions,
         'max_vars': max_vars,
         'seed': seed,
+        'n_errors': n_errors,
     })
 data = pd.DataFrame(data)
-sns.pointplot(x='max_vars',y='transitions', data=data)
-sns.pointplot(x='max_vars',y='transitions', data=data, estimator=None)
-grid = sns.FacetGrid(data, col="seed", hue="seed",
-                     col_wrap=4, height=1.5)
-grid.map(plt.plot, 'max_vars', 'transitions')
-grid.fig.tight_layout(w_pad=1)
-print(len(solves), 'out of', len(primitive_results))
+sns.pointplot(x='max_vars',y='transitions', data=data, units='seed', join=False, estimator=np.median)
+plt.xlabel('Max number of variables changed per action')
+plt.ylabel('Number of transitions considered')
+# plt.ylim([0,1e5])
+plt.title('Planning Time vs. Effect Size')
+plt.tight_layout()
+plt.savefig('results/plots/planning_time_vs_effect_size.png')
+plt.show()
 
 print(solves)
+print(len(solves), 'out of', len(primitive_results))
+#%%
+sns.violinplot(x='max_vars',y='n_errors', data=data, units='seed', cut=0, inner=None)
+sns.boxplot(y='max_vars',x='transitions', data=data, whis=np.inf, orient='h')
+
+#%%
+
+sns.lmplot(x='transitions', y='n_errors', data=data.groupby('max_vars', as_index=False).mean(), hue='max_vars', markers=["o", "x", "1", "+", "s"], fit_reg=False, legend=False, height=6, scatter_kws={"s": 70})
+# fig = plt.gcf()
+# fig.set_size_inches(8,6)
+ax = plt.gca()
+# ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
+ax.set_xlim([0,1e5])
+ax.set_xticklabels(list(map(lambda x: int(x/1e3),ax.get_xticks())))
+ax.set_title('Mean planning performance')
+ax.set_ylabel('Number of errors')
+ax.set_xlabel('Number of transitions (thousands)')
+plt.legend()
+plt.show()
