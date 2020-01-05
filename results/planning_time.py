@@ -40,7 +40,7 @@ def generate_plot(filename, ax, color=None, label=None):
     n_expanded
     n_transitions
     n_errors
-    ax.plot(x,y,c=color,alpha=0.6, label=label,linewidth=2)
+    ax.plot(x,y,c=color,alpha=0.6, label=label)
     return n_errors
 
 fig, ax = plt.subplots(figsize=(8,6))
