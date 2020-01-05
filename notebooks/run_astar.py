@@ -22,12 +22,13 @@ parser.add_argument('--random-goal','-r', action='store_true', default=False,
 parser.add_argument('--skill_version','-v', type=str, default='0.3',
                     choices=['0.1','0.2','0.3'],
                     help='Which version to use for generated skills')
+parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
+                    help='Maximum number of variables changed per primitive action')
 args = parser.parse_args()
 
 seed = args.scramble_seed
 skill_mode = args.skill_mode
 cost_mode = 'per-skill'
-max_transitions = 1e5
 debug = False
 
 # Set up the scramble
@@ -75,7 +76,7 @@ def get_successors(cube):
     return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
 
 #%% Run the search
-search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions)
+search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
 
 #%% Save the results
 tag = skill_mode
