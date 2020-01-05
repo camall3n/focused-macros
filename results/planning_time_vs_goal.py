@@ -19,6 +19,7 @@ random_results = sorted(glob.glob('results/planning/random_goal/'+'generated-v'+
 def generate_plot(filename, ax, color=None, label=None):
     with open(filename, 'rb') as f:
         search_results = pickle.load(f)
+    seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
     if 'default_goal' in filename:
         goal = cube.Cube()
@@ -75,8 +76,6 @@ for tag, results in zip(all_tags, all_results):
             goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
 
         n_errors = len(states[-1].summarize_effects(baseline=goal))
-        if n_errors == 0:
-            solves.append(i)
         data.append({
             'tag': tag,
             'transitions': n_transitions,
@@ -89,7 +88,7 @@ data = pd.DataFrame(data)
 print('Solve Counts')
 print()
 for tag in all_tags:
-    transition_cap = 2e6
+    transition_cap = 1e6
     n_solves = len(data.query('(tag==@tag) and (n_errors==0) and (transitions < @transition_cap)'))
     n_attempts = len(data.query('tag==@tag'))
 
