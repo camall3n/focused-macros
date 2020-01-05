@@ -19,7 +19,7 @@ parser.add_argument('--skill_mode','-m', type=str, default='expert',
                     help='Type of skills to consider during search')
 parser.add_argument('--random-goal','-r', action='store_true', default=False,
                     help='Generate a random goal instead of the default solve configuration')
-parser.add_argument('--skill_version','-v', type=str, default='0.3',
+parser.add_argument('--skill_version','-v', type=str, default='0.2',
                     choices=['0.1','0.2','0.3'],
                     help='Which version to use for generated skills')
 parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
