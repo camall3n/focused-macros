@@ -32,6 +32,7 @@ def parse_args():
     parser.add_argument('--env', help='Path to virtualenv', type=str, default='./env')
     parser.add_argument('--nresources', help='Number of CPUs / GPUs to request', type=int, default=1)
     parser.add_argument('--duration', help='Expected duration of job', choices=['test', 'short', 'long', 'vlong'], default='vlong')
+    parser.add_argument('--host', help='Wildcard for targeting a specific host or set of hosts', type=str, default=None)
     parser.add_argument('-t','--taskid', help='Task ID of first task', type=int, default=1)
     parser.add_argument('-n','--ntasks', help='Number of tasks', type=int, default=0)
     parser.add_argument('-max','--maxtasks', help='Maximum number of simultaneous tasks', type=int, default=-1)
@@ -83,6 +84,9 @@ source {}
         cmd += '-l {} '.format(args.duration)
         if args.nresources > 1:
             cmd += '-pe smp {} '.format(args.nresources) # Request multiple CPUs
+
+    if args.host is not None:
+        cmd += '-q {}.q@{}.cs.brown.edu '.format(args.duration, args.host)
 
     os.makedirs("./grid/logs/", exist_ok=True)
     cmd += '-o ./grid/logs/ ' # save stdout file to this directory
