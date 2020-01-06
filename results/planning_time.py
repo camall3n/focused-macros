@@ -21,25 +21,23 @@ gen_version = '0.2'
 generated_results = glob.glob(results_dir+'generated-v'+gen_version+'/*.pickle')
 
 #%%
-def generate_plot(filename, ax, color=None, label=None):
+def generate_plot(filename, ax, color=None, label=None, shifted_by=0):
     with open(filename, 'rb') as f:
         search_results = pickle.load(f)
     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
 
     n_errors = len(states[-1].summarize_effects())
-    x = [c for c,n in candidates]
+    x = [c+shifted_by for c,n in candidates]
     y = [n.h_score for c,n in candidates]
+    if shifted_by > 0:
+        x = [0] + x
+        y = [y[0]] + y
 
     # Extend final value to end of plot
     if n_errors > 0:
         x += [n_transitions]
         y += [y[-1]]
 
-    sum(len(a) for a in actions)
-    len(actions)
-    n_expanded
-    n_transitions
-    n_errors
     ax.plot(x,y,c=color,alpha=0.6, label=label)
     return n_errors
 
@@ -161,7 +159,7 @@ plt.show()
 
 #%%
 fig, ax = plt.subplots()
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).mean(), hue='tag', style='tag', ax=ax, s=70)
+sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).mean(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', markers=['o','X','^','P'], ax=ax, s=70)
 ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
 ax.set_xlim([-0.05e6,2.05e6])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
@@ -170,6 +168,7 @@ ax.set_ylabel('Number of errors')
 ax.set_xlabel('Number of transitions')
 handles, labels = ax.get_legend_handles_labels()
 ax.legend(handles=handles[1:], labels=labels[1:])
+plt.savefig('results/plots/mean_planning_performance.png')
 plt.show()
 
 #%%
