@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('--duration', help='Expected duration of job', choices=['test', 'short', 'long', 'vlong'], default='vlong')
     parser.add_argument('--host', help='Wildcard for targeting a specific host or set of hosts', type=str, default=None)
     parser.add_argument('-t','--taskid', help='Task ID of first task', type=int, default=1)
+    parser.add_argument('--tasklist', help='Comma separated list of task IDs to submit (e.g. "18-22:1,26,29,34-49:1")', type=str, default=None)
     parser.add_argument('-n','--ntasks', help='Number of tasks', type=int, default=0)
     parser.add_argument('-max','--maxtasks', help='Maximum number of simultaneous tasks', type=int, default=-1)
     parser.add_argument('-y','--dry_run', help="Don't actually submit jobs to grid engine", action='store_true')
@@ -43,7 +44,7 @@ def parse_args():
     return parser.parse_args()
 args = parse_args()
 
-def launch():
+def run():
     # Define the bash script that qsub should run (with values
     # that need to be filled in using the input args).
     venv_path = os.path.join(args.env, 'bin', 'activate')
@@ -98,34 +99,44 @@ source {}
     cmd += '-terse '
 
     if args.ntasks > 0:
+        assert args.tasklist is None, 'Arguments ntasks and tasklist not supported simultaneously.'
         cmd += "-t {}-{} ".format(args.taskid, args.taskid+args.ntasks-1) # specify task ID range
         if args.maxtasks > 0:
             cmd += "-tc {} ".format(args.maxtasks) # set maximum number of running tasks
+    else:
+        cmd += "-t {taskblock} "
 
     # Prevent GridEngine from running this new job until the specified job ID is finished.
     if args.hold_jid is not None:
         cmd += "-hold_jid {} ".format(args.hold_jid)
     cmd += "{}".format(jobfile)
 
-    print(cmd)
+    def launch(cmd):
+        print(cmd)
+        if not args.dry_run:
+            try:
+                byte_str = subprocess.check_output(cmd, shell=True)
+                jobid = int(byte_str.decode('utf-8').split('.')[0])
+                if args.email is not None:
+                    notify_cmd = 'qsub '
+                    notify_cmd += '-o /dev/null ' # don't save stdout file
+                    notify_cmd += '-e /dev/null ' # don't save stderr file
+                    notify_cmd += '-m b ' # send email when this new job starts
+                    notify_cmd += '-M "{}" '.format(args.email) # list of email addresses
+                    notify_cmd += '-hold_jid {} '.format(jobid)
+                    notify_cmd += '-N ~{} '.format(args.jobname[1:]) # modify the jobname slightly
+                    notify_cmd += '-b y sleep 0' # the actual job is a NO-OP
+                    subprocess.call(notify_cmd, shell=True)
+            except (subprocess.CalledProcessError, ValueError) as e:
+                print(e)
+                sys.exit()
 
-    if not args.dry_run:
-        try:
-            byte_str = subprocess.check_output(cmd, shell=True)
-            jobid = int(byte_str.decode('utf-8').split('.')[0])
-            if args.email is not None:
-                notify_cmd = 'qsub '
-                notify_cmd += '-o /dev/null ' # don't save stdout file
-                notify_cmd += '-e /dev/null ' # don't save stderr file
-                notify_cmd += '-m b ' # send email when this new job starts
-                notify_cmd += '-M "{}" '.format(args.email) # list of email addresses
-                notify_cmd += '-hold_jid {} '.format(jobid)
-                notify_cmd += '-N ~{} '.format(args.jobname[1:]) # modify the jobname slightly
-                notify_cmd += '-b y sleep 0' # the actual job is a NO-OP
-                subprocess.call(notify_cmd, shell=True)
-        except (subprocess.CalledProcessError, ValueError) as e:
-            print(e)
-            sys.exit()
+    if args.tasklist is None:
+        launch(cmd)
+    else:
+        taskblocks = args.tasklist.split(',')
+        for taskblock in taskblocks:
+            launch(cmd.format(taskblock=taskblock))
 
 if args.jobname == defaultjob:
     args.jobname = "run{}".format(args.taskid)
@@ -133,4 +144,4 @@ elif not re.match(r'^(\w|\.)+$', args.jobname):
     # We want to create a script file, so make sure the filename is legit
     print("Invalid job name: {}".format(args.jobname))
     sys.exit()
-launch()
+run()
