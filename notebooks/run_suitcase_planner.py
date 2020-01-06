@@ -23,7 +23,7 @@ parser.add_argument('--n_values', type=int, default=10,
 parser.add_argument('--max_vars_per_action', type=int, default=1,
                     help='Maximum number of variables changed per primitive action')
 parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
-                    help='Maximum number of variables changed per primitive action')
+                    help='Maximum number of state transitions')
 args = parser.parse_args()
 #
 seed = args.random_seed
