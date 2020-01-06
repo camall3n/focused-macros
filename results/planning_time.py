@@ -69,22 +69,7 @@ ax.legend()
 plt.savefig('results/plots/planning_time_actions.png')
 plt.show()
 
-# #%%
-# solves = []
-# for i,filename in enumerate(generated_results):
-#     with open(filename, 'rb') as f:
-#         search_results = pickle.load(f)
-#     states, actions, n_expanded, n_transitions, candidates = search_results
-#
-#     n_errors = len(states[-1].summarize_effects())
-#     if n_errors == 0:
-#         solves.append(i)
-# print(len(solves), 'out of', len(generated_results))
-#
-# print(solves)
-
 #%%
-
 data = []
 all_tags = ['primitive', 'expert', 'random', 'generated']
 all_results = [primitive_results, expert_results, full_random_results, generated_results]
@@ -131,7 +116,7 @@ plt.show()
 
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
-sns.boxplot(x='transitions',y='tag', data=data, ax=ax)
+sns.violinplot(x='transitions',y='tag', data=data, ax=ax)
 # ax.set_title('Planning performance')
 # ax.set_ylim([0,50])
 # ax.set_xlim([0,2e6])
@@ -145,7 +130,7 @@ plt.show()
 
 #%%
 fig, ax = plt.subplots()
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).median(), hue='tag', style='tag', s=70)
+sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).median(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', markers=['o','X','^','P'], ax=ax, s=70)
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
 ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
 ax.set_xlim([-0.05e6,2.05e6])
