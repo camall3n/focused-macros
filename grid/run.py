@@ -56,7 +56,7 @@ source {}
     # GridEngine doesn't like ranges of tasks that start with zero, so if you
     # submit a job with zero tasks, we ignore the taskid variable and submit a
     # single job with no task id instead of using GridEngine's range feature.
-    if args.ntasks > 0:
+    if args.ntasks > 0 or args.tasklist is not None:
         script_body += r'$SGE_TASK_ID'
     script_body += '\n'
 
