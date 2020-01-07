@@ -43,7 +43,11 @@ def cancel(cmd):
             sys.exit()
 
 if args.tasklist is None:
-    cancel(cmd)
+    yn = input('Are you sure you want to cancel all tasks for this job? (y/N)\n> ')
+    if yn in ['y','yes','Y',"YES"]:
+        cancel(cmd)
+    elif yn in ['n','no','N',"NO",'']:
+        print('Job cancellation aborted.')
 else:
     taskblocks = args.tasklist.split(',')
     for taskblock in taskblocks:
