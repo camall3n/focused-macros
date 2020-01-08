@@ -28,7 +28,7 @@ def load_generated_skills(version):
         models = [cube.Cube().apply(o).summarize_effects() for o in options]
     global generated
     generated = generated_skills
-load_generated_skills('0.2')
+load_generated_skills('0.4')
 
 def set_random_skill_seed(seed):
     st = pyrandom.getstate()
