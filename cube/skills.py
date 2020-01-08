@@ -4,6 +4,7 @@ from . import cube
 from . import formula
 
 swap_2_edges_adj = "R U R' U R U U R' U".split()
+n_permutation = "F F R' F' U' F' U F R F' U U F U U F' U'".split()
 swap_3_edges_face = "R R U R U R' U' R' U' R' U R'".split()
 swap_3_edges_mid = "L' R U U R' L F F".split()
 swap_4_edges = "L L R R D D R' R' L' L' U U".split()
