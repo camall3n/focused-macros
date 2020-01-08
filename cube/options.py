@@ -9,7 +9,6 @@ class primitive:
 
 class expert:
     alg_formulas = [
-        # skills.swap_2_edges_adj,
         skills.n_permutation,
         skills.swap_3_edges_face,
         skills.swap_3_edges_mid,
