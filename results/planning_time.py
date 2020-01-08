@@ -116,7 +116,7 @@ plt.show()
 
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
-sns.violinplot(x='transitions',y='tag', data=data, ax=ax)
+sns.violinplot(x='transitions',y='tag', data=data, ax=ax, scale='width', cut=0, inner=None)
 # ax.set_title('Planning performance')
 # ax.set_ylim([0,50])
 # ax.set_xlim([0,2e6])
@@ -130,7 +130,7 @@ plt.show()
 
 #%%
 fig, ax = plt.subplots()
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).median(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', markers=['o','X','^','P'], ax=ax, s=70)
+sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).median(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=70)
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
 ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
 ax.set_xlim([-0.05e6,2.05e6])
@@ -144,7 +144,7 @@ plt.show()
 
 #%%
 fig, ax = plt.subplots()
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).mean(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', markers=['o','X','^','P'], ax=ax, s=70)
+sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).mean(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=70)
 ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
 ax.set_xlim([-0.05e6,2.05e6])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
@@ -158,13 +158,19 @@ plt.show()
 
 #%%
 # render the cubes where expert skills failed to solve
+for i,filename in enumerate(expert_results):
+    seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
+    if seed not in list(data.query('(tag == "expert") and (n_errors > 0 )')['seed']):
+        continue
+    with open(filename, 'rb') as f:
+        search_results = pickle.load(f)
+    states, actions, n_expanded, n_transitions, candidates = search_results
 
-# for i,filename in enumerate(expert_results):
-#     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
-#     if seed not in list(data[data['tag']=='expert'][data['n_errors']>0]['seed']):
-#         continue
-#     with open(filename, 'rb') as f:
-#         search_results = pickle.load(f)
-#     states, actions, n_expanded, n_transitions, candidates = search_results
-#
-#     states[-1].render()
+    states[-1].render()
+    results_dir = 'results/cube_deadends'
+    os.makedirs(results_dir, exist_ok=True)
+    with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
+        pickle.dump(states[-1], f)
+
+#%%
+sorted(list(data.query('(tag=="expert") and (n_errors>0)')['seed']))
