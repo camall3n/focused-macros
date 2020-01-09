@@ -4,18 +4,30 @@ import numpy as np
 from tqdm import tqdm
 
 class SuitcaseLock:
-    def __init__(self, n_vars=4, n_values=10, max_vars_per_action=1):
+    def __init__(self, n_vars=4, n_values=10, entanglement=1):
         assert n_vars > 0, 'n_vars must be > 0'
         assert n_values > 0, 'n_values must be > 0'
-        assert max_vars_per_action <= n_vars, 'max_vars_per_action must be <= n_vars'
+        assert entanglement < n_vars, 'entanglement must be < n_vars'
         self.n_vars = n_vars
         self.n_values = n_values
-        self.max_vars_per_action = max_vars_per_action
+        self.entanglement = entanglement
         self.state = np.zeros(n_vars, dtype=np.int)
 
     def actions(self):
-        k = -self.max_vars_per_action
-        up_actions = np.tri(self.n_vars) - np.tri(self.n_vars, k=k)
+        N = self.n_vars
+        k = self.entanglement
+        if k == 1:
+            up_actions = np.eye(N)
+        elif k == N-1:
+            up_actions = np.ones((N,N))-np.eye(N)
+        else:
+            for i in range(10000):
+                up_actions = np.random.choice([0,1], size=(N,N), p=[(1-k/N), k/N])
+                rank = np.linalg.matrix_rank(up_actions)
+                if rank == N:
+                    break
+            if rank < N:
+                raise RuntimeError('Failed to find full-rank action matrix for N={}, k={}. This may just be bad luck with the random number generator.'.format(N,k))# Try increasing the number of attempts above
         down_actions = -1 * up_actions
         actions = np.concatenate((up_actions, down_actions))
         return list(actions.astype(int))
@@ -35,7 +47,7 @@ class SuitcaseLock:
 
     def transition(self, action):
         assert len(action) == self.n_vars
-        assert np.sum(np.abs(action)) <= self.max_vars_per_action
+        assert np.sum(np.abs(action)) <= self.entanglement
         self._unchecked_transition(action)
         return self
 
@@ -72,7 +84,7 @@ class SuitcaseLock:
         return diff
 
 def test():
-    lock1 = SuitcaseLock(max_vars_per_action=2).scramble()
+    lock1 = SuitcaseLock(entanglement=2).scramble()
 
     lock2 = copy.deepcopy(lock1)
     actions = lock2.actions()
@@ -85,10 +97,10 @@ def test():
     lock1.apply_macro(diff=diff)
     assert lock1 == lock2
 
-    lock9 = SuitcaseLock(n_vars=9, n_values=4, max_vars_per_action=9)
+    lock9 = SuitcaseLock(n_vars=9, n_values=4, entanglement=9)
     assert np.mean(np.abs(np.sum(np.stack(lock9.actions()),axis=1))) == 5
 
-lock20 = SuitcaseLock(n_vars=20, n_values=10, max_vars_per_action=8)
+lock20 = SuitcaseLock(n_vars=20, n_values=10, entanglement=8)
 actions = lock20.actions()
 T = np.stack(actions[0:len(actions)//2])
 np.linalg.matrix_rank(T)
