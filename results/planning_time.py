@@ -17,7 +17,7 @@ primitive_results = glob.glob(results_dir+'primitive/*.pickle')
 expert_results = glob.glob(results_dir+'expert/*.pickle')
 random_results = glob.glob(results_dir+'random/*.pickle')
 full_random_results = glob.glob(results_dir+'full_random/*.pickle')
-gen_version = '0.2'
+gen_version = '0.4'
 generated_results = glob.glob(results_dir+'generated-v'+gen_version+'/*.pickle')
 
 #%%
@@ -38,7 +38,7 @@ def generate_plot(filename, ax, color=None, label=None, shifted_by=0):
         x += [n_transitions]
         y += [y[-1]]
 
-    ax.plot(x,y,c=color,alpha=0.6, label=label)
+    ax.plot(x,y,c=color,alpha=0.6, linewidth=2, label=label)
     return n_errors
 
 fig, ax = plt.subplots(figsize=(8,6))
@@ -60,12 +60,16 @@ for i,f in enumerate(primitive_results):
     label = None if i > 0 else 'actions only'
     generate_plot(f, ax, 'C0', label=label)
 for i,f in enumerate(generated_results):
-    label = None if i > 0 else 'actions + generated v{}'.format(gen_version)
+    label = None if i > 0 else 'actions + generated skills'
     generate_plot(f, ax, 'C3', label=label)
 for i,f in enumerate(expert_results):
     label = None if i > 0 else 'actions + expert skills'
     generate_plot(f, ax, 'C1', label=label)
-ax.legend()
+
+handles,labels = ax.get_legend_handles_labels()
+handles = [handles[1], handles[3], handles[0], handles[2]]
+labels = [labels[1], labels[3], labels[0], labels[2]]
+ax.legend(handles, labels, framealpha=1, borderpad=0.7)
 plt.savefig('results/plots/planning_time_actions.png')
 plt.show()
 
@@ -129,17 +133,19 @@ plt.ylabel('')
 plt.show()
 
 #%%
-fig, ax = plt.subplots()
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).median(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=70)
+fig, ax = plt.subplots(figsize=(8,6))
+sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).median(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=150)
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
 ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
 ax.set_xlim([-0.05e6,2.05e6])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.set_title('Median planning performance')
-ax.set_ylabel('Number of errors')
-ax.set_xlabel('Number of transitions')
+ax.set_title('Median final planning performance')
+ax.set_ylabel('Number of errors remaining')
+ax.set_xlabel('Number of transitions considered (millions)')
 handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles=handles[1:], labels=labels[1:])
+handles = handles[1:]
+labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
+ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
 plt.show()
 
 #%%
@@ -148,29 +154,32 @@ sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index
 ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
 ax.set_xlim([-0.05e6,2.05e6])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.set_title('Mean planning performance')
-ax.set_ylabel('Number of errors')
-ax.set_xlabel('Number of transitions')
+ax.set_title('Mean final planning performance')
+ax.set_ylabel('Number of errors remaining')
+ax.set_xlabel('Number of transitions considered (millions)')
+
 handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles=handles[1:], labels=labels[1:])
+handles = handles[1:]
+labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
+ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
 plt.savefig('results/plots/mean_planning_performance.png')
 plt.show()
 
 #%%
 # render the cubes where expert skills failed to solve
-for i,filename in enumerate(expert_results):
+for i,filename in enumerate(generated_results):
     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
-    if seed not in list(data.query('(tag == "expert") and (n_errors > 0 )')['seed']):
+    if seed not in list(data.query('(tag == "generated") and (n_errors > 0 )')['seed']):
         continue
     with open(filename, 'rb') as f:
         search_results = pickle.load(f)
     states, actions, n_expanded, n_transitions, candidates = search_results
 
     states[-1].render()
-    results_dir = 'results/cube_deadends'
-    os.makedirs(results_dir, exist_ok=True)
-    with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
-        pickle.dump(states[-1], f)
+    # results_dir = 'results/cube_deadends'
+    # os.makedirs(results_dir, exist_ok=True)
+    # with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
+    #     pickle.dump(states[-1], f)
 
 #%%
-sorted(list(data.query('(tag=="expert") and (n_errors>0)')['seed']))
+sorted(list(data.query('(tag=="generated") and (n_errors>0)')['seed']))
