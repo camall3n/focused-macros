@@ -15,6 +15,7 @@ class SuitcaseLock:
         self.entanglement = entanglement
         self.state = np.zeros(n_vars, dtype=np.int)
         self._actions = None
+        self.actions()
 
     def states(self):
         for i in range(self.n_values**self.n_vars):
@@ -31,6 +32,8 @@ class SuitcaseLock:
                 up_actions = np.eye(N)
             elif k == N-1:
                 up_actions = np.ones((N,N))-np.eye(N)
+                # Have to break symmetry to ensure matrix is full rank modulo n_values
+                up_actions[0,0] = 1
             else:
                 for i in range(10000):
                     up_actions = np.random.choice([0,1], size=(N,N), p=[(1-k/N), k/N])
@@ -38,7 +41,7 @@ class SuitcaseLock:
                     if rank == N:
                         break
                 if rank < N:
-                    raise RuntimeError('Failed to find full-rank action matrix for N={}, k={}. This may just be bad luck with the random number generator.'.format(N,k))# Try increasing the number of attempts above
+                    raise RuntimeError('Failed to find full-rank action matrix for N={}, k={}. This may just be bad luck with the random number generator. Try increasing the number of attempts in SuitcaseLock.actions().'.format(N,k))
             down_actions = -1 * up_actions
             actions = np.concatenate((up_actions, down_actions))
             self._actions = list(actions.astype(int))
