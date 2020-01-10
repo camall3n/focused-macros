@@ -60,7 +60,7 @@ search_results = astar.search(start, is_goal, step_cost, heuristic, get_successo
 tag = 'n_vars-{}/n_values-{}/entanglement-{}'
 tag = tag.format(args.n_vars, args.n_values, args.entanglement, args.max_transitions)
 
-results_dir = 'results/fixedsuitcaselock/{}/'.format(tag)
+results_dir = 'results/asymmetricsuitcaselock/{}/'.format(tag)
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'seed-{:03d}.pickle'.format(seed), 'wb') as f:
     pickle.dump(search_results, f)

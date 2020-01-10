@@ -11,7 +11,7 @@ from util import rsync
 
 # rsync(source='brown:~/dev/skills-for-planning/results/planning',
       # dest='results/')
-results_dir = 'results/fixedsuitcaselock/'
+results_dir = 'results/asymmetricsuitcaselock/'
 
 n_vars, n_values, transition_cap = 20, 2, 1e8
 # n_vars, n_values, transition_cap = 15, 4, 20e6
