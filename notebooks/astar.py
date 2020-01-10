@@ -26,7 +26,7 @@ def reconstruct_path(node):
         node = node.parent
     return states, actions
 
-def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions=0, save_best_n=1, debug_fn=None):
+def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions=0, save_best_n=1, debug_fn=None, quiet=False):
     n_expanded = 0
     n_transitions = 0
     open_set = pq.PriorityQueue()
@@ -43,7 +43,7 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
     # save best N skills, always ejecting the max priority element to make room
     best_n = pq.PriorityQueue(maxlen=save_best_n, mode='max')
 
-    with tqdm(total=max_transitions) as progress:
+    with tqdm(total=max_transitions, disable=quiet) as progress:
         while open_set and n_transitions < max_transitions:
             priority, current = open_set.pop()
             n_expanded += 1

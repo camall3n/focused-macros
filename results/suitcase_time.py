@@ -11,13 +11,13 @@ from util import rsync
 
 # rsync(source='brown:~/dev/skills-for-planning/results/planning',
       # dest='results/')
-results_dir = 'results/suitcaselock/'
+results_dir = 'results/fixedsuitcaselock/'
 
-# n_vars, n_values, transition_cap = 20, 2, 2e6
+n_vars, n_values, transition_cap = 20, 2, 1e8
 # n_vars, n_values, transition_cap = 15, 4, 20e6
-n_vars, n_values, transition_cap = 12, 4, 40e6
+# n_vars, n_values, transition_cap = 12, 4, 40e6
 
-primitive_results = sorted(glob.glob(results_dir+'n_vars-{}/n_values-{}/entanglement-*/*.pickle'.format(n_vars, n_values)))
+result_files = sorted(glob.glob(results_dir+'n_vars-{}/n_values-{}/entanglement-*/*.pickle'.format(n_vars, n_values)))
 
 def generate_plot(filename, ax, color=None, label=None):
     with open(filename, 'rb') as f:
@@ -44,32 +44,20 @@ ax.set_xlim([0,transition_cap])
 ax.hlines(8,0,transition_cap,linestyles='dashed',linewidths=1)
 ax.set_ylabel('Number of errors remaining')
 ax.set_xlabel('Number of transitions considered')
-# for i,f in enumerate(random_results):
-#     label = None if i > 0 else 'actions + fixed random skills'
-#     generate_plot(f, ax, 'C2', label=label)
-# for i,f in enumerate(full_random_results):
-#     label = None if i > 0 else 'actions + random skills'
-#     generate_plot(f, ax, 'C2', label=label)
-for i,f in enumerate(primitive_results):
+for i,f in enumerate(result_files):
     seed = int(f.split('/')[-1].split('.')[0].split('-')[-1])
     entanglement = int(f.split('/')[4].split('-')[-1])
     label = None if seed > 1 else str(entanglement)
     color = 'C{}'.format(entanglement-1)
     generate_plot(f, ax, color, label=label)
-# for i,f in enumerate(expert_results):
-#     label = None if i > 0 else 'actions + expert skills'
-#     generate_plot(f, ax, 'C1', label=label)
-# for i,f in enumerate(generated_results):
-#     label = None if i > 0 else 'actions + generated v{}'.format(gen_version)
-#     generate_plot(f, ax, 'C3', label=label)
 ax.legend()
-# plt.savefig('results/plots/random_suitcase_planning_time_v{}.png'.format(gen_version))
+# plt.savefig('results/plots/fixed_suitcase_planning_time_v{}.png'.format(gen_version))
 plt.show()
 
 #%%
 solves = []
 data = []
-for i,filename in enumerate(primitive_results):
+for i,filename in enumerate(result_files):
     with open(filename, 'rb') as f:
         search_results = pickle.load(f)
     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
@@ -91,7 +79,7 @@ data = pd.DataFrame(data)
 #%%
 print('Solve Counts')
 print()
-all_k_values = np.unique([int(filename.split('/')[-2].split('-')[-1]) for filename in primitive_results])
+all_k_values = np.unique([int(filename.split('/')[-2].split('-')[-1]) for filename in result_files])
 total_solves = 0
 total_attempts = 0
 for k in all_k_values:
@@ -105,8 +93,6 @@ print()
 print('{:4d} out of {:4d}'.format(total_solves, total_attempts))
 
 #%%
-
-
 def as_range(iterable): # not sure how to do this part elegantly
     l = list(iterable)
     if len(l) > 1:
@@ -121,47 +107,77 @@ for k in all_k_values:
     print('{:2d}: {}'.format(k, missing_str))
 
 #%%
-max_entanglement = list(data.groupby('entanglement',as_index=False).mean()['entanglement'])
-transitions = data.groupby('entanglement',as_index=False).mean()['transitions']
-
-mean_entanglement = [np.mean(list(range(1,k+1))+[k]*(n_vars-k)) for k in max_entanglement]
+entanglement = list(data.groupby('entanglement',as_index=False).mean()['entanglement'])
+transitions = list(data.groupby('entanglement',as_index=False).mean()['transitions'])
 
 fig, ax = plt.subplots(figsize=(8,6))
-# plt.scatter(transitions, max_entanglement, marker='x', label='max entanglement')
-plt.scatter(mean_entanglement, transitions, marker='o')
-for mean_e, trans, k in zip(mean_entanglement, transitions, max_entanglement):
-    if k==1:
-        k='k = 1'
-    ax.annotate('%s' % k, xy=(mean_e, trans), xytext=(mean_e+.05,trans+6000), textcoords='data')
-plt.ylabel('transitions')
-plt.xlabel('mean number of variables modified')
+# plt.scatter(transitions, entanglement, marker='x', label='max entanglement')
+plt.scatter(entanglement, transitions, marker='o')
+# for mean_e, trans, k in zip(entanglement, transitions, entanglement):
+#     if k==1:
+#         k='k = 1'
+#     ax.annotate('%s' % k, xy=(mean_e, trans), xytext=(mean_e+.05,trans+6000), textcoords='data')
+plt.ylabel('Number of transitions considered')
+plt.xlabel('Number of variables modified')
 plt.title('Planning Time vs. Effect Size ({} vars, {} values)'.format(n_vars, n_values))
-ax.set_ylim([0,ax.get_ylim()[1]])
-ax.set_xlim([0,ax.get_xlim()[1]])
+# ax.set_ylim([0,ax.get_ylim()[1]])
+# ax.set_xlim([0,ax.get_xlim()[1]])
 # plt.legend()
+# ax.set_yscale('log')
 plt.tight_layout()
-plt.savefig('results/plots/random_suitcase_planning_time_vs_effect_size_{}-{}.png'.format(n_vars, n_values))
+plt.savefig('results/plots/fixed_suitcase_planning_time_vs_effect_size_{}-{}.png'.format(n_vars, n_values))
 plt.show()
 
 #%%
-fig, ax = plt.subplots()
-sns.pointplot(x='entanglement',y='transitions', data=data, units='seed', join=False, estimator=np.mean, color='C0', ax=ax)
-sns.pointplot(x='entanglement',y='transitions', data=data, units='seed', join=False, estimator=np.median, color='C1', ax=ax)
+fig, ax = plt.subplots(figsize=(8,6))
+sns.pointplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), units='seed', join=False, estimator=np.mean, color='C0', ax=ax)
+sns.pointplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), units='seed', join=False, estimator=np.median, color='C1', ax=ax)
 plt.legend(handles=ax.lines[::len(all_k_values+1)],labels=['mean', 'median'], loc='best')
-plt.xlabel('Max number of variables changed per action')
+plt.xlabel('Number of variables changed per action')
 plt.ylabel('Number of transitions considered')
 # plt.ylim([0,1e5])
-plt.title('Planning Time vs. Effect Size ({} vars, {} values)'.format(n_vars, n_values))
-# plt.yscale('log')
+plt.title('Planning Time vs. Effect Size ({} vars, {} values) -- [linear scale]'.format(n_vars, n_values))
 plt.tight_layout()
-# plt.savefig('results/plots/random_suitcase_planning_time_vs_effect_size_{}-{}.png'.format(n_vars, n_values))
+plt.savefig('results/plots/fixed_suitcase_planning_time_vs_effect_size_linear_{}-{}.png'.format(n_vars, n_values))
+plt.show()
+#%%
+fig, ax = plt.subplots(figsize=(8,6))
+sns.pointplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), units='seed', join=False, estimator=np.mean, color='C0', ax=ax)
+sns.pointplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), units='seed', join=False, estimator=np.median, color='C1', ax=ax)
+plt.legend(handles=ax.lines[::len(all_k_values+1)],labels=['mean', 'median'], loc='best')
+plt.xlabel('Number of variables changed per action')
+plt.ylabel('Number of transitions considered')
+# plt.ylim([0,1e5])
+plt.title('Planning Time vs. Effect Size ({} vars, {} values) -- [log scale]'.format(n_vars, n_values))
+plt.yscale('log')
+plt.tight_layout()
+plt.savefig('results/plots/fixed_suitcase_planning_time_vs_effect_size_log_{}-{}.png'.format(n_vars, n_values))
 plt.show()
 
 #%%
-# sns.violinplot(x='entanglement',y='n_errors', data=data, units='seed', cut=0, inner=None, scale='count')
+# sns.violinplot(x='entanglement',y='n_errors', data=data, units='seed', cut=0, inner=None, scale='area')
 #%%
 # sns.violinplot(y='entanglement',x='transitions', data=data, orient='h', cut=0, inner=None, scale='count')
 # ax = plt.gca()
 # ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
 # ax.set_xlabel('transitions (millions)')
 # plt.show()
+
+#%%
+fig, ax = plt.subplots()
+sns.scatterplot(x='transitions', y='n_errors',data=data.groupby('entanglement', as_index=False).mean(), hue='entanglement', ax=ax, s=70, legend='full')
+# ax.hlines(n_vars,0,transition_cap,linestyles='dashed',linewidths=1)
+# ax.set_ylim([0,n_vars])
+# ax.set_xlim([0,transition_cap])
+# ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
+ax.set_title('Mean final planning performance')
+ax.set_ylabel('Number of errors remaining')
+ax.set_xlabel('Number of transitions considered')
+
+ax.set_xscale('log')
+# handles, labels = ax.get_legend_handles_labels()
+# handles = handles[1:]
+# labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
+# ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
+# plt.savefig('results/plots/mean_planning_performance.png')
+plt.show()

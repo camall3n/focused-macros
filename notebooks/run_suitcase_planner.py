@@ -47,7 +47,6 @@ models = [copy.deepcopy(newlock).apply_macro(diff=s).summarize_effects(baseline=
 
 # Set up the search problem
 is_goal = lambda node: node.state == goal
-start == goal
 heuristic = lambda lock: sum(lock.summarize_effects(baseline=goal) > 0)
 step_cost = lambda skill: 1
 
@@ -61,7 +60,7 @@ search_results = astar.search(start, is_goal, step_cost, heuristic, get_successo
 tag = 'n_vars-{}/n_values-{}/entanglement-{}'
 tag = tag.format(args.n_vars, args.n_values, args.entanglement, args.max_transitions)
 
-results_dir = 'results/randomsuitcaselock/{}/'.format(tag)
+results_dir = 'results/fixedsuitcaselock/{}/'.format(tag)
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'seed-{:03d}.pickle'.format(seed), 'wb') as f:
     pickle.dump(search_results, f)

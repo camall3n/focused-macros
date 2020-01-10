@@ -1,7 +1,9 @@
 import copy
+import gmpy2
 import random
 import numpy as np
 from tqdm import tqdm
+from notebooks import matmodn
 
 class SuitcaseLock:
     def __init__(self, n_vars=4, n_values=10, entanglement=1):
@@ -12,25 +14,35 @@ class SuitcaseLock:
         self.n_values = n_values
         self.entanglement = entanglement
         self.state = np.zeros(n_vars, dtype=np.int)
+        self._actions = None
+
+    def states(self):
+        for i in range(self.n_values**self.n_vars):
+            digits = gmpy2.digits(i,self.n_values).zfill(self.n_vars)
+            lock = copy.deepcopy(self)
+            lock.state = np.asarray(list(map(int, digits)))
+            yield lock
 
     def actions(self):
-        N = self.n_vars
-        k = self.entanglement
-        if k == 1:
-            up_actions = np.eye(N)
-        elif k == N-1:
-            up_actions = np.ones((N,N))-np.eye(N)
-        else:
-            for i in range(10000):
-                up_actions = np.random.choice([0,1], size=(N,N), p=[(1-k/N), k/N])
-                rank = np.linalg.matrix_rank(up_actions)
-                if rank == N:
-                    break
-            if rank < N:
-                raise RuntimeError('Failed to find full-rank action matrix for N={}, k={}. This may just be bad luck with the random number generator.'.format(N,k))# Try increasing the number of attempts above
-        down_actions = -1 * up_actions
-        actions = np.concatenate((up_actions, down_actions))
-        return list(actions.astype(int))
+        if self._actions is None:
+            N = self.n_vars
+            k = self.entanglement
+            if k == 1:
+                up_actions = np.eye(N)
+            elif k == N-1:
+                up_actions = np.ones((N,N))-np.eye(N)
+            else:
+                for i in range(10000):
+                    up_actions = np.random.choice([0,1], size=(N,N), p=[(1-k/N), k/N])
+                    rank = matmodn.mod_rank(up_actions, self.n_values)
+                    if rank == N:
+                        break
+                if rank < N:
+                    raise RuntimeError('Failed to find full-rank action matrix for N={}, k={}. This may just be bad luck with the random number generator.'.format(N,k))# Try increasing the number of attempts above
+            down_actions = -1 * up_actions
+            actions = np.concatenate((up_actions, down_actions))
+            self._actions = list(actions.astype(int))
+        return self._actions
 
     def reset(self):
         self.state = np.zeros(self.n_vars, dtype=np.int)
@@ -100,7 +112,7 @@ def test():
     lock9 = SuitcaseLock(n_vars=9, n_values=4, entanglement=9)
     assert np.mean(np.abs(np.sum(np.stack(lock9.actions()),axis=1))) == 5
 
-lock20 = SuitcaseLock(n_vars=20, n_values=10, entanglement=8)
-actions = lock20.actions()
-T = np.stack(actions[0:len(actions)//2])
-np.linalg.matrix_rank(T)
+    lock20 = SuitcaseLock(n_vars=20, n_values=10, entanglement=8)
+    actions = lock20.actions()
+    T = np.stack(actions[0:len(actions)//2])
+    np.linalg.matrix_rank(T)
