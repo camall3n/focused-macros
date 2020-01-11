@@ -164,20 +164,21 @@ plt.show()
 # plt.show()
 
 #%%
-fig, ax = plt.subplots()
-sns.scatterplot(x='transitions', y='n_errors',data=data.groupby('entanglement', as_index=False).mean(), hue='entanglement', ax=ax, s=70, legend='full')
-# ax.hlines(n_vars,0,transition_cap,linestyles='dashed',linewidths=1)
-# ax.set_ylim([0,n_vars])
-# ax.set_xlim([0,transition_cap])
-# ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.set_title('Mean final planning performance')
-ax.set_ylabel('Number of errors remaining')
-ax.set_xlabel('Number of transitions considered')
-
-ax.set_xscale('log')
+# fig, ax = plt.subplots()
+# sns.scatterplot(x='transitions', y='n_errors',data=data.groupby('entanglement', as_index=False).mean(), hue='entanglement', ax=ax, s=70, legend='full')
+# # ax.hlines(n_vars,0,transition_cap,linestyles='dashed',linewidths=1)
+# # ax.set_ylim([0,n_vars])
+# # ax.set_xlim([0,transition_cap])
+# # ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
+# ax.set_title('Mean final planning performance')
+# ax.set_ylabel('Number of errors remaining')
+# ax.set_xlabel('Number of transitions considered')
+#
+# ax.set_xscale('log')
 # handles, labels = ax.get_legend_handles_labels()
-# handles = handles[1:]
-# labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
-# ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-# plt.savefig('results/plots/mean_planning_performance.png')
-plt.show()
+# ax.legend(handles=handles, labels=labels, ncol=2)
+# # handles = handles[1:]
+# # labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
+# # ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
+# # plt.savefig('results/plots/mean_planning_performance.png')
+# plt.show()
