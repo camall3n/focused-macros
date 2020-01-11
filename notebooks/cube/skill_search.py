@@ -6,8 +6,6 @@ import sys
 from cube import cube
 from notebooks import astar
 from cube import options
-from cube import pattern
-from matplotlib import pyplot as plt
 
 version = '0.3'
 cost_mode = 'per-skill'
