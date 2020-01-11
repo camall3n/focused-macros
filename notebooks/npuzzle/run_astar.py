@@ -59,9 +59,9 @@ is_goal = lambda node: node.state == goal
 heuristic = lambda puz: len(puz.summarize_effects(baseline=goal)[0])
 step_cost = lambda skill: 1
 
-def get_successors(lock):
-    primitive_successors = [(copy.deepcopy(lock).transition(a) for a in lock.actions())]
-    macro_successors = [(copy.deepcopy(lock).apply_macro(model=m), s) for s,m in zip(skills, models)]
+def get_successors(puz):
+    primitive_successors = [(copy.deepcopy(puz).transition(a) for a in puz.actions())]
+    macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(skills, models)]
     return primitive_successors+macro_successors
 
 #%% Run the search

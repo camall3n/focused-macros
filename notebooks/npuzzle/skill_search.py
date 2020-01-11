@@ -3,39 +3,28 @@ import copy
 import pickle
 import os
 import sys
-from cube import cube
+from npuzzle import npuzzle
 from notebooks import astar
 from cube import options
-from cube import pattern
-from matplotlib import pyplot as plt
 
-version = '0.3'
-cost_mode = 'per-skill'
+version = '0.1'
 max_transitions = 1e6
 save_best_n = 1200
 
-newcube = cube.Cube()
-start = cube.Cube()
-
-skills = options.primitive.actions
-models = options.primitive.models
+newpuz = npuzzle.NPuzzle()
+start = npuzzle.NPuzzle()
 
 is_goal = lambda node: False
-
-def heuristic(cube):
-    effects = cube.summarize_effects()
-    if len(effects) == 0:
+step_cost = lambda skill: 1
+def heuristic(puz):
+    swap_list, starting_blank_idx = puz.summarize_effects(baseline=newpuz)
+    if len(swap_list) == 0:
         return float('inf')
     else:
-        return len(effects)
+        return len(swap_list)
 
-if cost_mode == 'per-action':
-    step_cost = lambda skill: len(skill)
-elif cost_mode == 'per-skill':
-    step_cost = lambda skill: 1
-
-def get_successors(cube):
-    return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
+def get_successors(puz):
+    return [(copy.deepcopy(puz).transition(a) for a in puz.actions())]
 
 #%% Run the search
 search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions, save_best_n)
