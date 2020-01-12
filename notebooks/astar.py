@@ -76,7 +76,7 @@ def search(start, is_goal, step_cost, heuristic, get_successors, max_transitions
                 best = current
                 candidates.append((n_transitions, current))
 
-            best_n.push((current.f_score, reconstruct_path(current)[1]))
+            best_n.push((current.h_score, reconstruct_path(current)[1]))
 
             if debug_fn:
                 print('considering successors...')
