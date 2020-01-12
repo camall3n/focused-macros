@@ -103,8 +103,10 @@ source {}
         cmd += "-t {}-{} ".format(args.taskid, args.taskid+args.ntasks-1) # specify task ID range
         if args.maxtasks > 0:
             cmd += "-tc {} ".format(args.maxtasks) # set maximum number of running tasks
-    else:
+    elif args.tasklist is not None:
         cmd += "-t {taskblock} "
+    else:
+        pass
 
     # Prevent GridEngine from running this new job until the specified job ID is finished.
     if args.hold_jid is not None:
