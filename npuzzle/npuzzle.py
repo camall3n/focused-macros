@@ -18,25 +18,33 @@ class NPuzzle:
         directions = [self.up, self.down, self.left, self.right]
         return [d(self.blank_idx) for d in directions if d(self.blank_idx) is not None]
 
-    def up(self, loc):
+    def up(self, loc=None):
+        if loc is None:
+            loc = self.blank_idx
         row, col = loc
         row, col = row-1, col
         if row >= 0:
             return row, col
         return None
-    def down(self, loc):
+    def down(self, loc=None):
+        if loc is None:
+            loc = self.blank_idx
         row, col = loc
         row, col = row+1, col
         if row < self.width:
             return row, col
         return None
-    def left(self, loc):
+    def left(self, loc=None):
+        if loc is None:
+            loc = self.blank_idx
         row, col = loc
         row, col = row, col-1
         if col >= 0:
             return row, col
         return None
-    def right(self, loc):
+    def right(self, loc=None):
+        if loc is None:
+            loc = self.blank_idx
         row, col = loc
         row, col = row, col+1
         if col < self.width:
@@ -52,7 +60,9 @@ class NPuzzle:
         if seed is not None:
             st = np.random.get_state()
             np.random.seed(seed)
-        for i in range(self.n**2):
+        # need both even and odd n_steps for blank to reach every space
+        n_steps = random.choice([self.n**2,self.n**2+1])
+        for i in range(n_steps):
             a = random.choice(self.actions())
             self.transition(a)
             self.sequence.append(a)
