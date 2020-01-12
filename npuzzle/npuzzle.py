@@ -151,27 +151,26 @@ def test_default_baseline():
     assert baseline == puz
 
 def test_custom_baseline():
-    #%%
     puz = NPuzzle(15)
     puz.transition(puz.left())
     puz.transition(puz.left())
     puz.transition(puz.left())
     model = puz.summarize_effects()
     assert model == (((15, 12), (12, 13), (13, 14), (14, 15)), (3, 3))
-    #%%
+
     baseline = NPuzzle(15)
     baseline.scramble(seed=40)# Seed 40 has blank in lower right corner
     assert baseline.blank_idx == (3,3)
-    #%%
+
     newpuz = copy.deepcopy(baseline)
     newpuz.transition(newpuz.left())
     newpuz.transition(newpuz.left())
     newpuz.transition(newpuz.left())
     assert newpuz.blank_idx == puz.blank_idx
-    #%%
+
     new_model = newpuz.summarize_effects(baseline=baseline)
     assert new_model == model
-#%%
+
 if __name__ == '__main__':
     test_default_baseline()
     test_custom_baseline()
