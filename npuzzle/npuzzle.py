@@ -125,13 +125,15 @@ class NPuzzle:
     def summarize_effects(self, baseline=None):
         if baseline is None:
             baseline = copy.deepcopy(self).reset()
-        src_tiles = [tile for tile in baseline.state.flatten()]
-        dst_tiles = [tile for tile in self.state.flatten()]
-        swap_list = list(zip(dst_tiles, src_tiles))
+        src_indices = np.arange(self.n+1)
+        src_tiles = baseline.state.flatten()
+        src_dict = dict(zip(src_tiles, src_indices))
+        dst_indices = [src_dict[tile] for tile in self.state.flatten()]
+        swap_list = list(zip(dst_indices, src_indices))
         swap_list = tuple([swap for swap in swap_list if swap[0] != swap[1]])
         return swap_list, baseline.blank_idx
 
-def test():
+def test_default_baseline():
     puz = NPuzzle(15)
     puz.scramble()
 
@@ -148,5 +150,29 @@ def test():
     baseline.apply_macro(model=puz.summarize_effects())
     assert baseline == puz
 
+def test_custom_baseline():
+    #%%
+    puz = NPuzzle(15)
+    puz.transition(puz.left())
+    puz.transition(puz.left())
+    puz.transition(puz.left())
+    model = puz.summarize_effects()
+    assert model == (((15, 12), (12, 13), (13, 14), (14, 15)), (3, 3))
+    #%%
+    baseline = NPuzzle(15)
+    baseline.scramble(seed=40)# Seed 40 has blank in lower right corner
+    assert baseline.blank_idx == (3,3)
+    #%%
+    newpuz = copy.deepcopy(baseline)
+    newpuz.transition(newpuz.left())
+    newpuz.transition(newpuz.left())
+    newpuz.transition(newpuz.left())
+    assert newpuz.blank_idx == puz.blank_idx
+    #%%
+    new_model = newpuz.summarize_effects(baseline=baseline)
+    assert new_model == model
+#%%
 if __name__ == '__main__':
-    test()
+    test_default_baseline()
+    test_custom_baseline()
+    print('All tests passed.')
