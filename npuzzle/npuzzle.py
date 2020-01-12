@@ -109,8 +109,8 @@ class NPuzzle:
             if self.blank_idx == starting_blank_idx:
                 old_state = self.state.flatten()
                 new_state = self.state.flatten()
-                for (start_tile, end_tile) in swap_list:
-                    new_state[end_tile] = old_state[start_tile]
+                for (src_idx, dst_idx) in swap_list:
+                    new_state[dst_idx] = old_state[src_idx]
                 self.state = new_state.reshape(self.width, self.width)
                 self.blank_idx = np.where(self.state==self.n)
             else:# starting blanks don't line up
@@ -170,6 +170,9 @@ def test_custom_baseline():
 
     new_model = newpuz.summarize_effects(baseline=baseline)
     assert new_model == model
+    assert NPuzzle(15).apply_macro(model=model) == puz
+    assert copy.deepcopy(baseline).apply_macro(model=new_model) == newpuz
+    assert puz != newpuz
 
 if __name__ == '__main__':
     test_default_baseline()
