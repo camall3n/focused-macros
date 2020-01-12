@@ -8,7 +8,7 @@ import os
 import pandas as pd
 import seaborn as sns
 
-n_puzzle = 8
+n_puzzle = 15
 results_dir = 'results/npuzzle/{}-puzzle/default_goal/'.format(n_puzzle)
 
 transition_cap = 1e5
@@ -16,7 +16,8 @@ transition_cap = 1e5
 # n_vars, n_values, transition_cap = 12, 4, 40e6
 
 result_files = sorted(glob.glob(results_dir+'*/*.pickle'))
-all_tags = list(map(str,np.unique([filename.split('/')[-2] for filename in result_files])))
+all_tags = ['primitive', 'generated']
+
 
 def generate_plot(filename, ax, color=None):
     with open(filename, 'rb') as f:
