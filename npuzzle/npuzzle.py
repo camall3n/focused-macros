@@ -112,7 +112,7 @@ class NPuzzle:
                 for (start_tile, end_tile) in swap_list:
                     new_state[end_tile] = old_state[start_tile]
                 self.state = new_state.reshape(self.width, self.width)
-                self.blank_idx = np.where(self.state==puz.n)
+                self.blank_idx = np.where(self.state==self.n)
             else:# starting blanks don't line up
                 pass # cannot execute macro
         elif sequence is not None:
