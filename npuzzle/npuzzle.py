@@ -58,7 +58,9 @@ class NPuzzle:
 
     def scramble(self, seed=None):
         if seed is not None:
-            st = np.random.get_state()
+            py_st = random.getstate()
+            np_st = np.random.get_state()
+            random.seed(seed)
             np.random.seed(seed)
         # need both even and odd n_steps for blank to reach every space
         n_steps = random.choice([self.n**2,self.n**2+1])
@@ -67,7 +69,8 @@ class NPuzzle:
             self.transition(a)
             self.sequence.append(a)
         if seed is not None:
-            np.random.set_state(st)
+            random.setstate(py_st)
+            np.random.set_state(np_st)
         return self
 
     def transition(self, tile_idx):
