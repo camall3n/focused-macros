@@ -6,7 +6,6 @@ import os
 import sys
 from npuzzle import npuzzle
 from notebooks import astar
-from cube import options
 
 if 'ipykernel' in sys.argv[0]:
     sys.argv = [sys.argv[0], '-v', '0.1']
