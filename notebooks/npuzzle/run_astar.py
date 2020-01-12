@@ -6,6 +6,7 @@ import random
 import os
 import sys
 from npuzzle.npuzzle import NPuzzle
+from npuzzle.options import generated
 from notebooks import astar
 
 if 'ipykernel' in sys.argv[0]:
@@ -50,9 +51,8 @@ if args.skill_mode == 'primitive':
 elif args.skill_mode == 'random':
     raise NotImplementedError
 elif args.skill_mode == 'generated':
-    raise NotImplementedError
-    skills = []
-    models = [copy.deepcopy(newpuz).apply_macro(diff=s).summarize_effects(baseline=newpuz) for s in skills]
+    skills = generated.options
+    models = generated.models
 
 
 # Set up the search problem
@@ -62,8 +62,10 @@ step_cost = lambda skill: 1
 
 def get_successors(puz):
     primitive_successors = [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]
-    macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(skills, models)]
-    return primitive_successors+macro_successors
+    local_skills = skills[puz.blank_idx]
+    local_models = models[puz.blank_idx]
+    macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(local_skills, local_models)]
+    return primitive_successors + macro_successors
 
 #%% Run the search
 search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)

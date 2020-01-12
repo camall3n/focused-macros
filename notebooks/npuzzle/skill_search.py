@@ -8,7 +8,7 @@ from npuzzle import npuzzle
 from notebooks import astar
 
 if 'ipykernel' in sys.argv[0]:
-    sys.argv = [sys.argv[0], '-v', '0.1']
+    sys.argv = [sys.argv[0], '-v', '0.2']
 parser = argparse.ArgumentParser()
 parser.add_argument('-n', type=int, default=15, choices=[8, 15, 24, 35, 48, 63, 80],
                     help='Number of tiles')
@@ -26,6 +26,7 @@ args = parser.parse_args()
 
 #%% Make n-puzzle and set initial blank location
 puzzle = npuzzle.NPuzzle(n=15)
+puzzle.blank_idx
 start_blank = args.r, args.c
 while start_blank[0] < puzzle.blank_idx[0]:
     puzzle.transition(puzzle.up())

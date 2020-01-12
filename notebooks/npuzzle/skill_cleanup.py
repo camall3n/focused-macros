@@ -3,10 +3,7 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 
-
-from cube.options import expert
-
-version = '0.1'
+version = '0.2'
 results_dir = 'results/skillsearch/npuzzle/'
 filenames = glob.glob(results_dir+'v'+version+'-*-results.pickle')
 skills = {}
@@ -31,7 +28,7 @@ for filename in filenames:
 #%% Save the results
 os.makedirs('results/skillsearch/npuzzle/', exist_ok=True)
 with open('results/skillsearch/npuzzle/v{}-clean_skills.pickle'.format(version), 'wb') as f:
-    pickle.dump(clean_skills, f)
+    pickle.dump(skills, f)
 
 # #%% Print the generated skills v0.3
 # states, actions, n_expanded, n_transitions, candidates, best_n = search_results

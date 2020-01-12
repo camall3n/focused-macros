@@ -112,7 +112,7 @@ class NPuzzle:
                 for (src_idx, dst_idx) in swap_list:
                     new_state[dst_idx] = old_state[src_idx]
                 self.state = new_state.reshape(self.width, self.width)
-                self.blank_idx = np.where(self.state==self.n)
+                self.blank_idx = tuple(np.argwhere(self.state==self.n)[0])
             else:# starting blanks don't line up
                 pass # cannot execute macro
         elif sequence is not None:

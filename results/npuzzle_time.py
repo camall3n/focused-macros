@@ -11,7 +11,7 @@ import seaborn as sns
 n_puzzle = 15
 results_dir = 'results/npuzzle/{}-puzzle/default_goal/'.format(n_puzzle)
 
-transition_cap = 1e5
+transition_cap = 2e6
 # n_vars, n_values, transition_cap = 15, 4, 20e6
 # n_vars, n_values, transition_cap = 12, 4, 40e6
 
