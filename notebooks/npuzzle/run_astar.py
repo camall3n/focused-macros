@@ -6,7 +6,7 @@ import random
 import os
 import sys
 from npuzzle.npuzzle import NPuzzle
-from npuzzle.options import generated
+from npuzzle import options
 from notebooks import astar
 
 if 'ipykernel' in sys.argv[0]:
@@ -49,10 +49,12 @@ if args.skill_mode == 'primitive':
     skills = []
     models = []
 elif args.skill_mode == 'random':
-    raise NotImplementedError
+    options.set_random_skill_seed(seed)
+    skills = options.random.options
+    models = options.random.models
 elif args.skill_mode == 'generated':
-    skills = generated.options
-    models = generated.models
+    skills = options.generated.options
+    models = options.generated.models
 
 
 # Set up the search problem
