@@ -33,13 +33,13 @@ handles, labels = ax.get_legend_handles_labels()
 handles = [handles[0], handles[1],handles[3], handles[2], handles[4]]
 labels = [labels[0], labels[1],labels[3], labels[2], labels[4]]
 plt.legend(handles, labels)
-plt.title('Skill Effect Size by Type')
+plt.title('Skill entanglement by type (Rubik\'s cube)')
 plt.xlabel('Number of primitive actions per skill')
 plt.ylabel('Number of state variables modified')
 plt.ylim([0,50])
 plt.xlim([0,25])
 plt.xticks(range(1,25))
-plt.savefig('results/plots/skill_effects_by_type.png')
+plt.savefig('results/plots/rubiks/rubiks_skill_effects_by_type.png')
 plt.show()
 
 # #%%

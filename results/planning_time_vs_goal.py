@@ -36,7 +36,7 @@ def generate_plot(filename, ax, color=None, label=None):
     return n_errors
 
 fig, ax = plt.subplots(figsize=(8,6))
-ax.set_title('Planning performance')
+ax.set_title('Planning performance by goal type (Rubik\'s cube)')
 ax.set_ylim([0,50])
 ax.set_xlim([0,2e6])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
@@ -53,8 +53,8 @@ for i,f in enumerate(random_results):
     label = None if i > 0 else 'random goals'
     generate_plot(f, ax, 'C4', label=label)
 
-ax.legend()
-plt.savefig('results/plots/planning_alt_goals.png'.format(gen_version))
+ax.legend(framealpha=1)
+plt.savefig('results/plots/rubiks/rubiks_planning_alt_goals.png'.format(gen_version))
 plt.show()
 
 #%%

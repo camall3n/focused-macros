@@ -16,10 +16,11 @@ transition_cap = 2e6
 # n_vars, n_values, transition_cap = 12, 4, 40e6
 
 result_files = sorted(glob.glob(results_dir+'*/*.pickle'))
-all_tags = ['primitive', 'generated']
+all_tags = ['primitive', 'random', 'generated']
 
-
-def generate_plot(filename, ax, color=None):
+#%%
+curve_data = []
+for filename in result_files:
     with open(filename, 'rb') as f:
         search_results = pickle.load(f)
     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
@@ -38,22 +39,21 @@ def generate_plot(filename, ax, color=None):
         x += [n_transitions]
         y += [y[-1]]
 
-    label = None if seed > 1 else tag
-    color = 'C{}'.format([i for i,t in enumerate(all_tags) if tag == t][0])
-    ax.plot(x,y,c=color,alpha=0.6, label=label)
-    return n_errors
+    [curve_data.append({'transitions': t, 'n_errors': e, 'seed': seed, 'tag': tag}) for t, e in zip(x,y)]
 
+curve_data = pd.DataFrame(curve_data)
 fig, ax = plt.subplots(figsize=(8,6))
-ax.set_title('Planning performance ({}-Puzzle)'.format(n_puzzle))
-for i,f in enumerate(result_files):
-    generate_plot(f, ax, color)
+sns.lineplot(data=curve_data, x='transitions', y='n_errors', hue='tag', hue_order=all_tags, palette=['C0','C2','C3'], estimator=None, units='seed', alpha=0.6, ax=ax)
+handles, labels = ax.get_legend_handles_labels()
+ax.legend(handles[1:],labels[1:])
 ax.hlines(n_puzzle+1,0,transition_cap,linestyles='dashed',linewidths=1)
 ax.set_ylim([0,ax.get_ylim()[1]])
 ax.set_xlim([0,transition_cap])
+ax.set_xticklabels(np.asarray(ax.get_xticks())/1e6)
+ax.set_xlabel('Number of transitions considered (millions)')
 ax.set_ylabel('Number of errors remaining')
-ax.set_xlabel('Number of transitions considered')
-ax.legend()
-plt.savefig('results/plots/npuzzle_planning_time.png')
+ax.set_title('Planning performance ({}-Puzzle)'.format(n_puzzle))
+plt.savefig('results/plots/npuzzle/npuzzle_planning_time.png')
 plt.show()
 
 #%%
@@ -111,12 +111,12 @@ for tag in all_tags:
     print('{:10s} {}'.format(tag+':', missing_str))
 
 #%%
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(8,6))
 sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).mean(), hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], markers=['o','^','P'], ax=ax, s=70)
 ax.hlines(n_puzzle+1,0,transition_cap,linestyles='dashed',linewidths=1)
 ax.set_xlim([0,transition_cap])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.set_title('Mean final planning performance')
+ax.set_title('Mean final planning performance (15-Puzzle)')
 ax.set_ylabel('Number of errors remaining')
 ax.set_xlabel('Number of transitions considered (millions)')
 
@@ -124,5 +124,5 @@ handles, labels = ax.get_legend_handles_labels()
 handles = handles[1:]
 labels = ['actions only','actions + random skills', 'actions + generated skills']
 ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-plt.savefig('results/plots/mean_npuzzle_planning_performance.png')
+plt.savefig('results/plots/npuzzle/npuzzle_mean_planning_performance.png')
 plt.show()

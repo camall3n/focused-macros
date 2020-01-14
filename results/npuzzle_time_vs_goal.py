@@ -34,7 +34,7 @@ def generate_plot(filename, ax, color=None, label=None):
     return n_errors
 
 fig, ax = plt.subplots(figsize=(8,6))
-ax.set_title('Planning performance')
+ax.set_title('Planning performance (15-Puzzle)')
 ax.set_ylim([0,16])
 ax.set_xlim([0,transition_cap])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
@@ -52,7 +52,7 @@ for i,f in enumerate(default_results):
     generate_plot(f, ax, 'C3', label=label)
 
 ax.legend()
-plt.savefig('results/plots/npuzzle_planning_alt_goals.png')
+plt.savefig('results/plots/npuzzle/npuzzle_planning_alt_goals.png')
 plt.show()
 
 #%%
