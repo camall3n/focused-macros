@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 
-from util import rsync
 from cube.cube import actions as primitive_actions
 from cube.options import expert
 

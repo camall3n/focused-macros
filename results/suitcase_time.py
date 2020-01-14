@@ -7,10 +7,6 @@ import os
 import pandas as pd
 import seaborn as sns
 
-from util import rsync
-
-# rsync(source='brown:~/dev/skills-for-planning/results/planning',
-      # dest='results/')
 results_dir = 'results/asymmetricsuitcaselock/'
 
 n_vars, n_values, transition_cap = 20, 2, 1e8

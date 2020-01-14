@@ -8,10 +8,7 @@ import seaborn as sns
 
 from cube import cube
 from cube import pattern
-from util import rsync
 
-# rsync(source='brown:~/dev/skills-for-planning/results/planning',
-      # dest='results/')
 results_dir = 'results/planning/default_goal/'
 primitive_results = glob.glob(results_dir+'primitive/*.pickle')
 expert_results = glob.glob(results_dir+'expert/*.pickle')

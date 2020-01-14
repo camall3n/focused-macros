@@ -6,11 +6,8 @@ import pandas as pd
 import pickle
 import seaborn as sns
 
-from util import rsync
 from cube import cube, pattern
 
-# rsync(source='brown:~/dev/skills-for-planning/results/planning',
-      # dest='results/')
 gen_version = '0.2'
 default_results = sorted(glob.glob('results/planning/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
 random_results = sorted(glob.glob('results/planning/random_goal/'+'generated-v'+gen_version+'/*.pickle'))

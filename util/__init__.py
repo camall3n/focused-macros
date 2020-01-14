@@ -1,10 +1,3 @@
-import subprocess
-
-def rsync(source, dest):
-    args = ["rsync", "-zurP", source, dest]
-    print(' '.join(args))
-    subprocess.run(args, env={'LANG': 'en_US.UTF-8'})
-
 class ansi_colors: pass
 ansi_colors.red = '\x1b[41m'
 ansi_colors.orange = '\x1b[48;5;130m'
