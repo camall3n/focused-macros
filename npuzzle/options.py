@@ -9,33 +9,17 @@ results_dir = 'results/skillsearch/npuzzle/'
 filename = results_dir+'v'+version+'-clean_skills.pickle'
 with open(filename, 'rb') as f:
     _options = pickle.load(f)
-_puzzles = {}
-for start_blank in _options.keys():
-    puzzle = npuzzle.NPuzzle(n=15)
-    while start_blank[0] < puzzle.blank_idx[0]:
-        puzzle.transition(puzzle.up())
-    while start_blank[1] < puzzle.blank_idx[1]:
-        puzzle.transition(puzzle.left())
-    assert puzzle.blank_idx == start_blank
-    _puzzles[start_blank] = copy.deepcopy(puzzle)
 _models = {}
 for blank_idx, sequences in _options.items():
-    _models[blank_idx] = [copy.deepcopy(_puzzles[blank_idx]).apply_macro(o).summarize_effects(baseline=_puzzles[blank_idx]) for o in sequences]
+    puzzle = npuzzle.NPuzzle(n=15, start_blank=blank_idx)
+    _models[blank_idx] = [copy.deepcopy(puzzle).apply_macro(o).summarize_effects(baseline=puzzle) for o in sequences]
 
 class generated:
     options = _options
     models = _models
 
 def random_skill(start_blank, length):
-    puzzle = npuzzle.NPuzzle(n=15)
-    # start_blank = np.random.choice(4,2)
-    start_row, start_col = start_blank
-    while start_row < puzzle.blank_idx[0]:
-        puzzle.transition(puzzle.up())
-    while start_col < puzzle.blank_idx[1]:
-        puzzle.transition(puzzle.left())
-    assert puzzle.blank_idx == start_blank
-    baseline = copy.deepcopy(puzzle)
+    baseline = npuzzle.NPuzzle(n=15, start_blank=start_blank)
     effect_size = 0
     while effect_size == 0:
         puzzle = copy.deepcopy(baseline)

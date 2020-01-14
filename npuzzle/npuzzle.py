@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 class NPuzzle:
-    def __init__(self, n=8):
+    def __init__(self, n=8, start_blank=None):
         self.n = int(n)
         self.width = int(np.round(np.sqrt(n+1)))
         assert self.width**2-1 == self.n
@@ -13,6 +13,13 @@ class NPuzzle:
         self.labels = list(range(1,self.n+1))+[0]
 
         self.sequence = []
+
+        if start_blank is not None:
+            while start_blank[0] < self.blank_idx[0]:
+                self.transition(self.up())
+            while start_blank[1] < self.blank_idx[1]:
+                self.transition(self.left())
+            assert self.blank_idx == start_blank
 
     def actions(self):
         directions = [self.up, self.down, self.left, self.right]

@@ -25,16 +25,8 @@ parser.add_argument('--save_best_n', type=int, default=100,
 args = parser.parse_args()
 
 #%% Make n-puzzle and set initial blank location
-puzzle = npuzzle.NPuzzle(n=15)
-puzzle.blank_idx
-start_blank = args.r, args.c
-while start_blank[0] < puzzle.blank_idx[0]:
-    puzzle.transition(puzzle.up())
-while start_blank[1] < puzzle.blank_idx[1]:
-    puzzle.transition(puzzle.left())
-assert puzzle.blank_idx == start_blank
+puzzle = npuzzle.NPuzzle(n=15, start_blank=(args.r, args.c))
 tag = 'n{}-r{}-c{}'.format(args.n, *puzzle.blank_idx)
-
 
 #%% Configure the search
 startpuz = copy.deepcopy(puzzle)

@@ -38,3 +38,19 @@ plt.legend(loc='upper left')
 plt.title('Skill effect size vs. skill length (15-puzzle)')
 plt.savefig('results/plots/npuzzle_skill_effect_size_vs_length.png')
 plt.show()
+
+#%% Visualize some options
+for blank_idx in [(3,3)]:#options.generated.models.keys():
+    option_list = options.generated.options[blank_idx]
+    model_list = options.generated.models[blank_idx]
+    for i in range(len(option_list)):
+        option = option_list[i]
+        model = model_list[i]
+        if len(model[0]) == 2 and len(option) == 19:
+            puz = npuzzle.NPuzzle(n=15, start_blank=blank_idx)
+            print(puz)
+            puz.apply_macro(model=model)
+            print(option)
+            print(model)
+            print(puz)
+            print()
