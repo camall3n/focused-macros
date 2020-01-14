@@ -86,7 +86,7 @@ if args.random_goal:
     tag = 'random_goal/'+tag
 else:
     tag = 'default_goal/'+tag
-results_dir = 'results/planning/{}/'.format(tag)
+results_dir = 'results/rubiks/{}/'.format(tag)
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
     pickle.dump(search_results, f)

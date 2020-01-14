@@ -39,6 +39,6 @@ def get_successors(cube):
 search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions, save_best_n)
 
 #%% Save the results
-os.makedirs('results/skillsearch', exist_ok=True)
-with open('results/skillsearch/v{}-results.pickle'.format(version), 'wb') as f:
+os.makedirs('results/skillsearch/rubiks', exist_ok=True)
+with open('results/skillsearch/rubiks/v{}-results.pickle'.format(version), 'wb') as f:
     pickle.dump(search_results, f)

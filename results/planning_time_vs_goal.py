@@ -9,8 +9,8 @@ import seaborn as sns
 from cube import cube, pattern
 
 gen_version = '0.2'
-default_results = sorted(glob.glob('results/planning/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
-random_results = sorted(glob.glob('results/planning/random_goal/'+'generated-v'+gen_version+'/*.pickle'))
+default_results = sorted(glob.glob('results/rubiks/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
+random_results = sorted(glob.glob('results/rubiks/random_goal/'+'generated-v'+gen_version+'/*.pickle'))
 
 #%%
 def generate_plot(filename, ax, color=None, label=None):

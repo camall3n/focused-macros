@@ -21,7 +21,7 @@ class expert:
 
 def load_generated_skills(version):
     class generated_skills:
-        results_dir = 'results/skillsearch/'
+        results_dir = 'results/skillsearch/rubiks/'
         filename = results_dir+'v'+version+'-clean_skills.pickle'
         with open(filename, 'rb') as f:
             options = pickle.load(f)

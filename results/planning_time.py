@@ -9,7 +9,7 @@ import seaborn as sns
 from cube import cube
 from cube import pattern
 
-results_dir = 'results/planning/default_goal/'
+results_dir = 'results/rubiks/default_goal/'
 primitive_results = glob.glob(results_dir+'primitive/*.pickle')
 expert_results = glob.glob(results_dir+'expert/*.pickle')
 random_results = glob.glob(results_dir+'random/*.pickle')

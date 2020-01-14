@@ -7,7 +7,7 @@ from cube.cube import actions as primitive_actions
 from cube.options import expert
 
 version = '0.4'# 0.4 is 0.2 with more skills saved
-results_dir = 'results/skillsearch/'
+results_dir = 'results/skillsearch/rubiks/'
 filename = glob.glob(results_dir+'v'+version+'-results.pickle')[-1]
 with open(filename, 'rb') as f:
     search_results = pickle.load(f)
@@ -24,8 +24,8 @@ for score, skill in best_n:
 clean_skills = clean_skills[-n_options:]
 
 #%% Save the results
-os.makedirs('results/skillsearch', exist_ok=True)
-with open('results/skillsearch/v{}-clean_skills.pickle'.format(version), 'wb') as f:
+os.makedirs('results/skillsearch/rubiks', exist_ok=True)
+with open('results/skillsearch/rubiks/v{}-clean_skills.pickle'.format(version), 'wb') as f:
     pickle.dump(clean_skills, f)
 
 # #%% Print the generated skills v0.3
