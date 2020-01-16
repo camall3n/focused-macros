@@ -6,6 +6,7 @@ import pickle
 import os
 import pandas as pd
 import seaborn as sns
+import notebooks.picklefix
 
 results_dir = 'results/suitcaselock/'
 

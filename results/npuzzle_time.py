@@ -7,6 +7,7 @@ import pickle
 import os
 import pandas as pd
 import seaborn as sns
+import notebooks.picklefix
 
 n_puzzle = 15
 results_dir = 'results/npuzzle/{}-puzzle/default_goal/'.format(n_puzzle)

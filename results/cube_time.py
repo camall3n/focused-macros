@@ -8,6 +8,7 @@ import seaborn as sns
 
 from cube import cube
 from cube import pattern
+import notebooks.picklefix
 
 results_dir = 'results/cube/default_goal/'
 primitive_results = glob.glob(results_dir+'primitive/*.pickle')
