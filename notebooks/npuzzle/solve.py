@@ -24,7 +24,7 @@ parser.add_argument('--search_alg', type=str, default='astar', choices = ['astar
 parser.add_argument('--g_weight', type=float, default=None,
                     help='Weight for g-score in weighted A*')
 parser.add_argument('--h_weight', type=float, default=None,
-                    help='Weight for g-score in weighted A*')
+                    help='Weight for h-score in weighted A*')
 parser.add_argument('--random-goal','-r', action='store_true', default=False,
                     help='Generate a random goal instead of the default solve configuration')
 parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
