@@ -10,7 +10,7 @@ from cube import cube
 from cube import pattern
 import notebooks.picklefix
 
-results_dir = 'results/cube/default_goal/'
+results_dir = 'results/cube/astar/default_goal/'
 primitive_results = glob.glob(results_dir+'primitive/*.pickle')
 expert_results = glob.glob(results_dir+'expert/*.pickle')
 random_results = glob.glob(results_dir+'random/*.pickle')

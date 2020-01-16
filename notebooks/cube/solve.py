@@ -17,11 +17,17 @@ parser.add_argument('--scramble_seed','-s', type=int, default=1,
 parser.add_argument('--skill_mode','-m', type=str, default='expert',
                     choices=['primitive','expert','fixed_random','full_random','generated'],
                     help='Type of skills to consider during search')
-parser.add_argument('--random-goal','-r', action='store_true', default=False,
-                    help='Generate a random goal instead of the default solve configuration')
 parser.add_argument('--skill_version','-v', type=str, default='0.4',
                     choices=['0.1','0.2','0.3','0.4'],
                     help='Which version to use for generated skills')
+parser.add_argument('--search_alg', type=str, default='astar',
+                    help='Search algorithm to run')
+parser.add_argument('--g_weight', type=float, default=None,
+                    help='Weight for g-score in weighted A*')
+parser.add_argument('--h_weight', type=float, default=None,
+                    help='Weight for g-score in weighted A*')
+parser.add_argument('--random-goal','-r', action='store_true', default=False,
+                    help='Generate a random goal instead of the default solve configuration')
 parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
                     help='Maximum number of variables changed per primitive action')
 args = parser.parse_args()
@@ -76,7 +82,14 @@ def get_successors(cube):
     return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
 
 #%% Run the search
-search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+if args.search_alg == 'astar':
+    search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+elif args.search_alg == 'gbfs':
+    search_results = search.gbfs(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+elif args.search_alg == 'weighted-astar':
+    assert args.g_weight is not None and args.h_weight is not None, 'Must specify weights if using weighted A*.'
+    gh_weights = args.g_weight, args.h_weight
+    search_results = search.weighted_astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions, gh_weights=gh_weights)
 
 #%% Save the results
 tag = skill_mode
@@ -86,7 +99,7 @@ if args.random_goal:
     tag = 'random_goal/'+tag
 else:
     tag = 'default_goal/'+tag
-results_dir = 'results/cube/{}/'.format(tag)
+results_dir = 'results/cube/{}/{}/'.format(args.search_alg, tag)
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
     pickle.dump(search_results, f)

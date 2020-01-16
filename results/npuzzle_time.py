@@ -10,7 +10,7 @@ import seaborn as sns
 import notebooks.picklefix
 
 n_puzzle = 15
-results_dir = 'results/npuzzle/{}-puzzle/default_goal/'.format(n_puzzle)
+results_dir = 'results/npuzzle/astar/{}-puzzle/default_goal/'.format(n_puzzle)
 
 transition_cap = 2e6
 # n_vars, n_values, transition_cap = 15, 4, 20e6

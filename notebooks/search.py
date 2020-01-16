@@ -121,5 +121,5 @@ def astar(*args, **kwargs):
 def djikstra(*args, **kwargs):
     return weighted_astar(*args, heuristic=lambda x: 0, gh_weights=(1,0), **kwargs)
 
-def gbfs(*args, **kwargs):
+def gbfs(*args, **kwargs):# greedy best-first search
     return weighted_astar(*args, gh_weights=(0,1), **kwargs)
