@@ -39,7 +39,7 @@ plt.ylabel('Number of state variables modified')
 plt.ylim([0,50])
 plt.xlim([0,25])
 plt.xticks(range(1,25))
-plt.savefig('results/plots/rubiks/rubiks_skill_effects_by_type.png')
+plt.savefig('results/plots/cube/cube_skill_effects_by_type.png')
 plt.show()
 
 # #%%

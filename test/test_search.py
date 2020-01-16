@@ -1,6 +1,6 @@
 import copy
 from cube import cube
-from notebooks import astar
+from notebooks import search
 from cube.options import primitive, expert, random
 from cube import pattern
 
@@ -25,7 +25,7 @@ def get_successors(cube):
     return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
 
 #%%
-states, actions, n_expanded, n_transitions = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions)
+states, actions, n_expanded, n_transitions = search.astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions)
 
 #%%
 for s in states:
@@ -54,7 +54,7 @@ models = primitive.models + expert.models
 step_cost = lambda skill: 1
 
 #%%
-states, actions, n_expanded, n_transitions = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions)
+states, actions, n_expanded, n_transitions = search.astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions)
 
 #%%
 for s in states:

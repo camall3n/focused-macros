@@ -9,7 +9,7 @@ import seaborn as sns
 from cube import cube
 from cube import pattern
 
-results_dir = 'results/rubiks/default_goal/'
+results_dir = 'results/cube/default_goal/'
 primitive_results = glob.glob(results_dir+'primitive/*.pickle')
 expert_results = glob.glob(results_dir+'expert/*.pickle')
 random_results = glob.glob(results_dir+'random/*.pickle')
@@ -67,7 +67,7 @@ handles,labels = ax.get_legend_handles_labels()
 handles = [handles[1], handles[3], handles[0], handles[2]]
 labels = [labels[1], labels[3], labels[0], labels[2]]
 ax.legend(handles, labels, framealpha=1, borderpad=0.7)
-plt.savefig('results/plots/rubiks/rubiks_planning_time.png')
+plt.savefig('results/plots/cube/cube_planning_time.png')
 plt.show()
 
 #%%
@@ -85,6 +85,8 @@ for tag, results in zip(all_tags, all_results):
             goal = cube.Cube()
         else:
             goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
+        n_action_steps = len(np.concatenate(actions))
+        n_skill_steps = len(actions)
 
         n_errors = len(states[-1].summarize_effects(baseline=goal))
         if n_errors == 0:
@@ -92,6 +94,8 @@ for tag, results in zip(all_tags, all_results):
         data.append({
             'tag': tag,
             'transitions': n_transitions,
+            'n_action_steps': n_action_steps,
+            'n_skill_steps': n_skill_steps,
             'seed': seed,
             'n_errors': n_errors,
         })
@@ -160,9 +164,88 @@ handles, labels = ax.get_legend_handles_labels()
 handles = handles[1:]
 labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
 ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-plt.savefig('results/plots/rubiks/rubiks_mean_planning_performance.png')
+plt.savefig('results/plots/cube/cube_mean_planning_performance.png')
 plt.show()
 
+#%%
+fig, ax = plt.subplots(figsize=(8,6))
+sns.scatterplot(x='n_action_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','generated':'C3'}, hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=150)
+ax.set_ylim([0,50])
+ax.set_xlim([0,ax.get_xlim()[1]])
+ax.hlines(48,0,ax.get_xlim()[1], linestyles='dashed',linewidths=1)
+ax.set_title('Final plan quality vs. length (Rubik\'s cube)')
+ax.set_ylabel('Number of errors remaining')
+ax.set_xlabel('Plan length (primitive action steps)')
+
+handles, labels = ax.get_legend_handles_labels()
+handles = handles[1:]
+labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
+ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
+plt.savefig('results/plots/cube/cube_plan_length_actions.png')
+plt.show()
+
+#%%
+fig, ax = plt.subplots(figsize=(8,6))
+sns.scatterplot(x='n_skill_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','generated':'C3'}, hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=150)
+ax.set_ylim([0,50])
+ax.set_xlim([0,ax.get_xlim()[1]])
+ax.hlines(48,0,ax.get_xlim()[1], linestyles='dashed',linewidths=1)
+ax.set_title('Final plan quality vs. length (Rubik\'s cube)')
+ax.set_ylabel('Number of errors remaining')
+ax.set_xlabel('Plan length (macro-action steps)')
+
+handles, labels = ax.get_legend_handles_labels()
+handles = handles[1:]
+labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
+ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
+plt.savefig('results/plots/cube/cube_plan_length_skills.png')
+plt.show()
+
+#%%
+data = []
+all_tags = ['primitive', 'expert', 'random', 'generated']
+all_results = [primitive_results, expert_results, full_random_results, generated_results]
+for tag, results in zip(all_tags, all_results):
+    for i,filename in enumerate(results):
+        with open(filename, 'rb') as f:
+            search_results = pickle.load(f)
+        seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
+        states, actions, n_expanded, n_transitions, candidates = search_results
+        if 'default_goal' in filename:
+            goal = cube.Cube()
+        else:
+            goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
+        n_action_steps = len(np.concatenate(actions))
+        n_skill_steps = len(actions)
+        skill_lengths = list(map(len,actions))
+
+        n_errors = len(states[-1].summarize_effects(baseline=goal))
+        [data.append({
+            'tag': tag,
+            'transitions': n_transitions,
+            'n_action_steps': n_action_steps,
+            'n_skill_steps': n_skill_steps,
+            'skill_length': l,
+            'seed': seed,
+            'n_errors': n_errors,
+        }) for l in skill_lengths]
+data = pd.DataFrame(data)
+
+fig, ax = plt.subplots(figsize=(8,6))
+sns.violinplot(x='tag', y='skill_length', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','generated':'C3'}, hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
+# ax.set_ylim([0,50])
+# ax.set_xlim([0,ax.get_xlim()[1]])
+# ax.hlines(48,0,ax.get_xlim()[1], linestyles='dashed',linewidths=1)
+ax.set_title('Skill length distribution (Rubik\'s cube)')
+ax.set_ylabel('Skill length (primitive actions)')
+ax.set_xlabel('Skill type')
+
+# handles, labels = ax.get_legend_handles_labels()
+# handles = handles[1:]
+# labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
+# ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
+plt.savefig('results/plots/cube/cube_skill_length.png')
+plt.show()
 #%%
 # render the cubes where expert skills failed to solve
 for i,filename in enumerate(generated_results):

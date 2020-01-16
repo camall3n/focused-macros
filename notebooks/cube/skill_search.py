@@ -4,7 +4,7 @@ import pickle
 import os
 import sys
 from cube import cube
-from notebooks import astar
+from notebooks import search
 from cube import options
 
 version = '0.3'
@@ -36,9 +36,9 @@ def get_successors(cube):
     return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
 
 #%% Run the search
-search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, max_transitions, save_best_n)
+search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions, save_best_n)
 
 #%% Save the results
-os.makedirs('results/skillsearch/rubiks', exist_ok=True)
-with open('results/skillsearch/rubiks/v{}-results.pickle'.format(version), 'wb') as f:
+os.makedirs('results/skillsearch/cube', exist_ok=True)
+with open('results/skillsearch/cube/v{}-results.pickle'.format(version), 'wb') as f:
     pickle.dump(search_results, f)

@@ -7,7 +7,7 @@ import os
 import sys
 from npuzzle.npuzzle import NPuzzle
 from npuzzle import options
-from notebooks import astar
+from notebooks import search
 
 if 'ipykernel' in sys.argv[0]:
     sys.argv = [sys.argv[0]]
@@ -63,14 +63,16 @@ heuristic = lambda puz: len(puz.summarize_effects(baseline=goal)[0])
 step_cost = lambda skill: 1
 
 def get_successors(puz):
-    primitive_successors = [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]
-    local_skills = skills[puz.blank_idx]
-    local_models = models[puz.blank_idx]
-    macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(local_skills, local_models)]
-    return primitive_successors + macro_successors
+    successors = [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]
+    if args.skill_mode != 'primitive':
+        local_skills = skills[puz.blank_idx]
+        local_models = models[puz.blank_idx]
+        macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(local_skills, local_models)]
+        successors += macro_successors
+    return successors
 
 #%% Run the search
-search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
 
 #%% Save the results
 tag = '{}-puzzle/'.format(args.n)

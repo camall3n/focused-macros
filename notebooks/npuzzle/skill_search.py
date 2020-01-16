@@ -5,7 +5,7 @@ import pickle
 import os
 import sys
 from npuzzle import npuzzle
-from notebooks import astar
+from notebooks import search
 
 if 'ipykernel' in sys.argv[0]:
     sys.argv = [sys.argv[0], '-v', '0.2']
@@ -43,7 +43,7 @@ def get_successors(puz):
     return [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]
 
 #%% Run the search
-search_results = astar.search(startpuz, is_goal, step_cost, heuristic, get_successors, args.max_transitions, args.save_best_n)
+search_results = search.astar(startpuz, is_goal, step_cost, heuristic, get_successors, args.max_transitions, args.save_best_n)
 
 #%% Save the results
 results_dir = 'results/skillsearch/npuzzle/'

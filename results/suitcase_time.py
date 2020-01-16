@@ -7,7 +7,7 @@ import os
 import pandas as pd
 import seaborn as sns
 
-results_dir = 'results/asymmetricsuitcaselock/'
+results_dir = 'results/suitcaselock/'
 
 n_vars, n_values, transition_cap = 20, 2, 5e7
 # n_vars, n_values, transition_cap = 15, 4, 20e6

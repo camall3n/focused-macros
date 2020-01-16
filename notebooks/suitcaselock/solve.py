@@ -6,7 +6,7 @@ import random
 import os
 import sys
 from suitcaselock.suitcaselock import SuitcaseLock
-from notebooks import astar
+from notebooks import search
 
 if 'ipykernel' in sys.argv[0]:
     sys.argv = [sys.argv[0]]
@@ -54,7 +54,7 @@ def get_successors(lock):
     return [(copy.deepcopy(lock).apply_macro(diff=m), s) for s,m in zip(skills, models)]
 
 #%% Run the search
-search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
 
 #%% Save the results
 tag = 'n_vars-{}/n_values-{}/entanglement-{}'

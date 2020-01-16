@@ -4,7 +4,7 @@ import pickle
 import os
 import sys
 from cube import cube
-from notebooks import astar
+from notebooks import search
 from cube import options
 from cube import pattern
 from matplotlib import pyplot as plt
@@ -76,7 +76,7 @@ def get_successors(cube):
     return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
 
 #%% Run the search
-search_results = astar.search(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
 
 #%% Save the results
 tag = skill_mode
@@ -86,7 +86,7 @@ if args.random_goal:
     tag = 'random_goal/'+tag
 else:
     tag = 'default_goal/'+tag
-results_dir = 'results/rubiks/{}/'.format(tag)
+results_dir = 'results/cube/{}/'.format(tag)
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
     pickle.dump(search_results, f)
