@@ -27,7 +27,7 @@ def reconstruct_path(node):
         node = node.parent
     return states, actions
 
-def weighted_astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions=0, save_best_n=1, debug_fn=None, quiet=False, gh_weights=(1,1)):
+def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions=0, save_best_n=1, debug_fn=None, quiet=False, gh_weights=(1,1)):
     n_expanded = 0
     n_transitions = 0
     open_set = pq.PriorityQueue()
@@ -114,6 +114,14 @@ def weighted_astar(start, is_goal, step_cost, heuristic, get_successors, max_tra
             return reconstruct_path(best) + (n_expanded, n_transitions, candidates, best_n.items())
         else:
             return reconstruct_path(best) + (n_expanded, n_transitions, candidates)
+
+def weighted_astar(*args, **kwargs):
+    results = _weighted_astar(*args, **kwargs)
+    # Unlink each node.parent so pickle doesn't barf about recursion limits
+    candidates = results[4]
+    for n_transitions, node in candidates:
+        node.parent = None
+    return results
 
 def astar(*args, **kwargs):
     return weighted_astar(*args, gh_weights=(1,1), **kwargs)
