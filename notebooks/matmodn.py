@@ -8,7 +8,7 @@ def mod(x,modulus):
 
 def rref(mat, modulus):
     Ms = Matrix(mat)
-    Ms_rref = Ms.rref(iszerofunc=lambda x: x % modulus==0)
+    Ms_rref = Ms.rref(iszerofunc=lambda x: x % modulus==0, normalize_last=False)
     try:
         Ms_rref_fixed = Ms_rref[0].applyfunc(lambda x: mod(x,modulus))
     except ValueError:
