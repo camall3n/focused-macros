@@ -19,13 +19,13 @@ for k in tqdm(range(1,n)):
 
         models = [copy.deepcopy(newlock).apply_macro(diff=s).summarize_effects(baseline=newlock) for s in skills]
 
-        def wrapped_djikstra(start, debug_fn=None):
+        def wrapped_dijkstra(start, debug_fn=None):
             is_goal = lambda node: node.state == newlock
             heuristic = lambda lock: 0
             step_cost = lambda skill: 1
             def get_successors(lock):
                 return [(copy.deepcopy(lock).apply_macro(diff=m), s) for s,m in zip(skills, models)]
-            results = search.djikstra(start, is_goal, step_cost, heuristic, get_successors, max_transitions=1e9, debug_fn=debug_fn, quiet=True)
+            results = search.dijkstra(start, is_goal, step_cost, heuristic, get_successors, max_transitions=1e9, debug_fn=debug_fn, quiet=True)
             states, actions, n_expanded, n_transitions, candidates = results
             if len(actions)==0 and start != newlock:
                 cost = np.inf
@@ -35,7 +35,7 @@ for k in tqdm(range(1,n)):
 
         for start in newlock.states():
             h_score = sum(start.summarize_effects(baseline=newlock) > 0)
-            cost = wrapped_djikstra(start)
+            cost = wrapped_dijkstra(start)
             if cost == np.inf:
                 break
 

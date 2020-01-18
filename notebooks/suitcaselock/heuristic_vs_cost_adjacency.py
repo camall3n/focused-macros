@@ -5,7 +5,7 @@ import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
 
-from notebooks.matmodn import mod_rank
+from notebooks.rrank import rrank
 from suitcaselock.suitcaselock import SuitcaseLock
 
 def compute_D_and_H(n=6, v=2, k=1):
@@ -15,7 +15,7 @@ def compute_D_and_H(n=6, v=2, k=1):
 
     # Get the actions matrix
     M = np.asarray(skills[:n])
-    mod_rank(M,2)
+    rrank(M)
 
     # Compute the adjacency matrix
     n_states = v**n

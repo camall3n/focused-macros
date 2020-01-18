@@ -102,6 +102,11 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors, max_tr
                     # ignored anyway after the first instance of `state` is added
                     # to `closed_set`.
                     neighbor = Node(state, g_score[state], heuristic(state), gh_weights=gh_weights, parent=current, action=action)
+                    if is_goal(neighbor):
+                        candidates.append((n_transitions, neighbor))
+                        if debug_fn:
+                            print('found goal. reconstructing path...')
+                        return reconstruct_path(neighbor) + (n_expanded, n_transitions, candidates)
                     open_set.push((neighbor.f_score, neighbor))
                     if debug_fn:
                         print('improved path to successor node; adding to open set')
@@ -126,7 +131,7 @@ def weighted_astar(*args, **kwargs):
 def astar(*args, **kwargs):
     return weighted_astar(*args, gh_weights=(1,1), **kwargs)
 
-def djikstra(*args, **kwargs):
+def dijkstra(*args, **kwargs):
     return weighted_astar(*args, heuristic=lambda x: 0, gh_weights=(1,0), **kwargs)
 
 def gbfs(*args, **kwargs):# greedy best-first search

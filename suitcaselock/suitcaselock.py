@@ -3,7 +3,8 @@ import gmpy2
 import random
 import numpy as np
 from tqdm import tqdm
-from notebooks import matmodn
+
+from notebooks.rrank import rrank
 
 class SuitcaseLock:
     def __init__(self, n_vars=4, n_values=10, entanglement=1):
@@ -37,7 +38,7 @@ class SuitcaseLock:
             else:
                 for i in range(10000):
                     up_actions = np.random.choice([0,1], size=(N,N), p=[(1-k/N), k/N])
-                    rank = matmodn.mod_rank(up_actions, self.n_values)
+                    rank = rrank(up_actions)
                     if rank == N:
                         break
                 if rank < N:

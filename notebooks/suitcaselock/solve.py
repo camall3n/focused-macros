@@ -50,7 +50,6 @@ s = skills[0]
 
 models = [copy.deepcopy(newlock).apply_macro(diff=s).summarize_effects(baseline=newlock) for s in skills]
 
-
 # Set up the search problem
 is_goal = lambda node: node.state == goal
 heuristic = lambda lock: sum(lock.summarize_effects(baseline=goal) > 0)
