@@ -1,4 +1,5 @@
 import glob
+from itertools import groupby, count
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -8,9 +9,13 @@ import seaborn as sns
 
 from cube import cube, pattern
 
-gen_version = '0.2'
-default_results = sorted(glob.glob('results/cube/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
-random_results = sorted(glob.glob('results/cube/random_goal/'+'generated-v'+gen_version+'/*.pickle'))
+gen_version = '0.4'
+default_results = sorted(glob.glob('results/cube/gbfs/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
+random_results = sorted(glob.glob('results/cube/gbfs/random_goal/'+'generated-v'+gen_version+'/*.pickle'))
+
+# gen_version = '0.4'
+# default_results = sorted(glob.glob('results/cube/weighted_astar-g_0.1-h_1.0/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
+# random_results = sorted(glob.glob('results/cube/weighted_astar-g_0.1-h_1.0/random_goal/'+'generated-v'+gen_version+'/*.pickle'))
 
 #%%
 def generate_plot(filename, ax, color=None, label=None):
@@ -42,7 +47,7 @@ ax.set_xlim([0,2e6])
 ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
 ax.hlines(48,0,2e6,linestyles='dashed',linewidths=1)
 ax.set_ylabel('Number of errors remaining')
-ax.set_xlabel('Number of transitions considered (millions)')
+ax.set_xlabel('Number of simulation steps (in millions)')
 # for i,f in enumerate(random_results):
 #     label = None if i > 0 else 'actions + fixed random skills'
 #     generate_plot(f, ax, 'C2', label=label)
@@ -80,6 +85,19 @@ for tag, results in zip(all_tags, all_results):
             'n_errors': n_errors,
         })
 data = pd.DataFrame(data)
+#%%
+sns.boxenplot(data=data.query('n_errors==0'), y='tag', x='transitions', palette=['C3','C4'], orient='h')
+plt.ylabel('')
+plt.xlim([-2000,1000000])
+# plt.gca().invert_yaxis()
+plt.title('Planning time by goal type (Rubik\'s cube)')
+plt.ylabel('')
+ax = plt.gca()
+ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
+plt.xlabel('Number of simulation steps (in millions)')
+ax.set_yticklabels(['default goal', 'random goals'])
+plt.savefig('results/plots/cube/cube_planning_time_boxplot.png')
+plt.show()
 
 #%%
 print('Solve Counts')
@@ -90,6 +108,19 @@ for tag in all_tags:
     n_attempts = len(data.query('tag==@tag'))
 
     print('{}: {} out of {}'.format( tag, n_solves, n_attempts))
+#%%
+def as_range(iterable): # not sure how to do this part elegantly
+    l = list(iterable)
+    if len(l) > 1:
+        return '{0}-{1}'.format(l[0], l[-1])
+    else:
+        return '{0}'.format(l[0])
+
+print('Missing:')
+for tag in all_tags:
+    missing = [x for x in range(1,301) if x not in list(data.query('tag==@tag')['seed'])]
+    missing_str = ','.join(as_range(g) for _, g in groupby(missing, key=lambda n, c=count(): n-next(c)))
+    print('{:10s} {}'.format(tag+':', missing_str))
 
 #%%
 with open(default_results[0], 'rb') as f:

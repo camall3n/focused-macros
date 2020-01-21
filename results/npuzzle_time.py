@@ -10,9 +10,13 @@ import seaborn as sns
 import notebooks.picklefix
 
 n_puzzle = 15
-results_dir = 'results/npuzzle/astar/{}-puzzle/default_goal/'.format(n_puzzle)
+alg = 'gbfs'
+results_dir = 'results/npuzzle/{}/{}-puzzle/default_goal/'.format(alg,n_puzzle)
 
-transition_cap = 2e6
+if 'astar' in alg:
+    transition_cap = 2e6
+elif alg == 'gbfs':
+    transition_cap = 5e5
 # n_vars, n_values, transition_cap = 15, 4, 20e6
 # n_vars, n_values, transition_cap = 12, 4, 40e6
 
@@ -23,7 +27,10 @@ all_tags = ['primitive', 'random', 'generated']
 curve_data = []
 for filename in result_files:
     with open(filename, 'rb') as f:
-        search_results = pickle.load(f)
+        try:
+            search_results = pickle.load(f)
+        except EOFError:
+            continue
     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
     tag = filename.split('/')[-2]
@@ -41,28 +48,47 @@ for filename in result_files:
         y += [y[-1]]
 
     [curve_data.append({'transitions': t, 'n_errors': e, 'seed': seed, 'tag': tag}) for t, e in zip(x,y)]
-
 curve_data = pd.DataFrame(curve_data)
+#%%
 fig, ax = plt.subplots(figsize=(8,6))
-sns.lineplot(data=curve_data, x='transitions', y='n_errors', hue='tag', hue_order=all_tags, palette=['C0','C2','C3'], estimator=None, units='seed', alpha=0.6, ax=ax)
-handles, labels = ax.get_legend_handles_labels()
-ax.legend(handles[1:],labels[1:])
+lines = []
+names = []
+
+plot_vars = [
+    {'tag':'primitive', 'desc':'actions only', 'color': 'C0', 'zorder': 10},
+    {'tag':'random', 'desc':'actions + random macros', 'color': 'C2', 'zorder': 5},
+    {'tag':'generated', 'desc':'actions + learned macros', 'color': 'C3', 'zorder': 15},
+]
+for plot_dict in plot_vars:
+    tag = plot_dict['tag']
+    desc = plot_dict['desc']
+    c = plot_dict['color']
+    z = plot_dict['zorder']
+    if len(curve_data.query('tag==@tag')) > 0:
+        sns.lineplot(data=curve_data.query('tag==@tag'), x='transitions', y='n_errors', legend=False, estimator=None, units='seed', ax=ax, linewidth=2, alpha=.6, color=c, zorder=z)
+        lines.append(ax.get_lines()[-1])
+        names.append(desc)
+# lines, names = zip(*[(l, d['desc']) for d,l in zip(plot_vars,lines)])
+ax.legend(lines,names,framealpha=1, borderpad=0.7)
 ax.hlines(n_puzzle+1,0,transition_cap,linestyles='dashed',linewidths=1)
 ax.set_ylim([0,ax.get_ylim()[1]])
 ax.set_xlim([0,transition_cap])
-ax.set_xticklabels(np.asarray(ax.get_xticks())/1e6)
-ax.set_xlabel('Number of transitions considered (millions)')
+# ax.get_xaxis().set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+# ax.set_xticklabels(np.asarray(ax.get_xticks()))
 ax.set_ylabel('Number of errors remaining')
+ax.set_xlabel('Number of simulation steps')
 ax.set_title('Planning performance ({}-Puzzle)'.format(n_puzzle))
 plt.savefig('results/plots/npuzzle/npuzzle_planning_time.png')
 plt.show()
-
 #%%
 solves = []
 data = []
 for i,filename in enumerate(result_files):
     with open(filename, 'rb') as f:
-        search_results = pickle.load(f)
+        try:
+            search_results = pickle.load(f)
+        except EOFError:
+            continue
     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
     tag = filename.split('/')[-2]
     states, actions, n_expanded, n_transitions, candidates = search_results
@@ -81,6 +107,19 @@ for i,filename in enumerate(result_files):
         'n_errors': n_errors,
     })
 data = pd.DataFrame(data)
+
+#%%
+sns.boxenplot(data=data.query('n_errors==0'), y='tag', x='transitions', palette=['C3','C0','C2'], orient='h')
+plt.title('Planning time by action/macro-action type (15-puzzle)')
+plt.ylabel('')
+plt.xlabel('Number of simulation steps (in thousands)')
+plt.xlim([-1000,500000])
+ax = plt.gca()
+ax.invert_yaxis()
+ax.set_xticklabels(map(int,np.asarray(ax.get_xticks(),dtype=int)//1e3))
+# ax.set_yticklabels(['default goal', 'random goals'])
+plt.savefig('results/plots/npuzzle/npuzzle_planning_time_boxplot.png')
+plt.show()
 
 #%%
 print('Solve Counts')
@@ -132,7 +171,10 @@ plt.show()
 data = []
 for filename in result_files:
     with open(filename, 'rb') as f:
-        search_results = pickle.load(f)
+        try:
+            search_results = pickle.load(f)
+        except EOFError:
+            continue
     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
     tag = filename.split('/')[-2]
@@ -196,7 +238,10 @@ plt.show()
 data = []
 for filename in result_files:
     with open(filename, 'rb') as f:
-        search_results = pickle.load(f)
+        try:
+            search_results = pickle.load(f)
+        except EOFError:
+            continue
     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
     tag = filename.split('/')[-2]
