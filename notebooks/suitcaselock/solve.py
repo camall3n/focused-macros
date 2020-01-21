@@ -56,7 +56,7 @@ heuristic = lambda lock: sum(lock.summarize_effects(baseline=goal) > 0)
 step_cost = lambda skill: 1
 
 def get_successors(lock):
-    return [(copy.deepcopy(lock).apply_macro(diff=m), s) for s,m in zip(skills, models)]
+    return [(copy.copy(lock).apply_macro(diff=m), s) for s,m in zip(skills, models)]
 
 #%% Run the search
 if args.search_alg == 'astar':
