@@ -50,24 +50,28 @@ for filename in result_files:
     entanglement = int(filename.split('/')[-2].split('-')[-1])
     goal = states[0].reset().scramble(seed=seed+1000)
     n_errors = sum(states[-1].summarize_effects(baseline=goal)>0)
-    x = [c/2 for c,n in candidates]
+    x = [c for c,n in candidates]
     y = [n.h_score for c,n in candidates]
 
     # Extend final value to end of plot
     if n_errors > 0:
-        x += [n_transitions/2]
+        x += [n_transitions]
         y += [y[-1]]
+    if n_values == 2:
+        # divide steps by 2, since we can ignore decrement actions
+        x = [steps/2 for steps in x]
+
     [curve_data.append({'transitions': t, 'n_errors': err, 'seed': seed, 'entanglement': entanglement}) for t, err in zip(x,y)]
 
 #%%
 curve_data = pd.DataFrame(curve_data)
 fig, ax = plt.subplots(figsize=(8,6))
 lines = []
-for k in np.unique(curve_data['entanglement'])[::-1]:
-    sns.lineplot(data=curve_data.query('entanglement==@k'), x='transitions', y='n_errors', legend=False, estimator=None, units='seed', ax=ax)
+for i, k in enumerate(np.unique(curve_data['entanglement'])):
+    sns.lineplot(data=curve_data.query('entanglement==@k'), x='transitions', y='n_errors', legend=False, estimator=None, units='seed', ax=ax, zorder=50-5*i)
     lines.append(ax.get_lines()[-1])
-ax.legend(lines[::-1],np.unique(curve_data['entanglement']))
-ax.set_title('Planning performance ({} vars, {} values)'.format(n_vars, n_values))
+ax.legend(lines,np.unique(curve_data['entanglement']))
+ax.set_title('Planning performance by entanglement ({} vars, {} values)'.format(n_vars, n_values))
 ax.set_ylim([0,n_vars//2])
 ax.set_xlim([0,transition_cap])
 ax.set_xticklabels(np.asarray(ax.get_xticks())/1e6)
@@ -113,9 +117,9 @@ for i,filename in enumerate(result_files):
     })
 data = pd.DataFrame(data)
 #%%
-sns.boxenplot(data=data, x='k', y='plan_length')
-plt.yscale('log')
-plt.show()
+# sns.boxenplot(data=data, x='k', y='plan_length')
+# plt.yscale('log')
+# plt.show()
 
 
 #%%
@@ -154,42 +158,60 @@ for k in all_k_values:
     print('{:2d}: {}'.format(k, missing_str))
 
 #%%
-fig, ax = plt.subplots(figsize=(8,6))
-sns.lineplot(x='k',y='transitions', data=data, estimator=np.median, color='C1', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
-sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).median(), color='C1', ax=ax, markers='o', sizes=150, label='median')
-sns.lineplot(x='k',y='transitions', data=data, estimator=np.mean, color='C0', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
-sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).mean(), color='C0', ax=ax, markers='o', sizes=150, label='mean')
-handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles=handles[::-1],labels=labels[::-1], loc='best')
-
-# sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
-plt.xlabel('Number of variables changed per action')
-plt.ylabel('Number of transitions considered (millions)')
-ax.set_yticklabels(np.asarray(ax.get_yticks())/1e6)
-ax.set_xticks(np.arange(1,n_vars))
-plt.title('Planning time vs. entanglement ({} vars, {} values) -- [linear scale]'.format(n_vars, n_values))
-plt.tight_layout()
-plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_linear_{}-{}.png'.format(n_vars, n_values))
-plt.show()
-#%%
-fig, ax = plt.subplots(figsize=(8,6))
-sns.lineplot(x='k',y='transitions', data=data, estimator=np.median, color='C1', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
-sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).median(), color='C1', ax=ax, markers='o', sizes=150, label='median')
-sns.lineplot(x='k',y='transitions', data=data, estimator=np.mean, color='C0', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
-sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).mean(), color='C0', ax=ax, markers='o', sizes=150, label='mean')
-handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles=handles[::-1],labels=labels[::-1], loc='best')
-
-# sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
-plt.xlabel('Number of variables changed per action')
-plt.ylabel('Number of transitions considered (log scale)')
-# plt.ylim([0,1e5])
+# fig, ax = plt.subplots(figsize=(8,6))
+# sns.lineplot(x='k',y='transitions', data=data, estimator=np.median, color='C1', ci='sd', ax=ax, err_style='bars', markers=True, lw=0)
+# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).median(), color='C1', ax=ax, markers='o', s=100, label='median')
+# sns.lineplot(x='k',y='transitions', data=data, estimator=np.mean, color='C0', ci='sd', ax=ax, err_style='bars', markers=True, lw=0)
+# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).mean(), color='C0', ax=ax, markers='o', s=100, label='mean')
+# handles, labels = ax.get_legend_handles_labels()
+# plt.legend(handles=handles[::-1],labels=labels[::-1], loc='best')
+#
+# # sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
+# plt.xlabel('Number of variables changed per action')
+# plt.ylabel('Number of transitions considered (millions)')
+# ax.set_yticklabels(np.asarray(ax.get_yticks())/1e6)
 # ax.set_xticks(np.arange(1,n_vars))
-plt.title('Planning time vs. entanglement ({} vars, {} values)'.format(n_vars, n_values))
-plt.yscale('log')
-plt.tight_layout()
-plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_log_{}-{}.png'.format(n_vars, n_values))
-plt.show()
+# plt.title('Planning time vs. entanglement ({} vars, {} values) -- [linear scale]'.format(n_vars, n_values))
+# plt.tight_layout()
+# plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_linear_{}-{}.png'.format(n_vars, n_values))
+# plt.show()
+
+#%%
+for yscale_mode in ['linear', 'log']:
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.boxplot(x='k',y='transitions', data=data, color='C0', ax=ax)
+
+    # sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
+
+    plt.xlabel('Number of variables changed per action')
+    plt.ylabel('Number of transitions considered (in millions) -- {} scale'.format(yscale_mode))
+    ax.set_yticklabels(np.asarray(ax.get_yticks())/1e6)
+    ax.set_yscale(yscale_mode)
+    # ax.set_xticks(np.arange(1,n_vars))
+    plt.title(r'Planning time vs. entanglement ($N_V={}$, $M={}$)'.format(n_vars, n_values))
+    plt.tight_layout()
+    plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_linear_{}-{}.png'.format(n_vars, n_values))
+    plt.show()
+
+# #%%
+# fig, ax = plt.subplots(figsize=(8,6))
+# sns.lineplot(x='k',y='transitions', data=data, estimator=np.median, color='C1', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
+# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).median(), color='C1', ax=ax, markers='o', sizes=150, label='median')
+# sns.lineplot(x='k',y='transitions', data=data, estimator=np.mean, color='C0', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
+# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).mean(), color='C0', ax=ax, markers='o', sizes=150, label='mean')
+# handles, labels = ax.get_legend_handles_labels()
+# plt.legend(handles=handles[::-1],labels=labels[::-1], loc='best')
+#
+# # sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
+# plt.xlabel('Number of variables changed per action')
+# plt.ylabel('Number of transitions considered (log scale)')
+# # plt.ylim([0,1e5])
+# # ax.set_xticks(np.arange(1,n_vars))
+# plt.title('Planning time vs. entanglement ({} vars, {} values)'.format(n_vars, n_values))
+# plt.yscale('log')
+# plt.tight_layout()
+# plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_log_{}-{}.png'.format(n_vars, n_values))
+# plt.show()
 
 #%%
 # sns.violinplot(x='entanglement',y='n_errors', data=data, units='seed', cut=0, inner=None, scale='area')
@@ -221,30 +243,30 @@ plt.show()
 # plt.show()
 
 #%%
-print('( k,seed): R  RR errors?')
-for k, s in successes:
-    filename = 'results/suitcaselock/gbfs/n_vars-{}/n_values-{}/entanglement-{:d}/seed-{:03d}.pickle'.format(n_vars, n_values, k,s)
-    with open(filename, 'rb') as f:
-        try:
-            search_results = pickle.load(f)
-        except EOFError:
-            pass
-    states, actions, n_expanded, n_transitions, candidates = search_results[:5]
-    goal = copy.deepcopy(states[0]).reset().scramble(seed=s+1000)
-    n_errors = sum(states[-1].summarize_effects(baseline=goal)>0)
-    M = np.stack(states[0].actions()[:n_vars])
-    rank = np.linalg.matrix_rank(M)
-    reduced_rank = rrank(M)
-    reduce(M)
-    if reduced_rank != n_vars:
-        print('({:2d}, {:03d}): {:2d} {:2d} {}'.format(k, s, rank, reduced_rank, n_errors>0))
-        break
-
-    rrank(np.stack(states[0].actions()[:n_vars]))
-    if k==10 and s==7:
-        break
-
-def get_successors(lock):
-    return [(copy.deepcopy(lock).apply_macro(diff=m), s) for s,m in zip(goal.actions(), goal.actions())]
-
-# dijkstra_results = dijkstra(start, is_goal=(lambda node: node.state==goal), step_cost=(lambda x:1), get_successors=get_successors, max_transitions=int(4**10+200))
+# print('( k,seed): R  RR errors?')
+# for k, s in successes:
+#     filename = 'results/suitcaselock/gbfs/n_vars-{}/n_values-{}/entanglement-{:d}/seed-{:03d}.pickle'.format(n_vars, n_values, k,s)
+#     with open(filename, 'rb') as f:
+#         try:
+#             search_results = pickle.load(f)
+#         except EOFError:
+#             pass
+#     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
+#     goal = copy.deepcopy(states[0]).reset().scramble(seed=s+1000)
+#     n_errors = sum(states[-1].summarize_effects(baseline=goal)>0)
+#     M = np.stack(states[0].actions()[:n_vars])
+#     rank = np.linalg.matrix_rank(M)
+#     reduced_rank = rrank(M)
+#     reduce(M)
+#     if reduced_rank != n_vars:
+#         print('({:2d}, {:03d}): {:2d} {:2d} {}'.format(k, s, rank, reduced_rank, n_errors>0))
+#         break
+#
+#     rrank(np.stack(states[0].actions()[:n_vars]))
+#     if k==10 and s==7:
+#         break
+#
+# def get_successors(lock):
+#     return [(copy.deepcopy(lock).apply_macro(diff=m), s) for s,m in zip(goal.actions(), goal.actions())]
+#
+# # dijkstra_results = dijkstra(start, is_goal=(lambda node: node.state==goal), step_cost=(lambda x:1), get_successors=get_successors, max_transitions=int(4**10+200))
