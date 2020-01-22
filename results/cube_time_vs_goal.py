@@ -85,6 +85,7 @@ for tag, results in zip(all_tags, all_results):
             'n_errors': n_errors,
         })
 data = pd.DataFrame(data)
+data.groupby('tag', as_index=False).mean()
 #%%
 sns.boxenplot(data=data.query('n_errors==0'), y='tag', x='transitions', palette=['C3','C4'], orient='h')
 plt.ylabel('')

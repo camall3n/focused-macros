@@ -48,15 +48,16 @@ for filename in result_files:
     [curve_data.append({'transitions': t, 'n_errors': err, 'seed': seed, 'tag': tag, 'version': v}) for t, err in zip(x,y)]
 curve_data = pd.DataFrame(curve_data).query("version==@version")
 #%%
+plt.rcParams.update({'font.size': 18})
 fig, ax = plt.subplots(figsize=(8,6))
 lines = []
 names = []
 
 plot_vars = [
-    {'tag':'primitive', 'desc':'actions only', 'color': 'C0', 'zorder': 15},
-    {'tag':'expert', 'desc':'actions + expert macros', 'color': 'C1', 'zorder': 20},
-    {'tag':'random', 'desc':'actions + random macros', 'color': 'C2', 'zorder': 5},
-    {'tag':'generated', 'desc':'actions + learned macros', 'color': 'C3', 'zorder': 10},
+    {'tag':'random', 'desc':'random', 'color': 'C2', 'zorder': 5},
+    {'tag':'primitive', 'desc':'primitive', 'color': 'C0', 'zorder': 15},
+    {'tag':'generated', 'desc':'learned', 'color': 'C3', 'zorder': 10},
+    {'tag':'expert', 'desc':'expert', 'color': 'C1', 'zorder': 20},
 ]
 for plot_dict in plot_vars:
     tag = plot_dict['tag']
@@ -69,15 +70,18 @@ for plot_dict in plot_vars:
         names.append(desc)
 # lines, names = zip(*[(l, d['desc']) for d,l in zip(plot_vars,lines)])
 ax.legend(lines,names,framealpha=1, borderpad=0.7)
-ax.set_title('Planning performance by action/macro-action type (Rubik\'s cube)')
+# ax.set_title('Planning performance by action/macro-action type (Rubik\'s cube)')
 ax.set_ylim([0,50])
 ax.set_xlim([0,transition_cap])
 ax.set_xticklabels(np.asarray(ax.get_xticks())/1e6)
-ax.hlines(48,0,transition_cap,linestyles='dashed',linewidths=1)
+ax.set_axisbelow(False)
+# [i.set_linewidth(1) for i in ax.spines.values()]
+ax.hlines(48,0,transition_cap,linestyles='dashed',linewidths=2)
 ax.set_ylabel('Number of errors remaining')
-ax.set_xlabel('Number of simulation steps (in millions)')
-plt.savefig('results/plots/cube/cube_planning_time.png')
+ax.set_xlabel('Simulator steps (in millions)')
+plt.savefig('results/plots/cube/cube_planning.png')
 plt.show()
+
 #%%
 data = []
 for filename in result_files:
@@ -105,6 +109,7 @@ for filename in result_files:
     data.append({'transitions': n_transitions, 'n_errors': n_errors, 'n_action_steps': n_action_steps, 'n_skill_steps': n_skill_steps, 'seed': seed, 'tag': tag, 'version': v})
 
 data = pd.DataFrame(data).query("version!='v0.2'")
+data.groupby('tag', as_index=False).mean()
 #%%
 print('Solve Counts')
 print()

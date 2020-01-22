@@ -109,16 +109,36 @@ for i,filename in enumerate(result_files):
 data = pd.DataFrame(data)
 
 #%%
-sns.boxenplot(data=data.query('n_errors==0'), y='tag', x='transitions', palette=['C3','C0','C2'], orient='h')
-plt.title('Planning time by action/macro-action type (15-puzzle)')
-plt.ylabel('')
+plt.figure()
+plt.plot(0,0,c='C2',label='random', lw=3)
+plt.plot(0,0,c='C0',label='primitive', lw=3)
+plt.plot(0,0,c='C3',label='learned', lw=3)
+plt.legend()
+handles, labels = plt.gca().get_legend_handles_labels()
+plt.show()
+plt.close()
+
+plt.rcParams.update({'font.size': 18, 'figure.figsize': (8,6)})
+
+g = sns.catplot(data=data.query('n_errors==0'), y='tag', x='transitions', kind='boxen', palette=['C3','C0','C2'], orient='h', legend='True')
+g.despine(right=False, top=False)
+# plt.title('Planning time by action/macro-action type (15-puzzle)')
+plt.ylabel('Macro-action type')
 plt.xlabel('Number of simulation steps (in thousands)')
+plt.gcf().set_size_inches(8,6)
+plt.tight_layout()
 plt.xlim([-1000,500000])
 ax = plt.gca()
 ax.invert_yaxis()
 ax.set_xticklabels(map(int,np.asarray(ax.get_xticks(),dtype=int)//1e3))
-# ax.set_yticklabels(['default goal', 'random goals'])
-plt.savefig('results/plots/npuzzle/npuzzle_planning_time_boxplot.png')
+ax.set_yticklabels([])
+plt.tight_layout()
+# lines = ax.get_lines()
+# for i,c in enumerate(['C2','C0','C3']):
+#     lines[i].set_color(c)
+#     lines[i].set_alpha(1.)
+ax.legend(handles, labels,  loc='lower right')
+plt.gcf().savefig('results/plots/npuzzle/npuzzle_planning_time.png')
 plt.show()
 
 #%%

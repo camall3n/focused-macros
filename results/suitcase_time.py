@@ -177,20 +177,21 @@ for k in all_k_values:
 # plt.show()
 
 #%%
-for yscale_mode in ['linear', 'log']:
+plt.rcParams.update({'font.size': 24})
+for yscale_mode in ['linear']:
     fig, ax = plt.subplots(figsize=(8,6))
     sns.boxplot(x='k',y='transitions', data=data, color='C0', ax=ax)
 
     # sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
 
-    plt.xlabel('Number of variables changed per action')
-    plt.ylabel('Number of transitions considered (in millions) -- {} scale'.format(yscale_mode))
-    ax.set_yticklabels(np.asarray(ax.get_yticks())/1e6)
+    plt.xlabel('Variables modified per action')
+    plt.ylabel('Simulator steps {}'.format(' (millions)' if yscale_mode=='linear' else ''))
     ax.set_yscale(yscale_mode)
+    ax.set_yticklabels(np.asarray(ax.get_yticks())/1e6)
     # ax.set_xticks(np.arange(1,n_vars))
-    plt.title(r'Planning time vs. entanglement ($N_V={}$, $M={}$)'.format(n_vars, n_values))
+    # plt.title(r'Planning time vs. entanglement ($N_V={}$, $M={}$)'.format(n_vars, n_values))
     plt.tight_layout()
-    plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_linear_{}-{}.png'.format(n_vars, n_values))
+    plt.savefig('results/plots/suitcaselock/suitcase_{}ary.png'.format(n_values))
     plt.show()
 
 # #%%

@@ -79,6 +79,7 @@ for tag, results in zip(all_tags, all_results):
             'n_errors': n_errors,
         })
 data = pd.DataFrame(data)
+data.groupby('tag', as_index=False).mean()
 
 #%%
 print('Solve Counts')
