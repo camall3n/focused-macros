@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument('--jobname', help='A name for the job (max 10 chars)', type=str, default=defaultjob)
     parser.add_argument('--cpus', help='Number of CPUs to request', type=int, default=1)
     parser.add_argument('--gpus', help='Number of GPUs to request', type=int, default=0)
-    parser.add_argument('--mem', help='Amount of RAM to request *per node* (in GB)', type=float, default=2.0)
+    parser.add_argument('--mem', help='Amount of RAM to request *per node* (in GB)', type=int, default=2)
     parser.add_argument('--env', help='Path to virtualenv', type=str, default='./env')
     parser.add_argument('--duration', help='Expected duration of job', choices=['test', 'short', 'long', 'vlong'], default='vlong')
     parser.add_argument('--host', help='Wildcard for targeting a specific host or set of hosts', type=str, default=None)
@@ -92,7 +92,7 @@ source {}
         partition = 'debug' if args.duration in ['test','short'] else 'batch'
 
     # Memory requirements
-    cmd += '--mem={:.1f}G '.format(args.mem)
+    cmd += '--mem={}G '.format(args.mem)
 
     # Force a specific set of hosts
     if args.host is not None:
