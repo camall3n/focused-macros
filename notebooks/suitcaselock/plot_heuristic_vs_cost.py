@@ -65,7 +65,7 @@ def compute_D_and_H(n=6, v=2, k=1):
 #%%
 n = 6
 v = 2
-n_trials = 100
+n_trials = 1
 data = []
 for k in tqdm(range(1,n)):
     for trial in range(n_trials):
