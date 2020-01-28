@@ -61,8 +61,8 @@ source {}
     script_body += '\n'
 
     # Write the script to a file
-    os.makedirs("grid/scripts/", exist_ok=True)
-    jobfile = "grid/scripts/{}".format(args.jobname)
+    os.makedirs("slurm/scripts/", exist_ok=True)
+    jobfile = "slurm/scripts/{}".format(args.jobname)
     with open(jobfile, 'w') as f:
         f.write(script_body)
 
@@ -99,9 +99,9 @@ source {}
         cmd += '-q {}.q@{}.cs.brown.edu '.format(args.duration, args.host)
 
     # Logging
-    os.makedirs("./grid/logs/", exist_ok=True)
-    cmd += '-o ./grid/logs/{}.o%A.%a '.format(args.jobname) # save stdout to file
-    cmd += '-e ./grid/logs/{}.e%A.%a '.format(args.jobname) # save stderr to file
+    os.makedirs("./slurm/logs/", exist_ok=True)
+    cmd += '-o ./slurm/logs/{}.o%A.%a '.format(args.jobname) # save stdout to file
+    cmd += '-e ./slurm/logs/{}.e%A.%a '.format(args.jobname) # save stderr to file
 
     # The -terse flag causes qsub to print the jobid to stdout. We read the
     # jobid with subprocess.check_output(), and use it to delay the email job

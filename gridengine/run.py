@@ -61,8 +61,8 @@ source {}
     script_body += '\n'
 
     # Write the script to a file
-    os.makedirs("grid/scripts/", exist_ok=True)
-    jobfile = "grid/scripts/{}".format(args.jobname)
+    os.makedirs("gridengine/scripts/", exist_ok=True)
+    jobfile = "gridengine/scripts/{}".format(args.jobname)
     with open(jobfile, 'w') as f:
         f.write(script_body)
 
@@ -89,9 +89,9 @@ source {}
     if args.host is not None:
         cmd += '-q {}.q@{}.cs.brown.edu '.format(args.duration, args.host)
 
-    os.makedirs("./grid/logs/", exist_ok=True)
-    cmd += '-o ./grid/logs/ ' # save stdout file to this directory
-    cmd += '-e ./grid/logs/ ' # save stderr file to this directory
+    os.makedirs("./gridengine/logs/", exist_ok=True)
+    cmd += '-o ./gridengine/logs/ ' # save stdout file to this directory
+    cmd += '-e ./gridengine/logs/ ' # save stderr file to this directory
 
     # The -terse flag causes qsub to print the jobid to stdout. We read the
     # jobid with subprocess.check_output(), and use it to delay the email job
