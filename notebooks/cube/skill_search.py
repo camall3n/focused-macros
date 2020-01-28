@@ -3,11 +3,12 @@ import copy
 import pickle
 import os
 import sys
-from cube import cube
+
+import cube
 from notebooks import search
 from cube import options
 
-version = '0.3'
+version = '0.4'
 cost_mode = 'per-skill'
 max_transitions = 1e6
 save_best_n = 1200

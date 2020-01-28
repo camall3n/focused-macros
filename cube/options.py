@@ -1,6 +1,7 @@
 import pickle
 import random as pyrandom
-from cube import cube, formula, skills
+import cube
+from . import formula, skills
 
 class primitive:
     alg_formulas = [[a] for a in cube.actions]
@@ -45,58 +46,3 @@ def set_random_skill_seed(seed):
     random = uniform_random
 
 set_random_skill_seed(0)
-
-# class conjugates:
-#     alg_formulas = [skills.random_conjugate(len(a)) for a in expert.alg_formulas]
-#     options = [variation for f in alg_formulas for variation in formula.variations(f)]
-#     models = [cube.Cube().apply(o).summarize_effects() for o in options]
-#
-# class commutators:
-#     alg_formulas = [skills.random_commutator(len(a)) for a in expert.alg_formulas]
-#     options = [variation for f in alg_formulas for variation in formula.variations(f)]
-#     models = [cube.Cube().apply(o).summarize_effects() for o in options]
-
-#%%
-def visualize_generated():
-    for o, m in zip(generated.options, generated.models):
-        if len(o) == 6 and len(m)==10:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(generated.options, generated.models):
-        if len(o) == 10 and len(m) == 6:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(generated.options, generated.models):
-        if len(o) == 7:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(generated.options, generated.models):
-        if len(o) == 12 and len(m)<10:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(generated.options, generated.models):
-        if len(o) == 12 and len(m)>10:
-            cube.Cube().apply(swap_list=m).render()
-            break
-
-def visualize_expert():
-    for o, m in zip(expert.options, expert.models):
-        if len(o) == 8 and len(m)==9:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(expert.options, expert.models):
-        if len(o) == 12:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(expert.options, expert.models):
-        if len(o) == 14:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(expert.options, expert.models):
-        if len(o) == 17:
-            cube.Cube().apply(swap_list=m).render()
-            break
-    for o, m in zip(expert.options, expert.models):
-        if len(o) > 17:
-            cube.Cube().apply(swap_list=m).render()
-            break

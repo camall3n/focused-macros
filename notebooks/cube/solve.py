@@ -3,7 +3,8 @@ import copy
 import pickle
 import os
 import sys
-from cube import cube
+
+import cube
 from notebooks import search
 from cube import options
 from cube import pattern

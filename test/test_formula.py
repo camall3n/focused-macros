@@ -1,4 +1,4 @@
-from cube import cube
+import cube
 from cube import formula
 
 # Test mirroring
@@ -70,7 +70,7 @@ assert f == g
 # Test variations
 f = ["R"]
 c = ' '.join([' '.join(x) for x in sorted(formula.variations(f))])
-actions = ' '.join(sorted(cube.Action.keys()))
+actions = ' '.join(sorted(cube.actions))
 assert c == actions
 
 f = "R B' R' U' B' U F U' B U R B R' F'".split()

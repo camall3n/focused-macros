@@ -1,4 +1,4 @@
-from cube import cube
+import cube
 from cube import formula
 
 c = cube.Cube()

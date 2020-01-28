@@ -7,7 +7,7 @@ import pandas as pd
 import pickle
 import seaborn as sns
 
-from cube import cube
+import cube
 from cube import pattern
 import notebooks.picklefix
 
