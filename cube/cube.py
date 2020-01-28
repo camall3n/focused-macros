@@ -323,3 +323,23 @@ class Cube:
         swap_list = list(zip(dst_indices, src_indices))
         swap_list = tuple([swap for swap in swap_list if swap[0] != swap[1]])
         return swap_list
+
+def test():
+    import cube
+    from cube import formula
+    c = cube.Cube()
+    d = cube.Cube()
+
+    # Test scramble and inverses
+    c.scramble(30)
+    assert c != d
+    assert len(c.summarize_effects()) > 0
+    c.apply(formula.inverse(c.sequence))
+    assert c == d
+
+    assert hash(c) == hash(d)
+    assert c.summarize_effects() == tuple()
+
+if __name__ == '__main__':
+    test()
+    print('All tests passed.')

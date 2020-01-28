@@ -1,4 +1,4 @@
-from .cube import Cube
+from cube import Cube
 import random
 import torch
 
@@ -55,3 +55,14 @@ class CubeEnv:
 
     def render(self):
         self.cube.render()
+
+
+def test():
+    from cube.cubeenv import CubeEnv
+
+    c = CubeEnv()
+    c.reset()
+    c.render()
+
+if __name__ == '__main__':
+    test()

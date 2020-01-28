@@ -231,3 +231,92 @@ def variations(formula):
     variations = sorted(list(set(variations)))
     variations = [x.split() for x in variations]
     return variations
+
+
+
+def test():
+    import cube
+
+    def test_mirroring():
+        f = "R B' R' U' B' U F U' B U R B R' F'".split()
+        g = mirror(f)
+        assert mirror(g) == f
+        c = cube.Cube()
+        d = cube.Cube()
+        c.apply(f)
+        d.apply(g)
+        assert d == c
+
+    def test_simplify():
+        f = "L R F F' R' U' D'".split()
+        s = simplify(f)
+        assert s == "L U' D'".split()
+
+        f = "L D D'".split()
+        s = simplify(f)
+        assert s == "L".split()
+
+        f = "L R F B U D L' R' F' B' U' D'".split()
+        s = simplify(f + inverse(f))
+        t = simplify(inverse(f) + f)
+        assert s == [] and t == []
+
+        f = "D' D'".split()
+        t = simplify(f)
+        assert t == f, str(t)+" != "+str(f)
+
+        f = "L B' F' D D D D F B L".split()
+        s = simplify(f)
+        assert s == ['L','L']
+
+        f = ['U', 'F', "L'", 'B', "U'", 'D', "L'", "U'", "U'", "D'", 'U', 'D', 'U', 'L', "D'", 'U', "B'", 'L', "F'", "U'"]
+        s = simplify(f)
+        assert s == []
+
+        f = "L' R' L R".split()
+        s = simplify(f)
+        assert s == []
+
+        f = "L' R' R' L R R".split()
+        s = simplify(f)
+        assert s == []
+
+        f = ['D', 'D', 'U', 'D', 'D', "U'"]
+        s = simplify(f)
+        assert s == []
+
+
+    def test_rotate():
+        f = "R B' R' U' B' U F U' B U R B R' F'"
+        g = ' '.join(rotate(f.split(), cube.Face.U))
+        h = ' '.join(rotate(g.split(), cube.Face.D))
+        assert h==f
+        g = ' '.join(rotate(f.split(), cube.Face.F, 2))
+        h = ' '.join(rotate(f.split(), cube.Face.B, 2))
+        assert h==g
+        g = ' '.join(rotate(f.split(), cube.Face.L, 3))
+        h = ' '.join(rotate(f.split(), cube.Face.R, 1))
+        assert h==g
+        f = "R F B U L D".split()
+        g = rotate(f, cube.Face.U, n=0)
+        assert f == g
+
+
+    def test_variations():
+        f = ["R"]
+        c = ' '.join([' '.join(x) for x in sorted(variations(f))])
+        actions = ' '.join(sorted(cube.actions))
+        assert c == actions
+
+        f = "R B' R' U' B' U F U' B U R B R' F'".split()
+        c = variations(f)
+        assert len(c) == 96
+
+    test_mirroring()
+    test_simplify()
+    test_rotate()
+    test_variations()
+    print('All tests passed.')
+
+if __name__ == '__main__':
+    test()
