@@ -92,8 +92,8 @@ for tag in all_tags:
     std_transitions = data.query('(tag==@tag) and (n_errors==0)').std()['transitions']
 
     print('{}: {} out of {} :: {}'.format( tag, n_solves, n_attempts, med_transitions))
-#%%
 
+#%%
 sns.boxenplot(data=data.query('n_errors==0'), y='tag', x='transitions', palette=['C3','C4'], orient='h')
 plt.title('Planning time by goal type (15-puzzle)')
 plt.ylabel('')
@@ -104,15 +104,3 @@ ax.set_xticklabels(list(map(lambda x: int(x/1e3),ax.get_xticks())))
 ax.set_yticklabels(['default goal', 'random goals'])
 plt.savefig('results/plots/npuzzle/npuzzle_planning_alt_goals_boxplot.png')
 plt.show()
-
-#%%
-with open(default_results[0], 'rb') as f:
-    search_results = pickle.load(f)
-    states, actions, n_expanded, n_transitions, candidates = search_results
-    print(states[-1])
-
-#%%
-with open(random_results[0], 'rb') as f:
-    search_results = pickle.load(f)
-    states, actions, n_expanded, n_transitions, candidates = search_results
-    print(states[-1])

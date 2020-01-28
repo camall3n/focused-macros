@@ -30,10 +30,6 @@ elif alg == 'gbfs':
         n_values = 4
         transition_cap = 2e7
 
-# n_vars, n_values, transition_cap = 20, 2, 10e6
-# n_vars, n_values, transition_cap = 10, 4, 2e7
-# n_vars, n_values, transition_cap = 12, 4, 40e6
-
 result_files = sorted(glob.glob(results_dir+'n_vars-{}/n_values-{}/entanglement-*/*.pickle'.format(n_vars, n_values)))
 result_files = [r for r in result_files if 'entanglement-17' not in r]
 
@@ -116,11 +112,6 @@ for i,filename in enumerate(result_files):
         'n_errors': n_errors,
     })
 data = pd.DataFrame(data)
-#%%
-# sns.boxenplot(data=data, x='k', y='plan_length')
-# plt.yscale('log')
-# plt.show()
-
 
 #%%
 print('Solve Counts')
@@ -158,25 +149,6 @@ for k in all_k_values:
     print('{:2d}: {}'.format(k, missing_str))
 
 #%%
-# fig, ax = plt.subplots(figsize=(8,6))
-# sns.lineplot(x='k',y='transitions', data=data, estimator=np.median, color='C1', ci='sd', ax=ax, err_style='bars', markers=True, lw=0)
-# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).median(), color='C1', ax=ax, markers='o', s=100, label='median')
-# sns.lineplot(x='k',y='transitions', data=data, estimator=np.mean, color='C0', ci='sd', ax=ax, err_style='bars', markers=True, lw=0)
-# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).mean(), color='C0', ax=ax, markers='o', s=100, label='mean')
-# handles, labels = ax.get_legend_handles_labels()
-# plt.legend(handles=handles[::-1],labels=labels[::-1], loc='best')
-#
-# # sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
-# plt.xlabel('Number of variables changed per action')
-# plt.ylabel('Number of transitions considered (millions)')
-# ax.set_yticklabels(np.asarray(ax.get_yticks())/1e6)
-# ax.set_xticks(np.arange(1,n_vars))
-# plt.title('Planning time vs. entanglement ({} vars, {} values) -- [linear scale]'.format(n_vars, n_values))
-# plt.tight_layout()
-# plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_linear_{}-{}.png'.format(n_vars, n_values))
-# plt.show()
-
-#%%
 plt.rcParams.update({'font.size': 24})
 for yscale_mode in ['linear']:
     fig, ax = plt.subplots(figsize=(8,6))
@@ -193,81 +165,3 @@ for yscale_mode in ['linear']:
     plt.tight_layout()
     plt.savefig('results/plots/suitcaselock/suitcase_{}ary.png'.format(n_values))
     plt.show()
-
-# #%%
-# fig, ax = plt.subplots(figsize=(8,6))
-# sns.lineplot(x='k',y='transitions', data=data, estimator=np.median, color='C1', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
-# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).median(), color='C1', ax=ax, markers='o', sizes=150, label='median')
-# sns.lineplot(x='k',y='transitions', data=data, estimator=np.mean, color='C0', ci=95, ax=ax, err_style='bars', markers=True, lw=0, sizes=150)
-# sns.scatterplot(x='k',y='transitions', data=data.groupby(['k'], as_index=False).mean(), color='C0', ax=ax, markers='o', sizes=150, label='mean')
-# handles, labels = ax.get_legend_handles_labels()
-# plt.legend(handles=handles[::-1],labels=labels[::-1], loc='best')
-#
-# # sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
-# plt.xlabel('Number of variables changed per action')
-# plt.ylabel('Number of transitions considered (log scale)')
-# # plt.ylim([0,1e5])
-# # ax.set_xticks(np.arange(1,n_vars))
-# plt.title('Planning time vs. entanglement ({} vars, {} values)'.format(n_vars, n_values))
-# plt.yscale('log')
-# plt.tight_layout()
-# plt.savefig('results/plots/suitcaselock/suitcaselock_planning_time_vs_entanglement_log_{}-{}.png'.format(n_vars, n_values))
-# plt.show()
-
-#%%
-# sns.violinplot(x='entanglement',y='n_errors', data=data, units='seed', cut=0, inner=None, scale='area')
-#%%
-# sns.violinplot(y='entanglement',x='transitions', data=data, orient='h', cut=0, inner=None, scale='count')
-# ax = plt.gca()
-# ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-# ax.set_xlabel('transitions (millions)')
-# plt.show()
-
-#%%
-# fig, ax = plt.subplots()
-# sns.scatterplot(x='transitions', y='n_errors',data=data.groupby('entanglement', as_index=False).mean(), hue='entanglement', ax=ax, s=70, legend='full')
-# # ax.hlines(n_vars,0,transition_cap,linestyles='dashed',linewidths=1)
-# # ax.set_ylim([0,n_vars])
-# # ax.set_xlim([0,transition_cap])
-# # ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-# ax.set_title('Mean final planning performance')
-# ax.set_ylabel('Number of errors remaining')
-# ax.set_xlabel('Number of transitions considered')
-#
-# ax.set_xscale('log')
-# handles, labels = ax.get_legend_handles_labels()
-# ax.legend(handles=handles, labels=labels, ncol=2)
-# # handles = handles[1:]
-# # labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
-# # ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-# # plt.savefig('results/plots/mean_planning_performance.png')
-# plt.show()
-
-#%%
-# print('( k,seed): R  RR errors?')
-# for k, s in successes:
-#     filename = 'results/suitcaselock/gbfs/n_vars-{}/n_values-{}/entanglement-{:d}/seed-{:03d}.pickle'.format(n_vars, n_values, k,s)
-#     with open(filename, 'rb') as f:
-#         try:
-#             search_results = pickle.load(f)
-#         except EOFError:
-#             pass
-#     states, actions, n_expanded, n_transitions, candidates = search_results[:5]
-#     goal = copy.deepcopy(states[0]).reset().scramble(seed=s+1000)
-#     n_errors = sum(states[-1].summarize_effects(baseline=goal)>0)
-#     M = np.stack(states[0].actions()[:n_vars])
-#     rank = np.linalg.matrix_rank(M)
-#     reduced_rank = rrank(M)
-#     reduce(M)
-#     if reduced_rank != n_vars:
-#         print('({:2d}, {:03d}): {:2d} {:2d} {}'.format(k, s, rank, reduced_rank, n_errors>0))
-#         break
-#
-#     rrank(np.stack(states[0].actions()[:n_vars]))
-#     if k==10 and s==7:
-#         break
-#
-# def get_successors(lock):
-#     return [(copy.deepcopy(lock).apply_macro(diff=m), s) for s,m in zip(goal.actions(), goal.actions())]
-#
-# # dijkstra_results = dijkstra(start, is_goal=(lambda node: node.state==goal), step_cost=(lambda x:1), get_successors=get_successors, max_transitions=int(4**10+200))

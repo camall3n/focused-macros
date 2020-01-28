@@ -171,23 +171,6 @@ for tag in all_tags:
     print('{:10s} {}'.format(tag+':', missing_str))
 
 #%%
-fig, ax = plt.subplots(figsize=(8,6))
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).mean(), hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], markers=['o','^','P'], ax=ax, s=150)
-ax.hlines(n_puzzle+1,0,transition_cap,linestyles='dashed',linewidths=1)
-ax.set_xlim([0,transition_cap])
-ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.set_title('Mean final planning performance (15-Puzzle)')
-ax.set_ylabel('Number of errors remaining')
-ax.set_xlabel('Number of transitions considered (millions)')
-
-handles, labels = ax.get_legend_handles_labels()
-handles = handles[1:]
-labels = ['actions only','actions + random skills', 'actions + generated skills']
-ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-plt.savefig('results/plots/npuzzle/npuzzle_mean_planning_performance.png')
-plt.show()
-
-#%%
 data = []
 for filename in result_files:
     with open(filename, 'rb') as f:
@@ -254,7 +237,6 @@ plt.savefig('results/plots/npuzzle/npuzzle_plan_length_skills.png')
 plt.show()
 
 #%%
-#%%
 data = []
 for filename in result_files:
     with open(filename, 'rb') as f:
@@ -294,17 +276,11 @@ data = pd.DataFrame(data)
 
 fig, ax = plt.subplots(figsize=(8,6))
 sns.violinplot(x='tag', y='skill_length', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
-# ax.set_ylim([0,50])
-# ax.set_xlim([0,ax.get_xlim()[1]])
-# ax.hlines(48,0,ax.get_xlim()[1], linestyles='dashed',linewidths=1)
+
 ax.legend(loc='upper center')
 ax.set_title('Skill length distribution (15-puzzle)')
 ax.set_ylabel('Skill length (primitive actions)')
 ax.set_xlabel('Skill type')
 
-# handles, labels = ax.get_legend_handles_labels()
-# handles = handles[1:]
-# labels = ['actions only','actions +kills', 'actions + random skills', 'actions + generated skills']
-# ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
 plt.savefig('results/plots/npuzzle/npuzzle_skill_length.png')
 plt.show()

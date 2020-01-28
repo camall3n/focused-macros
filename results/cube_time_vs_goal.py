@@ -43,9 +43,7 @@ ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
 ax.hlines(48,0,2e6,linestyles='dashed',linewidths=1)
 ax.set_ylabel('Number of errors remaining')
 ax.set_xlabel('Number of simulation steps (in millions)')
-# for i,f in enumerate(random_results):
-#     label = None if i > 0 else 'actions + fixed random skills'
-#     generate_plot(f, ax, 'C2', label=label)
+
 for i,f in enumerate(default_results):
     label = None if i > 0 else 'default goal'
     generate_plot(f, ax, 'C3', label=label)
@@ -104,6 +102,7 @@ for tag in all_tags:
     n_attempts = len(data.query('tag==@tag'))
 
     print('{}: {} out of {}'.format( tag, n_solves, n_attempts))
+
 #%%
 def as_range(iterable): # not sure how to do this part elegantly
     l = list(iterable)
@@ -117,15 +116,3 @@ for tag in all_tags:
     missing = [x for x in range(1,301) if x not in list(data.query('tag==@tag')['seed'])]
     missing_str = ','.join(as_range(g) for _, g in groupby(missing, key=lambda n, c=count(): n-next(c)))
     print('{:10s} {}'.format(tag+':', missing_str))
-
-#%%
-with open(default_results[0], 'rb') as f:
-    search_results = pickle.load(f)
-    states, actions, n_expanded, n_transitions, candidates = search_results
-    states[-1].render()
-
-#%%
-with open(random_results[0], 'rb') as f:
-    search_results = pickle.load(f)
-    states, actions, n_expanded, n_transitions, candidates = search_results
-    states[-1].render()

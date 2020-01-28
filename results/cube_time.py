@@ -134,65 +134,6 @@ for tag in all_tags:
 
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
-sns.violinplot(x='tag',y='n_errors', data=data, units='seed', cut=0, inner=None, ax=ax)
-ax.set_ylim([0,50])
-ax.set_xlim(-.5, len(all_tags)-0.5)
-ax.hlines(48,-1,10,linestyles='dashed',linewidths=1)
-ax.set_xlabel('')
-plt.show()
-
-#%%
-fig, ax = plt.subplots(figsize=(8,6))
-sns.violinplot(x='transitions',y='tag', data=data, ax=ax, scale='width', cut=0, inner=None)
-# ax.set_title('Planning performance')
-# ax.set_ylim([0,50])
-# ax.set_xlim([0,2e6])
-# labels = ax.get_xticks()
-ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-# ax.hlines(48,0,2e6,linestyles='dashed',linewidths=1)
-# ax.set_ylabel('Number of errors remaining')
-# ax.set_xlabel('Number of simulation steps (millions)')
-plt.ylabel('')
-plt.show()
-
-#%%
-fig, ax = plt.subplots(figsize=(8,6))
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).median(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=150)
-ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
-ax.set_xlim([-0.05e6,2.05e6])
-ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.set_title('Median final planning performance (Rubik\'s cube)')
-ax.set_ylabel('Number of errors remaining')
-ax.set_xlabel('Number of simulation steps (millions)')
-handles, labels = ax.get_legend_handles_labels()
-handles = handles[1:]
-labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
-ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-plt.show()
-
-#%%
-fig, ax = plt.subplots(figsize=(8,6))
-sns.scatterplot(x='transitions', y='n_errors', data=data.groupby('tag', as_index=False).mean(), hue='tag', hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], markers=['o','X','^','P'], ax=ax, s=150)
-ax.hlines(48,-0.05e6,2.05e6,linestyles='dashed',linewidths=1)
-ax.set_xlim([-0.05e6,2.05e6])
-ax.set_xticklabels(list(map(lambda x: x/1e6,ax.get_xticks())))
-ax.set_title('Mean final planning performance (Rubik\'s cube)')
-ax.set_ylabel('Number of errors remaining')
-ax.set_xlabel('Number of simulation steps (millions)')
-
-handles, labels = ax.get_legend_handles_labels()
-handles = handles[1:]
-labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
-ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-plt.savefig('results/plots/cube/cube_mean_planning_performance.png')
-plt.show()
-
-#%%
-fig, ax = plt.subplots(figsize=(8,6))
-lines = []
-names = []
-
 plot_vars = [
     # {'tag':'primitive', 'desc':'actions only', 'color': 'C0', 'marker': 'o', 'zorder': 15},
     # {'tag':'random', 'desc':'actions + random macros', 'color': 'C2', 'marker': '^', 'zorder': 5},
@@ -207,13 +148,9 @@ for plot_dict in plot_vars:
     marker = plot_dict['marker']
     if len(data.query('tag==@tag')) > 0:
         sns.scatterplot(data=data.query('tag==@tag'), x='n_skill_steps', y='transitions', label=desc, estimator=None, units='seed', ax=ax, color=c, marker=marker, s=150, zorder=z)
-        # lines.append(ax.get_lines()[-1])
-        names.append(desc)
-# lines, names = zip(*[(l, d['desc']) for d,l in zip(plot_vars,lines)])
-# ax.legend(lines,names,framealpha=1, borderpad=0.7)
+
 ax.set_ylim([0,8e5])
 ax.set_xlim([0,120])
-# ax.hlines(48,0,transition_cap,linestyles='dashed',linewidths=1)
 ax.set_title('Solution speed vs. length (Rubik\'s cube)')
 ax.set_ylabel('Number of simulation steps')
 ax.set_xlabel('Plan length (macro-action steps)')
@@ -241,9 +178,6 @@ for plot_dict in plot_vars:
 ax.set_ylim([0,1200])
 ax.set_xlim([0,1e6])
 ax.legend(loc='upper left')
-# ax.set_xticklabels(np.asarray(ax.get_xticks()))
-# ax.vlines(30,0,8e5,linestyles='dashed',linewidths=1)
-# ax.vlines(70,0,8e5,linestyles='dashed',linewidths=1)
 ax.set_title('Solution length vs. planning time (Rubik\'s cube)')
 ax.set_xlabel('Number of simulation steps')
 ax.set_ylabel('Plan length (primitive action steps)')
@@ -286,37 +220,10 @@ data = pd.DataFrame(data).query("version!='v0.2'")
 
 fig, ax = plt.subplots(figsize=(8,6))
 sns.violinplot(x='tag', y='skill_length', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','generated':'C3'}, hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
-# ax.set_ylim([0,50])
-# ax.set_xlim([0,ax.get_xlim()[1]])
-# ax.hlines(48,0,ax.get_xlim()[1], linestyles='dashed',linewidths=1)
+
 ax.set_title('Skill length distribution (Rubik\'s cube)')
 ax.set_ylabel('Length of skill (number of primitive actions)')
 ax.set_xlabel('Skill type')
 
-# handles, labels = ax.get_legend_handles_labels()
-# handles = handles[1:]
-# labels = ['actions only','actions + expert skills', 'actions + random skills', 'actions + generated skills']
-# ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
 plt.savefig('results/plots/cube/cube_skill_length.png')
 plt.show()
-#%%
-# render the cubes where expert skills failed to solve
-for i,filename in enumerate(generated_results):
-    seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
-    if seed not in list(data.query('(tag == "generated") and (n_errors > 0 )')['seed']):
-        continue
-    with open(filename, 'rb') as f:
-        try:
-            search_results = pickle.load(f)
-        except EOFError:
-            continue
-    states, actions, n_expanded, n_transitions, candidates = search_results
-
-    states[-1].render()
-    # results_dir = 'results/cube_deadends'
-    # os.makedirs(results_dir, exist_ok=True)
-    # with open(results_dir+'/seed-{:03d}.pickle'.format(seed), 'wb') as f:
-    #     pickle.dump(states[-1], f)
-
-#%%
-sorted(list(data.query('(tag=="generated") and (n_errors>0)')['seed']))
