@@ -92,7 +92,7 @@ source {}
         partition = 'debug' if args.duration in ['test','short'] else 'batch'
 
     # Memory requirements
-    cmd += '--mem={:.1f}G'.format(args.mem)
+    cmd += '--mem={:.1f}G '.format(args.mem)
 
     # Force a specific set of hosts
     if args.host is not None:
