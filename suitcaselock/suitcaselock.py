@@ -1,5 +1,5 @@
 import copy
-import gmpy2
+import gmpy
 import random
 import numpy as np
 from tqdm import tqdm
@@ -20,7 +20,7 @@ class SuitcaseLock:
 
     def states(self):
         for i in range(self.n_values**self.n_vars):
-            digits = gmpy2.digits(i,self.n_values).zfill(self.n_vars)
+            digits = gmpy.digits(i,self.n_values).zfill(self.n_vars)
             lock = copy.deepcopy(self)
             lock.state = np.asarray(list(map(int, digits)))
             yield lock
