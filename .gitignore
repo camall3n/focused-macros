@@ -4,7 +4,9 @@ data/
 env/
 __pycache__/
 results/*/
-grid/logs/
-grid/scripts/
+gridengine/logs/
+gridengine/scripts/
+slurm/logs/
+slurm/scripts/
 paper/*.pdf
 
