@@ -20,7 +20,7 @@ parser.add_argument('--skill_mode','-m', type=str, default='expert',
 parser.add_argument('--skill_version','-v', type=str, default='0.4',
                     choices=['0.1','0.2','0.3','0.4'],
                     help='Which version to use for generated skills')
-parser.add_argument('--search_alg', type=str, default='astar', choices=['astar','gbfs','weighted_astar'],
+parser.add_argument('--search_alg', type=str, default='gbfs', choices=['astar','gbfs','weighted_astar'],
                     help='Search algorithm to run')
 parser.add_argument('--g_weight', type=float, default=None,
                     help='Weight for g-score in weighted A*')

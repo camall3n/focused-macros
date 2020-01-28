@@ -19,7 +19,7 @@ parser.add_argument('--random_seed','-s', type=int, default=1,
 parser.add_argument('--skill_mode','-m', type=str, default='primitive',
                     choices=['primitive','random','generated'],
                     help='Type of skills to consider during search')
-parser.add_argument('--search_alg', type=str, default='astar', choices = ['astar', 'gbfs', 'weighted-astar'],
+parser.add_argument('--search_alg', type=str, default='gbfs', choices = ['astar', 'gbfs', 'weighted-astar'],
                     help='Search algorithm to run')
 parser.add_argument('--g_weight', type=float, default=None,
                     help='Weight for g-score in weighted A*')

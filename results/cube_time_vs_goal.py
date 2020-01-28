@@ -9,13 +9,8 @@ import seaborn as sns
 
 from cube import cube, pattern
 
-gen_version = '0.4'
-default_results = sorted(glob.glob('results/cube/gbfs/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
-random_results = sorted(glob.glob('results/cube/gbfs/random_goal/'+'generated-v'+gen_version+'/*.pickle'))
-
-# gen_version = '0.4'
-# default_results = sorted(glob.glob('results/cube/weighted_astar-g_0.1-h_1.0/default_goal/'+'generated-v'+gen_version+'/*.pickle'))
-# random_results = sorted(glob.glob('results/cube/weighted_astar-g_0.1-h_1.0/random_goal/'+'generated-v'+gen_version+'/*.pickle'))
+default_results = sorted(glob.glob('results/cube/gbfs/default_goal/'+'generated-v0.4/*.pickle'))
+random_results = sorted(glob.glob('results/cube/gbfs/random_goal/'+'generated-v0.4/*.pickle'))
 
 #%%
 def generate_plot(filename, ax, color=None, label=None):
@@ -59,7 +54,7 @@ for i,f in enumerate(random_results):
     generate_plot(f, ax, 'C4', label=label)
 
 ax.legend(framealpha=1)
-plt.savefig('results/plots/cube/cube_planning_alt_goals.png'.format(gen_version))
+plt.savefig('results/plots/cube/cube_planning_alt_goals.png')
 plt.show()
 
 #%%

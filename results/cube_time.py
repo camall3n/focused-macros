@@ -11,9 +11,7 @@ from cube import cube
 from cube import pattern
 import notebooks.picklefix
 
-results_dir = 'results/cube/astar/default_goal/'
 results_dir = 'results/cube/gbfs/default_goal/'
-# results_dir = 'results/cube/weighted_astar-g_0.1-h_1.0/default_goal/'
 version = 'v0.4'
 result_files = sorted(glob.glob(results_dir+'*/*.pickle'))
 transition_cap = 2e6

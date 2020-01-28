@@ -6,7 +6,11 @@ import os
 from cube.cube import actions as primitive_actions
 from cube.options import expert
 
-version = '0.4'# 0.4 is 0.2 with more skills saved
+version = '0.4'
+# 0.1 is unused. (I can't remember what this one was, but it was worse than 0.2)
+# 0.2 is the top 480 skills found, by h-score, within 1M simulator steps
+# 0.3 is the top 480 skills found, by f-score, within 1M simulator steps
+# 0.4 is the top 576 skills found, by h-score, within 1M simulator steps
 results_dir = 'results/skillsearch/cube/'
 filename = glob.glob(results_dir+'v'+version+'-results.pickle')[-1]
 with open(filename, 'rb') as f:
@@ -27,21 +31,3 @@ clean_skills = clean_skills[-n_options:]
 os.makedirs('results/skillsearch/cube', exist_ok=True)
 with open('results/skillsearch/cube/v{}-clean_skills.pickle'.format(version), 'wb') as f:
     pickle.dump(clean_skills, f)
-
-# #%% Print the generated skills v0.3
-# states, actions, n_expanded, n_transitions, candidates, best_n = search_results
-# actions
-# for score, skill in best_n:
-#     print(str(score-len(skill)), str(score),'-', ' '.join([s[0] for s in skill]))
-#
-# #%% Print the generated skills v0.2
-# states, actions, n_expanded, n_transitions, candidates, best_n = search_results
-# actions
-# for score, skill in best_n:
-#     print(str(score), str(score+len(skill)),'-', ' '.join([s[0] for s in skill]))
-#
-# #%% Print the generated skills v0.1
-# states, actions, n_expanded, n_transitions, candidates, best_n = search_results
-# actions
-# for node, skill in best_n:
-#     print(len(node.state.summarize_effects()),'-', ' '.join([s[0] for s in skill]))

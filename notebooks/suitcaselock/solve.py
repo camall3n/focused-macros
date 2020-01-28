@@ -19,7 +19,7 @@ parser.add_argument('--n_values', type=int, default=10,
                     help='Number of possible values for each variable')
 parser.add_argument('--entanglement', type=int, default=1,
                     help='Maximum number of variables changed per primitive action')
-parser.add_argument('--search_alg', type=str, default='astar', choices = ['astar', 'gbfs', 'weighted-astar'],
+parser.add_argument('--search_alg', type=str, default='gbfs', choices = ['astar', 'gbfs', 'weighted-astar'],
                     help='Search algorithm to run')
 parser.add_argument('--g_weight', type=float, default=None,
                     help='Weight for g-score in weighted A*')
