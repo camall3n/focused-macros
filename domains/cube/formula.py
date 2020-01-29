@@ -1,6 +1,6 @@
 import copy
 
-from cube.cube import Face
+from domains.cube import Face
 
 def _inverse_move(move):
     if '\'' in move:
@@ -235,7 +235,7 @@ def variations(formula):
 
 
 def test():
-    import cube
+    from domains import cube
 
     def test_mirroring():
         f = "R B' R' U' B' U F U' B U R B R' F'".split()

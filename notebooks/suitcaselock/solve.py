@@ -5,7 +5,7 @@ import pickle
 import random
 import os
 import sys
-from suitcaselock.suitcaselock import SuitcaseLock
+from domains.suitcaselock import SuitcaseLock
 from notebooks import search
 
 if 'ipykernel' in sys.argv[0]:

@@ -325,8 +325,8 @@ class Cube:
         return swap_list
 
 def test():
-    import cube
-    from cube import formula
+    from domains import cube
+    from domains.cube import formula
     c = cube.Cube()
     d = cube.Cube()
 

@@ -7,8 +7,9 @@ import pandas as pd
 import pickle
 import seaborn as sns
 
-import cube
-from cube import pattern
+from domains import cube
+from domains.cube import pattern
+import notebooks.picklefix
 
 default_results = sorted(glob.glob('results/cube/gbfs/default_goal/'+'generated-v0.4/*.pickle'))
 random_results = sorted(glob.glob('results/cube/gbfs/random_goal/'+'generated-v0.4/*.pickle'))

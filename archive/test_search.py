@@ -1,9 +1,9 @@
 import copy
 
-import cube
+from domains import cube
 from notebooks import search
-from cube.options import primitive, expert, random
-from cube import pattern
+from domains.cube.options import primitive, expert, random
+from domains.cube import pattern
 
 # Set up the scramble
 newcube = cube.Cube()

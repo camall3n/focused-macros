@@ -4,10 +4,9 @@ import pickle
 import os
 import sys
 
-import cube
+from domains import cube
 from notebooks import search
-from cube import options
-from cube import pattern
+from domains.cube import options, pattern
 from matplotlib import pyplot as plt
 
 if 'ipykernel' in sys.argv[0]:

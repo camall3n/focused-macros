@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 
-from cube.cube import actions as primitive_actions
-from cube.options import expert
+from domains.cube import actions as primitive_actions
+from domains.cube.options import expert
+import notebooks.picklefix
 
 version = '0.4'
 # 0.1 is unused. (I can't remember what this one was, but it was worse than 0.2)

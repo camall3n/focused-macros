@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-import cube
-from cube import options
+from domains import cube
+from domains.cube import options
 
 #%%
 plt.rcParams.update({'font.size': 18})

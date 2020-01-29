@@ -1,4 +1,4 @@
-from cube import Cube
+from domains.cube import Cube
 import random
 import torch
 
@@ -58,7 +58,7 @@ class CubeEnv:
 
 
 def test():
-    from cube.cubeenv import CubeEnv
+    from domains.cube.cubeenv import CubeEnv
 
     c = CubeEnv()
     c.reset()

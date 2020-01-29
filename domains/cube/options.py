@@ -1,7 +1,7 @@
 import pickle
 import random as pyrandom
-import cube
-from . import formula, skills
+from domains import cube
+from domains.cube import formula, skills
 
 class primitive:
     alg_formulas = [[a] for a in cube.actions]

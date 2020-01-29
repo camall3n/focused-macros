@@ -14,7 +14,7 @@ swap_3_corners = "R U' R' D R U R' D'".split()
 orient_2_corners = "R B' R' U' B' U F U' B U R B R' F'".split()
 
 def random_skill(length=3):
-    f = [random.choice(list(cube.actions)) for _ in range(length)]
+    f = [random.choice(list(cube.Action.keys())) for _ in range(length)]
     # f = formula.simplify(f)
     return f
 

@@ -6,9 +6,9 @@ import seaborn as sns
 from tqdm import tqdm
 
 from notebooks.rrank import rrank
-from suitcaselock.suitcaselock import SuitcaseLock
+from domains.suitcaselock import SuitcaseLock
 
-def compute_D_and_H(n=6, v=2, k=1):
+def compute_cost_matrix(n=6, v=2, k=1):
     lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
     skills = lock.actions()[:n]
     models = [copy.deepcopy(lock).apply_macro(diff=s).summarize_effects(baseline=lock) for s in skills]
@@ -51,6 +51,11 @@ def compute_D_and_H(n=6, v=2, k=1):
 
     # Compute the shortest path length from i to j
     D = np.sum(np.stack(PathLength), 0)
+    return D
+
+def compute_heuristic_matrix(n=6, v=2, k=1):
+    lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
+    n_states = v**n
 
     # Compute the goal-count heuristic from i to j
     heuristic = lambda start, goal: sum(goal.summarize_effects(baseline=start) > 0)
@@ -60,16 +65,17 @@ def compute_D_and_H(n=6, v=2, k=1):
         for col, goal in enumerate(lock.states()):
             H[row, col] = heuristic(start,goal)
 
-    return D, H
+    return H
 
 #%%
 n = 6
 v = 2
-n_trials = 1
+n_trials = 10
 data = []
 for k in tqdm(range(1,n)):
     for trial in range(n_trials):
-        D, H = compute_D_and_H(n, v, k)
+        D = compute_cost_matrix(n, v, k)
+        H = compute_heuristic_matrix(n, v, k)
         data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial} for d, h in zip(D.flatten(), H.flatten())])
     # plt.scatter(x=D.flatten(), y=H.flatten())
 data = pd.DataFrame(data)

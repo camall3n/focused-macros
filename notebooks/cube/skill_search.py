@@ -4,9 +4,9 @@ import pickle
 import os
 import sys
 
-import cube
+from domains import cube
 from notebooks import search
-from cube import options
+from domains.cube import options
 
 version = '0.4'
 cost_mode = 'per-skill'

@@ -2,7 +2,7 @@ import copy
 import numpy as np
 import pickle
 import random as pyrandom
-from npuzzle import npuzzle
+from domains import npuzzle
 
 version='0.2'
 results_dir = 'results/skillsearch/npuzzle/'
@@ -73,3 +73,4 @@ def test_random_seed():
 
 if __name__ == '__main__':
     test_random_seed()
+    print('All tests passed.')
