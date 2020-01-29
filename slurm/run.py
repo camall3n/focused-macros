@@ -33,7 +33,6 @@ def parse_args():
     parser.add_argument('--mem', help='Amount of RAM to request *per node* (in GB)', type=int, default=2)
     parser.add_argument('--env', help='Path to virtualenv', type=str, default='./env')
     parser.add_argument('--duration', help='Expected duration of job', choices=['test', 'short', 'long', 'vlong'], default='vlong')
-    parser.add_argument('--host', help='Wildcard for targeting a specific host or set of hosts', type=str, default=None)
     parser.add_argument('-t','--taskid', help='Task ID of first task', type=int, default=1)
     parser.add_argument('--tasklist', help='Comma separated list of task IDs to submit (e.g. "18-22:1,26,29,34-49:1")', type=str, default=None)
     parser.add_argument('-n','--ntasks', help='Number of tasks', type=int, default=0)
@@ -90,13 +89,10 @@ source {}
         cmd += '-p {} --gres=gpu:{}'.format(partition, args.gpus)
     else:
         partition = 'debug' if args.duration in ['test','short'] else 'batch'
+        cmd += '-p {} '.format(partition)
 
     # Memory requirements
     cmd += '--mem={}G '.format(args.mem)
-
-    # Force a specific set of hosts
-    if args.host is not None:
-        cmd += '-q {}.q@{}.cs.brown.edu '.format(args.duration, args.host)
 
     # Logging
     os.makedirs("./slurm/logs/", exist_ok=True)
