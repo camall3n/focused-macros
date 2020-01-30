@@ -6,7 +6,7 @@ from domains.cube import formula
 class primitive:
     alg_formulas = [[a] for a in cube.actions]
     actions = alg_formulas
-    models = [cube.Cube().apply(a).summarize_effects() for a in actions]
+    models = [cube.Cube().apply(sequence=a).summarize_effects() for a in actions]
 
 class expert:
     alg_formulas = [
@@ -18,7 +18,7 @@ class expert:
         formula.orient_2_corners,
     ]
     macros = [variation for f in alg_formulas for variation in formula.variations(f)]
-    models = [cube.Cube().apply(macro).summarize_effects() for macro in macros]
+    models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in macros]
 
 class learned:
     pass
@@ -33,7 +33,7 @@ def load_learned_macros(version):
         warning('Failed to load learned macros from file {}'.format(filename))
         _macros = []
 
-    _models = [cube.Cube().apply(macro).summarize_effects() for macro in _macros]
+    _models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in _macros]
 
     global learned
     learned.macros = _macros
@@ -51,7 +51,7 @@ def generate_random_macro_set(seed):
     pyrandom.setstate(st)
 
     _macros = [variation for f in formulas for variation in formula.variations(formula.simplify(f))]
-    _models = [cube.Cube().apply(macro).summarize_effects() for macro in _macros]
+    _models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in _macros]
     global random
     random.seed = seed
     random.alg_formulas = formulas

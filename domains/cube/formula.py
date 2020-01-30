@@ -278,8 +278,8 @@ def test():
         assert mirror(g) == f
         c = cube.Cube()
         d = cube.Cube()
-        c.apply(f)
-        d.apply(g)
+        c.apply(sequence=f)
+        d.apply(sequence=g)
         assert d == c
 
     def test_simplify():

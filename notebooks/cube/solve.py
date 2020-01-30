@@ -42,7 +42,7 @@ newcube = cube.Cube()
 scramble = pattern.scramble(seed)
 
 start = copy.deepcopy(newcube)
-start.apply(scramble)
+start.apply(sequence=scramble)
 print('Using scramble: {:03d}'.format(seed))
 start.render()
 
@@ -64,7 +64,7 @@ elif macro_type == 'generated':
     model_list = macros.primitive.models + macros.generated.models
 
 if args.random_goal:
-    goal = cube.Cube().apply(pattern.scramble(seed+1000))
+    goal = cube.Cube().apply(sequence=pattern.scramble(seed+1000))
     print('Using goal pattern: {:03d}'.format(seed+1000))
 else:
     goal = newcube

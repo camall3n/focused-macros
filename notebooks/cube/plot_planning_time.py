@@ -34,7 +34,7 @@ for filename in result_files:
     if 'default_goal' in filename:
         goal = cube.Cube()
     else:
-        goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
+        goal = cube.Cube().apply(sequence=pattern.scramble(seed=seed+1000))
     n_errors = len(states[-1].summarize_effects(baseline=goal))
     x = [transitions for transitions, node in candidates]
     y = [node.h_score for transitions, node in candidates]
@@ -98,7 +98,7 @@ for filename in result_files:
     if 'default_goal' in filename:
         goal = cube.Cube()
     else:
-        goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
+        goal = cube.Cube().apply(sequence=pattern.scramble(seed=seed+1000))
     n_errors = len(states[-1].summarize_effects(baseline=goal))
     n_action_steps = len(np.concatenate(actions))
     n_macro_steps = len(actions)
@@ -201,7 +201,7 @@ for filename in result_files:
     if 'default_goal' in filename:
         goal = cube.Cube()
     else:
-        goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
+        goal = cube.Cube().apply(sequence=pattern.scramble(seed=seed+1000))
     n_errors = len(states[-1].summarize_effects(baseline=goal))
     n_action_steps = len(np.concatenate(actions))
     n_macro_steps = len(actions)

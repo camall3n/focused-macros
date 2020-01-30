@@ -23,7 +23,7 @@ def generate_plot(filename, ax, color=None, label=None):
     if 'default_goal' in filename:
         goal = cube.Cube()
     else:
-        goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
+        goal = cube.Cube().apply(sequence=pattern.scramble(seed=seed+1000))
 
     n_errors = len(states[-1].summarize_effects(baseline=goal))
     x = [c for c,n in candidates]
@@ -70,7 +70,7 @@ for tag, results in zip(all_tags, all_results):
         if 'default_goal' in filename:
             goal = cube.Cube()
         else:
-            goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
+            goal = cube.Cube().apply(sequence=pattern.scramble(seed=seed+1000))
 
         n_errors = len(states[-1].summarize_effects(baseline=goal))
         data.append({
