@@ -8,14 +8,14 @@ version='0.2'
 results_dir = 'results/skillsearch/npuzzle/'
 filename = results_dir+'v'+version+'-clean_skills.pickle'
 with open(filename, 'rb') as f:
-    _options = pickle.load(f)
+    _macros = pickle.load(f)
 _models = {}
-for blank_idx, sequences in _options.items():
+for blank_idx, sequences in _macros.items():
     puzzle = npuzzle.NPuzzle(n=15, start_blank=blank_idx)
-    _models[blank_idx] = [copy.deepcopy(puzzle).apply_macro(o).summarize_effects(baseline=puzzle) for o in sequences]
+    _models[blank_idx] = [copy.deepcopy(puzzle).apply_macro(macro).summarize_effects(baseline=puzzle) for macro in sequences]
 
 class generated:
-    options = _options
+    macros = _macros
     models = _models
 
 def random_skill(start_blank, length):
@@ -41,35 +41,35 @@ def set_random_skill_seed(seed):
     pyrandom.seed(seed)
     np.random.seed(seed)
 
-    _options = {}
+    _macros = {}
     _models = {}
 
-    for blank_idx, option_list in generated.options.items():
-        skills = [random_skill(blank_idx, len(o)) for o in generated.options[blank_idx]]
-        _options[blank_idx], _models[blank_idx] = zip(*skills)
+    for blank_idx, macro_list in generated.macros.items():
+        random_macros = [random_skill(blank_idx, len(macro)) for macro in macro_list]
+        _macros[blank_idx], _models[blank_idx] = zip(*random_macros)
 
     pyrandom.setstate(py_st)
     np.random.set_state(np_st)
 
     global random
-    random.options = _options
+    random.macros = _macros
     random.models = _models
 
 set_random_skill_seed(0)
 
 def test_random_seed():
     set_random_skill_seed(0)
-    op0 = random.options[(0,0)][0]
+    macro_0 = random.macros[(0,0)][0]
 
     set_random_skill_seed(1)
-    op1 = random.options[(0,0)][0]
-    assert op0 != op1
+    macro_1 = random.macros[(0,0)][0]
+    assert macro_0 != macro_1
 
     set_random_skill_seed(0)
-    assert random.options[(0,0)][0] == op0
+    assert random.macros[(0,0)][0] == macro_0
 
     set_random_skill_seed(1)
-    assert random.options[(0,0)][0] == op1
+    assert random.macros[(0,0)][0] == macro_1
 
 if __name__ == '__main__':
     test_random_seed()

@@ -101,10 +101,9 @@ for filename in result_files:
         goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
     n_errors = len(states[-1].summarize_effects(baseline=goal))
     n_action_steps = len(np.concatenate(actions))
-    n_skill_steps = len(actions)
-    skill_lengths = list(map(len,actions))
+    n_macro_steps = len(actions)
 
-    data.append({'transitions': n_transitions, 'n_errors': n_errors, 'n_action_steps': n_action_steps, 'n_skill_steps': n_skill_steps, 'seed': seed, 'tag': tag, 'version': v})
+    data.append({'transitions': n_transitions, 'n_errors': n_errors, 'n_action_steps': n_action_steps, 'n_macro_steps': n_macro_steps, 'seed': seed, 'tag': tag, 'version': v})
 
 data = pd.DataFrame(data).query("version!='v0.2'")
 data.groupby('tag', as_index=False).mean()
@@ -147,14 +146,14 @@ for plot_dict in plot_vars:
     z = plot_dict['zorder']
     marker = plot_dict['marker']
     if len(data.query('tag==@tag')) > 0:
-        sns.scatterplot(data=data.query('tag==@tag'), x='n_skill_steps', y='transitions', label=desc, estimator=None, units='seed', ax=ax, color=c, marker=marker, s=150, zorder=z)
+        sns.scatterplot(data=data.query('tag==@tag'), x='n_macro_steps', y='transitions', label=desc, estimator=None, units='seed', ax=ax, color=c, marker=marker, s=150, zorder=z)
 
 ax.set_ylim([0,8e5])
 ax.set_xlim([0,120])
 ax.set_title('Solution speed vs. length (Rubik\'s cube)')
 ax.set_ylabel('Number of simulation steps')
 ax.set_xlabel('Plan length (macro-action steps)')
-plt.savefig('results/plots/cube/cube_plan_length_skills.png')
+plt.savefig('results/plots/cube/cube_plan_length_macros.png')
 plt.show()
 
 data.query("tag=='generated'").mean()['n_action_steps']
@@ -205,8 +204,8 @@ for filename in result_files:
         goal = cube.Cube().apply(pattern.scramble(seed=seed+1000))
     n_errors = len(states[-1].summarize_effects(baseline=goal))
     n_action_steps = len(np.concatenate(actions))
-    n_skill_steps = len(actions)
-    skill_lengths = list(map(len,actions))
+    n_macro_steps = len(actions)
+    macro_lengths = list(map(len,actions))
     x = [c for c,n in candidates]
     y = [n.h_score for c,n in candidates]
 
@@ -214,16 +213,16 @@ for filename in result_files:
     if n_errors > 0:
         x += [n_transitions]
         y += [y[-1]]
-    [data.append({'transitions': n_transitions, 'n_errors': n_errors, 'n_action_steps': n_action_steps, 'n_skill_steps': n_skill_steps, 'skill_length': l, 'seed': seed, 'tag': tag, 'version': v}) for l in skill_lengths]
+    [data.append({'transitions': n_transitions, 'n_errors': n_errors, 'n_action_steps': n_action_steps, 'n_macro_steps': n_macro_steps, 'macro_length': l, 'seed': seed, 'tag': tag, 'version': v}) for l in macro_lengths]
 
 data = pd.DataFrame(data).query("version!='v0.2'")
 
 fig, ax = plt.subplots(figsize=(8,6))
-sns.violinplot(x='tag', y='skill_length', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','generated':'C3'}, hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
+sns.violinplot(x='tag', y='macro_length', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','generated':'C3'}, hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
 
-ax.set_title('Skill length distribution (Rubik\'s cube)')
-ax.set_ylabel('Length of skill (number of primitive actions)')
-ax.set_xlabel('Skill type')
+ax.set_title('Macro length distribution (Rubik\'s cube)')
+ax.set_ylabel('Length of macro (number of primitive actions)')
+ax.set_xlabel('Macro type')
 
-plt.savefig('results/plots/cube/cube_skill_length.png')
+plt.savefig('results/plots/cube/cube_macro_length.png')
 plt.show()

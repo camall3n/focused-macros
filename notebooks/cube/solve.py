@@ -6,7 +6,7 @@ import sys
 
 from domains import cube
 from notebooks import search
-from domains.cube import options, pattern
+from domains.cube import macros, pattern
 from matplotlib import pyplot as plt
 
 if 'ipykernel' in sys.argv[0]:
@@ -14,12 +14,12 @@ if 'ipykernel' in sys.argv[0]:
 parser = argparse.ArgumentParser()
 parser.add_argument('--scramble_seed','-s', type=int, default=1,
                     help='Seed to use for initial scramble')
-parser.add_argument('--skill_mode','-m', type=str, default='expert',
+parser.add_argument('--macro_type','-m', type=str, default='expert',
                     choices=['primitive','expert','fixed_random','full_random','generated'],
-                    help='Type of skills to consider during search')
-parser.add_argument('--skill_version','-v', type=str, default='0.4',
+                    help='Type of macros to consider during search')
+parser.add_argument('--macro_version','-v', type=str, default='0.4',
                     choices=['0.1','0.2','0.3','0.4'],
-                    help='Which version to use for generated skills')
+                    help='Which version to use for generated macros')
 parser.add_argument('--search_alg', type=str, default='gbfs', choices=['astar','gbfs','weighted_astar'],
                     help='Search algorithm to run')
 parser.add_argument('--g_weight', type=float, default=None,
@@ -33,8 +33,8 @@ parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1
 args = parser.parse_args()
 
 seed = args.scramble_seed
-skill_mode = args.skill_mode
-cost_mode = 'per-skill'
+macro_type = args.macro_type
+cost_mode = 'per-macro'
 debug = False
 
 # Set up the scramble
@@ -46,22 +46,22 @@ start.apply(scramble)
 print('Using scramble: {:03d}'.format(seed))
 start.render()
 
-# Define the skills
-if skill_mode == 'primitive':
-    skills = options.primitive.actions
-    models = options.primitive.models
-elif skill_mode == 'expert':
-    skills = options.primitive.actions + options.expert.options
-    models = options.primitive.models + options.expert.models
-elif 'random' in skill_mode:
-    if skill_mode == 'full_random':
-        options.set_random_skill_seed(seed)
-    skills = options.primitive.actions + options.random.options
-    models = options.primitive.models + options.random.models
-elif skill_mode == 'generated':
-    options.load_generated_skills(args.skill_version)
-    skills = options.primitive.actions + options.generated.options
-    models = options.primitive.models + options.generated.models
+# Define the macros and models
+if macro_type == 'primitive':
+    macro_list = macros.primitive.actions
+    model_list = macros.primitive.models
+elif macro_type == 'expert':
+    macro_list = macros.primitive.actions + macros.expert.macros
+    model_list = macros.primitive.models + macros.expert.models
+elif 'random' in macro_type:
+    if macro_type == 'full_random':
+        macros.set_random_skill_seed(seed)
+    macro_list = macros.primitive.actions + macros.random.macros
+    model_list = macros.primitive.models + macros.random.models
+elif macro_type == 'generated':
+    macros.load_generated_skills(args.macro_version)
+    macro_list = macros.primitive.actions + macros.generated.macros
+    model_list = macros.primitive.models + macros.generated.models
 
 if args.random_goal:
     goal = cube.Cube().apply(pattern.scramble(seed+1000))
@@ -74,12 +74,12 @@ is_goal = lambda node: node.state == goal
 heuristic = lambda cube: len(cube.summarize_effects(baseline=goal))
 
 if cost_mode == 'per-action':
-    step_cost = lambda skill: len(skill)
-elif cost_mode == 'per-skill':
-    step_cost = lambda skill: 1
+    step_cost = lambda macro: len(macro)
+elif cost_mode == 'per-macro':
+    step_cost = lambda macro: 1
 
 def get_successors(cube):
-    return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
+    return [(copy.deepcopy(cube).apply(swap_list=model), macro) for macro,model in zip(macro_list, model_list)]
 
 #%% Run the search
 search_alg = args.search_alg
@@ -93,9 +93,9 @@ elif search_alg == 'weighted_astar':
     search_results = search.weighted_astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions, gh_weights=gh_weights)
 
 #%% Save the results
-tag = skill_mode
-if skill_mode == 'generated':
-    tag += '-v{}'.format(args.skill_version)
+tag = macro_type
+if macro_type == 'generated':
+    tag += '-v{}'.format(args.macro_version)
 if args.random_goal:
     tag = 'random_goal/'+tag
 else:

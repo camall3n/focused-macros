@@ -6,7 +6,7 @@ import random
 import os
 import sys
 from npuzzle.npuzzle import NPuzzle
-from npuzzle import options
+from npuzzle import macros
 from notebooks import search
 
 if 'ipykernel' in sys.argv[0]:
@@ -16,9 +16,9 @@ parser.add_argument('-n', type=int, default=15, choices=[8, 15, 24, 35, 48, 63, 
                     help='Number of tiles')
 parser.add_argument('--random_seed','-s', type=int, default=1,
                     help='Seed to use for RNGs')
-parser.add_argument('--skill_mode','-m', type=str, default='primitive',
+parser.add_argument('--macro_type','-m', type=str, default='primitive',
                     choices=['primitive','random','generated'],
-                    help='Type of skills to consider during search')
+                    help='Type of macro_list to consider during search')
 parser.add_argument('--search_alg', type=str, default='gbfs', choices = ['astar', 'gbfs', 'weighted-astar'],
                     help='Search algorithm to run')
 parser.add_argument('--g_weight', type=float, default=None,
@@ -32,7 +32,6 @@ parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1
 args = parser.parse_args()
 #
 seed = args.random_seed
-cost_mode = 'per-skill'
 
 # Set up the scramble
 random.seed(seed)
@@ -50,30 +49,30 @@ print('Using seed: {:03d}'.format(seed))
 print('Start:', start)
 print('Goal:', goal)
 
-# Define the skills
-if args.skill_mode == 'primitive':
-    skills = []
-    models = []
-elif args.skill_mode == 'random':
-    options.set_random_skill_seed(seed)
-    skills = options.random.options
-    models = options.random.models
-elif args.skill_mode == 'generated':
-    skills = options.generated.options
-    models = options.generated.models
+# Define the macros / models
+if args.macro_type == 'primitive':
+    macro_list = []
+    model_list = []
+elif args.macro_type == 'random':
+    macros.set_random_skill_seed(seed)
+    macro_list = macros.random.macros
+    model_list = macros.random.models
+elif args.macro_type == 'generated':
+    macro_list = macros.generated.macros
+    model_list = macros.generated.models
 
 
 # Set up the search problem
 is_goal = lambda node: node.state == goal
 heuristic = lambda puz: len(puz.summarize_effects(baseline=goal)[0])
-step_cost = lambda skill: 1
+step_cost = lambda macro: 1
 
 def get_successors(puz):
     successors = [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]
-    if args.skill_mode != 'primitive':
-        local_skills = skills[puz.blank_idx]
-        local_models = models[puz.blank_idx]
-        macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(local_skills, local_models)]
+    if args.macro_type != 'primitive':
+        valid_macros = macro_list[puz.blank_idx]
+        valid_models = model_list[puz.blank_idx]
+        macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(valid_macros, valid_models)]
         successors += macro_successors
     return successors
 
@@ -93,9 +92,7 @@ if args.random_goal:
     tag += 'random_goal/'
 else:
     tag += 'default_goal/'
-tag += args.skill_mode
-# if skill_mode == 'generated':
-#     tag += '-v{}'.format(args.skill_version)
+tag += args.macro_type
 
 results_dir = 'results/npuzzle/{}/{}/'.format(args.search_alg,tag)
 os.makedirs(results_dir, exist_ok=True)

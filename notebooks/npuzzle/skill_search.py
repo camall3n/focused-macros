@@ -17,11 +17,11 @@ parser.add_argument('-r', type=int, default=0,
 parser.add_argument('-c', type=int, default=0,
                     help='Initial col for blank space')
 parser.add_argument('-v', type=str, required=True,
-                    help='Which version to use for generated skills')
+                    help='Which version to use for generated macros')
 parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=62500,
                     help='Maximum number of variables changed per primitive action')
 parser.add_argument('--save_best_n', type=int, default=100,
-                    help='Number of best skills to save')
+                    help='Number of best macros to save')
 args = parser.parse_args()
 
 #%% Make n-puzzle and set initial blank location
@@ -31,7 +31,7 @@ tag = 'n{}-r{}-c{}'.format(args.n, *puzzle.blank_idx)
 #%% Configure the search
 startpuz = copy.deepcopy(puzzle)
 is_goal = lambda node: False
-step_cost = lambda skill: 1
+step_cost = lambda action: 1
 def heuristic(puz):
     swap_list, starting_blank_idx = puz.summarize_effects(baseline=puzzle)
     if len(swap_list) == 0:

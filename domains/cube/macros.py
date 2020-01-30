@@ -17,16 +17,16 @@ class expert:
         skills.orient_2_edges,
         skills.orient_2_corners,
     ]
-    options = [variation for f in alg_formulas for variation in formula.variations(f)]
-    models = [cube.Cube().apply(o).summarize_effects() for o in options]
+    macros = [variation for f in alg_formulas for variation in formula.variations(f)]
+    models = [cube.Cube().apply(macro).summarize_effects() for macro in macros]
 
 def load_generated_skills(version):
     class generated_skills:
         results_dir = 'results/skillsearch/cube/'
         filename = results_dir+'v'+version+'-clean_skills.pickle'
         with open(filename, 'rb') as f:
-            options = pickle.load(f)
-        models = [cube.Cube().apply(o).summarize_effects() for o in options]
+            macros = pickle.load(f)
+        models = [cube.Cube().apply(macro).summarize_effects() for macro in macros]
     global generated
     generated = generated_skills
 load_generated_skills('0.4')
@@ -40,8 +40,8 @@ def set_random_skill_seed(seed):
     class uniform_random:
         random_seed = seed
         alg_formulas = formulas
-        options = [variation for f in alg_formulas for variation in formula.variations(f)]
-        models = [cube.Cube().apply(o).summarize_effects() for o in options]
+        macros = [variation for f in alg_formulas for variation in formula.variations(f)]
+        models = [cube.Cube().apply(macro).summarize_effects() for macro in macros]
     global random
     random = uniform_random
 

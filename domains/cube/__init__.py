@@ -1,2 +1,2 @@
-__all__ = ['cube', 'formula', 'options', 'pattern', 'skills']
+__all__ = ['cube', 'formula', 'macros', 'pattern', 'skills']
 from .cube import Cube, Face, actions

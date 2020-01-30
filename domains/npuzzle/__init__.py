@@ -1,2 +1,2 @@
-__all__ = ['npuzzle','options']
+__all__ = ['npuzzle','macros']
 from .npuzzle import NPuzzle

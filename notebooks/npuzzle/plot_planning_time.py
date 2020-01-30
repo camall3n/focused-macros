@@ -187,7 +187,7 @@ for filename in result_files:
         goal = states[0].reset().scramble(seed=seed+1000)
     n_errors = len(states[-1].summarize_effects(baseline=goal)[0])
     n_action_steps = len(np.concatenate(actions))
-    n_skill_steps = len(actions)
+    n_macro_steps = len(actions)
     x = [c for c,n in candidates]
     y = [n.h_score for c,n in candidates]
 
@@ -198,7 +198,7 @@ for filename in result_files:
 
     data.append({
         'n_action_steps': n_action_steps,
-        'n_skill_steps': n_skill_steps,
+        'n_macro_steps': n_macro_steps,
         'n_errors': n_errors,
         'seed': seed,
         'tag': tag
@@ -216,14 +216,14 @@ ax.set_xlabel('Plan length (primitive action steps)')
 
 handles, labels = ax.get_legend_handles_labels()
 handles = handles[1:]
-labels = ['actions only','actions + random skills', 'actions + generated skills']
+labels = ['actions only','actions + random macros', 'actions + generated macros']
 ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
 plt.savefig('results/plots/npuzzle/npuzzle_plan_length_actions.png')
 plt.show()
 
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
-sns.scatterplot(x='n_skill_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], markers=['o','^','P'], ax=ax, s=150)
+sns.scatterplot(x='n_macro_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], markers=['o','^','P'], ax=ax, s=150)
 ax.set_ylim([0,n_puzzle+1])
 ax.set_title('Final plan quality vs. length (15-Puzzle)')
 ax.set_ylabel('Number of errors remaining')
@@ -231,9 +231,9 @@ ax.set_xlabel('Plan length (macro-action steps)')
 
 handles, labels = ax.get_legend_handles_labels()
 handles = handles[1:]
-labels = ['actions only','actions + random skills', 'actions + generated skills']
+labels = ['actions only','actions + random macros', 'actions + generated macros']
 ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
-plt.savefig('results/plots/npuzzle/npuzzle_plan_length_skills.png')
+plt.savefig('results/plots/npuzzle/npuzzle_plan_length_macros.png')
 plt.show()
 
 #%%
@@ -253,8 +253,8 @@ for filename in result_files:
         goal = states[0].reset().scramble(seed=seed+1000)
     n_errors = len(states[-1].summarize_effects(baseline=goal)[0])
     n_action_steps = len(np.concatenate(actions))
-    n_skill_steps = len(actions)
-    skill_lengths = list(map(len, actions))
+    n_macro_steps = len(actions)
+    macro_lengths = list(map(len, actions))
     x = [c for c,n in candidates]
     y = [n.h_score for c,n in candidates]
 
@@ -265,22 +265,22 @@ for filename in result_files:
 
     [data.append({
         'n_action_steps': n_action_steps,
-        'n_skill_steps': n_skill_steps,
+        'n_macro_steps': n_macro_steps,
         'n_errors': n_errors,
-        'skill_length': l,
+        'macro_length': l,
         'seed': seed,
         'tag': tag
-    }) for l in skill_lengths]
+    }) for l in macro_lengths]
 
 data = pd.DataFrame(data)
 
 fig, ax = plt.subplots(figsize=(8,6))
-sns.violinplot(x='tag', y='skill_length', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
+sns.violinplot(x='tag', y='macro_length', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
 
 ax.legend(loc='upper center')
 ax.set_title('Skill length distribution (15-puzzle)')
 ax.set_ylabel('Skill length (primitive actions)')
 ax.set_xlabel('Skill type')
 
-plt.savefig('results/plots/npuzzle/npuzzle_skill_length.png')
+plt.savefig('results/plots/npuzzle/npuzzle_macro_length.png')
 plt.show()

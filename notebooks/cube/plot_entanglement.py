@@ -2,29 +2,29 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 from domains import cube
-from domains.cube import options
+from domains.cube import macros
 
 #%%
 plt.rcParams.update({'font.size': 18})
 fig, ax = plt.subplots(figsize=(8,6))
-option_names = ['primitive', 'expert', 'random', 'learned']
-options.set_random_skill_seed(14)
-option_types = [options.primitive, options.expert, options.random, options.generated]
+macro_names = ['primitive', 'expert', 'random', 'learned']
+macros.set_random_skill_seed(14)
+macro_types = [macros.primitive, macros.expert, macros.random, macros.generated]
 marker_styles = ['o','x','^','+']
-for i,option_type in enumerate(option_types):
-    if option_names[i] == 'random':
+for i, macro_type in enumerate(macro_types):
+    if macro_names[i] == 'random':
         for j in range(1,11):
-            options.set_random_skill_seed(j)
-            lengths = [len(o) for o in options.random.options]
-            effects = [len(cube.Cube().apply(swap_list=m).summarize_effects()) for m in options.random.models]
+            macros.set_random_skill_seed(j)
+            lengths = [len(macro) for macro in macros.random.macros]
+            effects = [len(cube.Cube().apply(swap_list=model).summarize_effects()) for model in macros.random.models]
             plt.scatter(lengths, effects, c='C{}'.format(i), marker='^', facecolor='none', s=150, linewidths=1)
-        options.set_random_skill_seed(0)
+        macros.set_random_skill_seed(0)
     try:
-        lengths = [len(o) for o in option_type.options]
+        lengths = [len(macro) for macro in macro_type.macros]
     except AttributeError:
-        lengths = [len(a) for a in option_type.actions]
-    effects = [len(cube.Cube().apply(swap_list=m).summarize_effects()) for m in option_type.models]
-    label = option_names[i]
+        lengths = [len(a) for a in macro_type.actions]
+    effects = [len(cube.Cube().apply(swap_list=model).summarize_effects()) for model in macro_type.models]
+    label = macro_names[i]
     plt.scatter(lengths, effects, c='C{}'.format(i), marker=marker_styles[i], facecolor='none', s=150, label=label, linewidths=1)
 plt.hlines(48, 0, 25, linestyles='dotted', linewidths=2)
 handles, labels = ax.get_legend_handles_labels()

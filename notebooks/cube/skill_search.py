@@ -6,18 +6,18 @@ import sys
 
 from domains import cube
 from notebooks import search
-from domains.cube import options
+from domains.cube import macros
 
 version = '0.4'
-cost_mode = 'per-skill'
+cost_mode = 'per-macro'
 max_transitions = 1e6
 save_best_n = 1200
 
 newcube = cube.Cube()
 start = cube.Cube()
 
-skills = options.primitive.actions
-models = options.primitive.models
+actions = macros.primitive.actions
+models = macros.primitive.models
 
 is_goal = lambda node: False
 
@@ -29,12 +29,12 @@ def heuristic(cube):
         return len(effects)
 
 if cost_mode == 'per-action':
-    step_cost = lambda skill: len(skill)
-elif cost_mode == 'per-skill':
-    step_cost = lambda skill: 1
+    step_cost = lambda macro: len(macro)
+elif cost_mode == 'per-macro':
+    step_cost = lambda macro: 1
 
 def get_successors(cube):
-    return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
+    return [(copy.deepcopy(cube).apply(swap_list=m), a) for a,m in zip(actions, models)]
 
 #%% Run the search
 search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions, save_best_n)

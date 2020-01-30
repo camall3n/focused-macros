@@ -19,7 +19,7 @@ def random_skill(length=3):
     return f
 
 # def random_conjugate(prefix_length=1, body_length=1):
-#     """Generates a random skill of the form (X Y X')"""
+#     """Generates a random macro of the form (X Y X')"""
 #     assert prefix_length > 0 and body_length>0, "Lengths ({}, {}) must be positive".format(prefix_length, body_length)
 #     prefix = random_skill(prefix_length)
 #     suffix = formula.inverse(prefix)
@@ -29,7 +29,7 @@ def random_skill(length=3):
 #     return f
 #
 # def random_commutator(x_length=3, y_length=1):
-#     """Generates a random skill of the form (X Y X' Y')"""
+#     """Generates a random macro of the form (X Y X' Y')"""
 #     assert x_length > 0 and y_length>0, "Lengths ({}, {}) must be positive".format(x_length, y_length)
 #     X = random_skill(x_length)
 #     Xinv = formula.inverse(X)

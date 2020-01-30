@@ -10,11 +10,10 @@ from domains.suitcaselock import SuitcaseLock
 
 def compute_cost_matrix(n=6, v=2, k=1):
     lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
-    skills = lock.actions()[:n]
-    models = [copy.deepcopy(lock).apply_macro(diff=s).summarize_effects(baseline=lock) for s in skills]
+    actions = lock.actions()[:n]
 
     # Get the actions matrix
-    M = np.asarray(skills[:n])
+    M = np.asarray(actions[:n])
     rrank(M)
 
     # Compute the adjacency matrix
@@ -25,7 +24,7 @@ def compute_cost_matrix(n=6, v=2, k=1):
     # column = to
     get_state_id = lambda lock: int(''.join(map(str,lock.state)), base=v)
     def get_successors(lock):
-        return [copy.deepcopy(lock).apply_macro(diff=m) for s,m in zip(skills, models)]
+        return [copy.deepcopy(lock).apply_macro(diff=a) for a in actions]
 
     for s in lock.states():
         id = get_state_id(s)
@@ -77,7 +76,6 @@ for k in tqdm(range(1,n)):
         D = compute_cost_matrix(n, v, k)
         H = compute_heuristic_matrix(n, v, k)
         data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial} for d, h in zip(D.flatten(), H.flatten())])
-    # plt.scatter(x=D.flatten(), y=H.flatten())
 data = pd.DataFrame(data)
 
 #%%

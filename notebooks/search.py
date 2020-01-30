@@ -41,7 +41,7 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors, max_tr
         debug_fn(root.state)
     candidates = [(n_transitions, root)]
     best = root
-    # save best N skills, always ejecting the max priority element to make room
+    # save best N nodes, always ejecting the max priority element to make room
     best_n = pq.PriorityQueue(maxlen=save_best_n, mode='max')
 
     with tqdm(total=max_transitions, disable=quiet) as progress:

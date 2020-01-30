@@ -62,8 +62,8 @@ class SuitcaseLock:
         return self
 
     def transition(self, action):
-        assert len(action) == self.n_vars
-        assert np.sum(np.abs(action)) <= self.entanglement
+        assert type(action) is np.ndarray, 'Action must be of type numpy.ndarray'
+        assert action.shape == self.state.shape, 'Action shape {} incompatible with lock shape {}'.format(action.shape, self.state.shape)
         self._unchecked_transition(action)
         return self
 
@@ -87,7 +87,7 @@ class SuitcaseLock:
     def apply_macro(self, sequence=None, diff=None):
         assert sequence is not None or diff is not None
         if diff is not None:
-            self._unchecked_transition(diff)
+            self.transition(diff)
         elif sequence is not None:
             for move in sequence:
                 self.transition(move)

@@ -30,7 +30,6 @@ parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1
 args = parser.parse_args()
 #
 seed = args.random_seed
-cost_mode = 'per-skill'
 
 # Set up the scramble
 random.seed(seed)
@@ -44,19 +43,17 @@ print('Using seed: {:03d}'.format(seed))
 print('Start:', start)
 print('Goal:', goal)
 
-# Define the skills
-skills = newlock.actions()
-s = skills[0]
-
-models = [copy.deepcopy(newlock).apply_macro(diff=s).summarize_effects(baseline=newlock) for s in skills]
+# Define the actions
+actions = newlock.actions()
 
 # Set up the search problem
 is_goal = lambda node: node.state == goal
 heuristic = lambda lock: sum(lock.summarize_effects(baseline=goal) > 0)
-step_cost = lambda skill: 1
+step_cost = lambda action: 1
 
 def get_successors(lock):
-    return [(copy.copy(lock).apply_macro(diff=m), s) for s,m in zip(skills, models)]
+    # don't deepcopy unless you want billions of copies of the actions list!
+    return [(copy.copy(lock).apply_macro(diff=a), a) for a in actions]
 
 #%% Run the search
 if args.search_alg == 'astar':
