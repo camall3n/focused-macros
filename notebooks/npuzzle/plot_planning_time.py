@@ -278,9 +278,9 @@ fig, ax = plt.subplots(figsize=(8,6))
 sns.violinplot(x='tag', y='macro_length', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
 
 ax.legend(loc='upper center')
-ax.set_title('Skill length distribution (15-puzzle)')
-ax.set_ylabel('Skill length (primitive actions)')
-ax.set_xlabel('Skill type')
+ax.set_title('Macro length distribution (15-puzzle)')
+ax.set_ylabel('Macro length (primitive actions)')
+ax.set_xlabel('Macro type')
 
 plt.savefig('results/plots/npuzzle/npuzzle_macro_length.png')
 plt.show()

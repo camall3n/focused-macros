@@ -55,11 +55,11 @@ elif macro_type == 'expert':
     model_list = macros.primitive.models + macros.expert.models
 elif 'random' in macro_type:
     if macro_type == 'full_random':
-        macros.set_random_skill_seed(seed)
+        macros.generate_random_macro_set(seed)
     macro_list = macros.primitive.actions + macros.random.macros
     model_list = macros.primitive.models + macros.random.models
 elif macro_type == 'generated':
-    macros.load_generated_skills(args.macro_version)
+    macros.load_learned_macros(args.macro_version)
     macro_list = macros.primitive.actions + macros.generated.macros
     model_list = macros.primitive.models + macros.generated.models
 

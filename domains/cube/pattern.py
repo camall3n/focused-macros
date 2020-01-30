@@ -1,5 +1,5 @@
 import random
-from domains.cube.skills import random_skill
+from domains.cube.formula import random_formula
 
 cube_in_cube = "F L F U' R U F F L L U' L' B D' B' L L U".split()
 exchanged_rings = "B' U' B' L' D B U D D B U L D' L' U' L L D".split()
@@ -12,16 +12,16 @@ scramble1 = "L' B' L R' U L' B' F' L B L F' B F B U' R' R F B' F' U F' F' L' B B
 def scramble(seed=0, length=60):
     st = random.getstate()
     random.seed(seed)
-    formula = random_skill(length)
+    formula = random_formula(length)
     random.setstate(st)
     return formula
 
-def main():
+def test():
     assert scramble(1) == scramble(1)
     assert scramble(1) != scramble(2)
     from domains.cube import formula
     assert ' '.join(formula.simplify(scramble(1))) == "U D' R F R' R' F' L' D L' D' L B' R' F B' R B L' F' U' F' D L' B' L U' D R' R' U' D B D F' D R' F U' F' R U B' R"
-
+    print('All tests passed.')
 
 if __name__ == '__main__':
-    main()
+    test()

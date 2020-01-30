@@ -54,7 +54,7 @@ if args.macro_type == 'primitive':
     macro_list = []
     model_list = []
 elif args.macro_type == 'random':
-    macros.set_random_skill_seed(seed)
+    macros.generate_random_macro_set(seed)
     macro_list = macros.random.macros
     model_list = macros.random.models
 elif args.macro_type == 'generated':

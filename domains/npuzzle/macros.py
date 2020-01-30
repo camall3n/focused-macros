@@ -14,11 +14,11 @@ for blank_idx, sequences in _macros.items():
     puzzle = npuzzle.NPuzzle(n=15, start_blank=blank_idx)
     _models[blank_idx] = [copy.deepcopy(puzzle).apply_macro(macro).summarize_effects(baseline=puzzle) for macro in sequences]
 
-class generated:
+class learned:
     macros = _macros
     models = _models
 
-def random_skill(start_blank, length):
+def random_macro(start_blank, length):
     baseline = npuzzle.NPuzzle(n=15, start_blank=start_blank)
     effect_size = 0
     while effect_size == 0:
@@ -35,7 +35,7 @@ def random_skill(start_blank, length):
 class random:
     pass
 
-def set_random_skill_seed(seed):
+def generate_random_macro_set(seed):
     py_st = pyrandom.getstate()
     np_st = np.random.get_state()
     pyrandom.seed(seed)
@@ -44,8 +44,8 @@ def set_random_skill_seed(seed):
     _macros = {}
     _models = {}
 
-    for blank_idx, macro_list in generated.macros.items():
-        random_macros = [random_skill(blank_idx, len(macro)) for macro in macro_list]
+    for blank_idx, macro_list in learned.macros.items():
+        random_macros = [random_macro(blank_idx, len(macro)) for macro in macro_list]
         _macros[blank_idx], _models[blank_idx] = zip(*random_macros)
 
     pyrandom.setstate(py_st)
@@ -55,22 +55,23 @@ def set_random_skill_seed(seed):
     random.macros = _macros
     random.models = _models
 
-set_random_skill_seed(0)
+generate_random_macro_set(0)
 
-def test_random_seed():
-    set_random_skill_seed(0)
+def test():
+    generate_random_macro_set(0)
     macro_0 = random.macros[(0,0)][0]
 
-    set_random_skill_seed(1)
+    generate_random_macro_set(1)
     macro_1 = random.macros[(0,0)][0]
     assert macro_0 != macro_1
 
-    set_random_skill_seed(0)
+    generate_random_macro_set(0)
     assert random.macros[(0,0)][0] == macro_0
 
-    set_random_skill_seed(1)
+    generate_random_macro_set(1)
     assert random.macros[(0,0)][0] == macro_1
 
-if __name__ == '__main__':
-    test_random_seed()
     print('All tests passed.')
+
+if __name__ == '__main__':
+    test()
