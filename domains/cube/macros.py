@@ -26,8 +26,13 @@ class learned:
 def load_learned_macros(version):
     results_dir = 'results/macros/cube/'
     filename = results_dir+'v'+version+'-clean_skills.pickle'
-    with open(filename, 'rb') as f:
-        _macros = pickle.load(f)
+    try:
+        with open(filename, 'rb') as f:
+            _macros = pickle.load(f)
+    except FileNotFoundError:
+        warning('Failed to load learned macros from file {}'.format(filename))
+        _macros = []
+
     _models = [cube.Cube().apply(macro).summarize_effects() for macro in _macros]
 
     global learned
@@ -45,7 +50,7 @@ def generate_random_macro_set(seed):
     formulas = [formula.random_formula(len(a)) for a in expert.alg_formulas]
     pyrandom.setstate(st)
 
-    _macros = [variation for f in formulas for variation in formula.variations(f)]
+    _macros = [variation for f in formulas for variation in formula.variations(formula.simplify(f))]
     _models = [cube.Cube().apply(macro).summarize_effects() for macro in _macros]
     global random
     random.seed = seed
