@@ -5,7 +5,7 @@ import random as pyrandom
 from domains import npuzzle
 
 version='0.2'
-results_dir = 'results/skillsearch/npuzzle/'
+results_dir = 'results/macros/npuzzle/'
 filename = results_dir+'v'+version+'-clean_skills.pickle'
 with open(filename, 'rb') as f:
     _macros = pickle.load(f)

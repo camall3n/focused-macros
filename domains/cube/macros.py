@@ -24,7 +24,7 @@ class learned:
     pass
 
 def load_learned_macros(version):
-    results_dir = 'results/skillsearch/cube/'
+    results_dir = 'results/macros/cube/'
     filename = results_dir+'v'+version+'-clean_skills.pickle'
     with open(filename, 'rb') as f:
         _macros = pickle.load(f)

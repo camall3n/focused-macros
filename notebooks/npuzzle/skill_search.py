@@ -46,7 +46,7 @@ def get_successors(puz):
 search_results = search.astar(startpuz, is_goal, step_cost, heuristic, get_successors, args.max_transitions, args.save_best_n)
 
 #%% Save the results
-results_dir = 'results/skillsearch/npuzzle/'
+results_dir = 'results/macros/npuzzle/'
 os.makedirs(results_dir, exist_ok=True)
 with open(results_dir+'v{}-{}-results.pickle'.format(args.v, tag), 'wb') as f:
     pickle.dump(search_results, f)

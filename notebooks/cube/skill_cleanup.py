@@ -12,7 +12,7 @@ version = '0.4'
 # 0.2 is the top 480 macros found, by h-score, within 1M simulator steps
 # 0.3 is the top 480 macros found, by f-score, within 1M simulator steps
 # 0.4 is the top 576 macros found, by h-score, within 1M simulator steps
-results_dir = 'results/skillsearch/cube/'
+results_dir = 'results/macros/cube/'
 filename = glob.glob(results_dir+'v'+version+'-results.pickle')[-1]
 with open(filename, 'rb') as f:
     search_results = pickle.load(f)
@@ -29,6 +29,6 @@ for score, macro in best_n:
 clean_macros = clean_macros[-n_macros:]
 
 #%% Save the results
-os.makedirs('results/skillsearch/cube', exist_ok=True)
-with open('results/skillsearch/cube/v{}-clean_skills.pickle'.format(version), 'wb') as f:
+os.makedirs('results/macros/cube', exist_ok=True)
+with open('results/macros/cube/v{}-clean_skills.pickle'.format(version), 'wb') as f:
     pickle.dump(clean_macros, f)
