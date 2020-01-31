@@ -1,11 +1,13 @@
 import pickle
 import random as pyrandom
+import warnings
+
 from domains import cube
 from domains.cube import formula
 
 class primitive:
     """Namespace for primitive actions and their corresponding models"""
-    alg_formulas = [[a] for a in cube.actions]
+    alg_formulas = [[a] for a in cube.ACTIONS]
     actions = alg_formulas
     models = [cube.Cube().apply(sequence=a).summarize_effects() for a in actions]
 
@@ -24,17 +26,16 @@ class expert:
 
 class learned:
     """Namespace for learned macro-actions and their corresponding models"""
-    pass
 
 def load_learned_macros(version):
     """Load the set of learned macro-actions for a given version"""
     results_dir = 'results/macros/cube/'
     filename = results_dir+'v'+version+'-clean_skills.pickle'
     try:
-        with open(filename, 'rb') as f:
-            _macros = pickle.load(f)
+        with open(filename, 'rb') as file:
+            _macros = pickle.load(file)
     except FileNotFoundError:
-        warning('Failed to load learned macros from file {}'.format(filename))
+        warnings.warn('Failed to load learned macros from file {}'.format(filename))
         _macros = []
 
     _models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in _macros]
@@ -47,7 +48,6 @@ load_learned_macros('0.4')
 
 class random:
     """Namespace for randomly generated macro-actions and their corresponding models"""
-    pass
 
 def generate_random_macro_set(seed):
     """Generate a new set of random macro-actions using the given random seed"""
@@ -70,6 +70,7 @@ def generate_random_macro_set(seed):
 generate_random_macro_set(0)
 
 def test():
+    """Test generating macros"""
     generate_random_macro_set(0)
     macro_0 = random.macros[0]
 

@@ -2,8 +2,7 @@ import copy
 import random
 import warnings
 
-from domains.cube import cube
-from domains.cube import Face
+from domains.cube import Cube, Face, ACTIONS, ACTION_MAP
 
 SWAP_2_EDGES_ADJ = "R U R' U R U U R' U".split()
 R_PERMUTATION = "F F R' F' U' F' U F R F' U U F U U F' U'".split()
@@ -267,7 +266,7 @@ def variations(formula):
 
 def random_formula(length=3):
     """Generate a random formula of a given length"""
-    formula_ = [random.choice(list(cube.Action.keys())) for _ in range(length)]
+    formula_ = [random.choice(list(ACTION_MAP.keys())) for _ in range(length)]
     # formula_ = simplify(formula_)
     return formula_
 
@@ -308,7 +307,7 @@ def test_mirroring():
     mirrored = mirror(formula_)
     assert len(mirrored) == len(formula_)
     assert mirror(mirrored) == formula_
-    assert cube.Cube().apply(sequence=formula_) == cube.Cube().apply(sequence=mirrored)
+    assert Cube().apply(sequence=formula_) == Cube().apply(sequence=mirrored)
 
 def test_simplify():
     """Test simplify on some example formulas"""
@@ -369,23 +368,23 @@ def test_rotate():
 
     # Rotating then un-rotating by using the opposite cube Face
     formula_ = ORIENT_2_CORNERS
-    rotated = rotate(formula_, cube.Face.U)
-    unrotated = rotate(rotated, cube.Face.D)
+    rotated = rotate(formula_, Face.U)
+    unrotated = rotate(rotated, Face.D)
     assert unrotated == formula_
 
     # Rotating twice has the same effect regardless of direction
-    cw_rotated = rotate(formula_, cube.Face.F, 2)
-    ccw_rotated = rotate(formula_, cube.Face.B, 2)
+    cw_rotated = rotate(formula_, Face.F, 2)
+    ccw_rotated = rotate(formula_, Face.B, 2)
     assert cw_rotated == ccw_rotated
 
     # Rotating clockwise three times is the same as rotating counter-clockwise once
-    cw_rotated = ' '.join(rotate(formula_, cube.Face.L, 3))
-    ccw_rotated = ' '.join(rotate(formula_, cube.Face.R, 1))
+    cw_rotated = ' '.join(rotate(formula_, Face.L, 3))
+    ccw_rotated = ' '.join(rotate(formula_, Face.R, 1))
     assert ccw_rotated == cw_rotated
 
     # Rotating zero times is a noop
     formula_ = "R F B U L D".split()
-    unrotated = rotate(formula_, cube.Face.U, n=0)
+    unrotated = rotate(formula_, Face.U, n=0)
     assert formula_ == unrotated
 
 
@@ -394,7 +393,7 @@ def test_variations():
     # The primitive actions are the variations of a single primitive action
     formula_ = ["R"]
     variations_ = [x[0] for x in variations(formula_)]
-    assert sorted(variations_) == sorted(cube.actions)
+    assert sorted(variations_) == sorted(ACTIONS)
 
     # A typical formula that has all 96 variations
     formula_ = ORIENT_2_CORNERS

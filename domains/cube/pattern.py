@@ -7,10 +7,14 @@ TWISTED_PEAKS = "F B' U F U F U L B L L B' U F' L U L' B".split()
 EXCHANGED_PEAKS = "F U U L F L' B L U B' R' L' U R' D' F' B R R".split()
 TWISTED_CROSSES = "R R L' D F F R' D' R' L U' D R D B B R' U D D".split()
 SIX_SPOTS = "U D' R L' F B' U D'".split()
-SCRAMBLE_1 = ("U D' R F R' R' F' L' D L' D' L B' R' F B' R B L' F' U' F' D L' B' L U' D R' R' U' D B D F' D R' F U' F' R U B' R").split()
+SUPERFLIP_QTM = "U U F U U R' L F F U F' B' R L U U R U D' R L' D R' L' D D".split()
+
+SCRAMBLE_1 = ("U D' R F R R' R' R' F' L' D R R' L L' L' D' L B' R' F B' D D' R B L L L F' U' "
+              "L L' F' D L' B' L U' D R' R' U' D B D F' D R' F L L' U' F' R U F' B' F R").split()
+
 
 def scramble(seed=0, length=60):
-    """Generate the scramble for a particular random seed"""
+    """Generate the canonical scramble for a particular random seed"""
     old_st = random.getstate()
     random.seed(seed)
     formula_ = formula.random_formula(length)
@@ -18,9 +22,10 @@ def scramble(seed=0, length=60):
     return formula_
 
 def test():
+    """Test scramble patterns"""
     assert scramble(1) == scramble(1)
     assert scramble(1) != scramble(2)
-    assert ' '.join(formula.simplify(scramble(1))) == SCRAMBLE_1
+    assert scramble(1) == SCRAMBLE_1
     print('All tests passed.')
 
 if __name__ == '__main__':

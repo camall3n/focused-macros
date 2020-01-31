@@ -103,6 +103,7 @@ class CubeEnv:
 
 
 def test():
+    """Test the CubeEnv"""
     env = CubeEnv()
     env.reset(scramble_len=50)
     # env.render()
