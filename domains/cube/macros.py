@@ -4,11 +4,13 @@ from domains import cube
 from domains.cube import formula
 
 class primitive:
+    """Namespace for primitive actions and their corresponding models"""
     alg_formulas = [[a] for a in cube.actions]
     actions = alg_formulas
     models = [cube.Cube().apply(sequence=a).summarize_effects() for a in actions]
 
 class expert:
+    """Namespace for expert macro-actions and their corresponding models"""
     alg_formulas = [
         formula.R_PERMUTATION,
         formula.SWAP_3_EDGES_FACE,
@@ -21,9 +23,11 @@ class expert:
     models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in macros]
 
 class learned:
+    """Namespace for learned macro-actions and their corresponding models"""
     pass
 
 def load_learned_macros(version):
+    """Load the set of learned macro-actions for a given version"""
     results_dir = 'results/macros/cube/'
     filename = results_dir+'v'+version+'-clean_skills.pickle'
     try:
@@ -42,19 +46,24 @@ def load_learned_macros(version):
 load_learned_macros('0.4')
 
 class random:
+    """Namespace for randomly generated macro-actions and their corresponding models"""
     pass
 
 def generate_random_macro_set(seed):
-    st = pyrandom.getstate()
+    """Generate a new set of random macro-actions using the given random seed"""
+    old_state = pyrandom.getstate()
     pyrandom.seed(seed)
-    formulas = [formula.random_formula(len(a)) for a in expert.alg_formulas]
-    pyrandom.setstate(st)
+    random_formulas = [formula.random_formula(len(alg)) for alg in expert.alg_formulas]
+    pyrandom.setstate(old_state)
 
-    _macros = [variation for f in formulas for variation in formula.variations(formula.simplify(f))]
+    _macros = [variation
+               for formula_ in random_formulas
+               for variation in formula.variations(formula.simplify(formula_))]
     _models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in _macros]
+
     global random
     random.seed = seed
-    random.alg_formulas = formulas
+    random.alg_formulas = random_formulas
     random.macros = _macros
     random.models = _models
 
