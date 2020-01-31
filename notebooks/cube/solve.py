@@ -70,13 +70,13 @@ else:
     goal = newcube
 
 # Set up the search problem
-is_goal = lambda node: node.state == goal
-heuristic = lambda cube: len(cube.summarize_effects(baseline=goal))
+def is_goal(node): node.state == goal
+def heuristic(cube): len(cube.summarize_effects(baseline=goal))
 
 if cost_mode == 'per-action':
-    step_cost = lambda macro: len(macro)
+    def step_cost(macro): len(macro)
 elif cost_mode == 'per-macro':
-    step_cost = lambda macro: 1
+    def step_cost(macro): 1
 
 def get_successors(cube):
     return [(copy.deepcopy(cube).apply(swap_list=model), macro) for macro,model in zip(macro_list, model_list)]

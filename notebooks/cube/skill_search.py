@@ -19,7 +19,7 @@ start = cube.Cube()
 actions = macros.primitive.actions
 models = macros.primitive.models
 
-is_goal = lambda node: False
+def is_goal(node): False
 
 def heuristic(cube):
     effects = cube.summarize_effects()
@@ -29,9 +29,9 @@ def heuristic(cube):
         return len(effects)
 
 if cost_mode == 'per-action':
-    step_cost = lambda macro: len(macro)
+    def step_cost(macro): len(macro)
 elif cost_mode == 'per-macro':
-    step_cost = lambda macro: 1
+    def step_cost(macro): 1
 
 def get_successors(cube):
     return [(copy.deepcopy(cube).apply(swap_list=m), a) for a,m in zip(actions, models)]

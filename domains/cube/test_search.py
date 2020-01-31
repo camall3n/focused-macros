@@ -18,11 +18,11 @@ def test():
     skills = primitive.actions
     models = primitive.models
 
-    is_goal = lambda node: node.state == newcube
-    step_cost = lambda skill: len(skill)
-    heuristic = lambda cube: len(cube.summarize_effects())
+    def is_goal(node): node.state == newcube
+    def step_cost(skill): len(skill)
+    def heuristic(cube): len(cube.summarize_effects())
     max_transitions = 3e3
-    debug_fn = lambda cube: cube.render() if cube else None
+    def debug_fn(cube): cube.render() if cube else None
     def get_successors(cube):
         return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
 
@@ -53,7 +53,7 @@ def test():
     #%% Run the search
     skills = primitive.actions + expert.macros
     models = primitive.models + expert.models
-    step_cost = lambda skill: 1
+    def step_cost(skill): 1
 
     #%%
     states, actions, n_expanded, n_transitions = search.astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions)[:4]
