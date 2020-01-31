@@ -10,12 +10,12 @@ class primitive:
 
 class expert:
     alg_formulas = [
-        formula.r_permutation,
-        formula.swap_3_edges_face,
-        formula.swap_3_edges_mid,
-        formula.swap_3_corners,
-        formula.orient_2_edges,
-        formula.orient_2_corners,
+        formula.R_PERMUTATION,
+        formula.SWAP_3_EDGES_FACE,
+        formula.SWAP_3_EDGES_MID,
+        formula.SWAP_3_CORNERS,
+        formula.ORIENT_2_EDGES,
+        formula.ORIENT_2_CORNERS,
     ]
     macros = [variation for f in alg_formulas for variation in formula.variations(f)]
     models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in macros]

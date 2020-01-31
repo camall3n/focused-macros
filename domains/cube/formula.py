@@ -1,24 +1,25 @@
 import copy
 import random
+import warnings
 
 from domains.cube import cube
 from domains.cube import Face
 
-swap_2_edges_adj = "R U R' U R U U R' U".split()
-r_permutation = "F F R' F' U' F' U F R F' U U F U U F' U'".split()
-swap_3_edges_face = "R R U R U R' U' R' U' R' U R'".split()
-swap_3_edges_mid = "L' R U U R' L F F".split()
-swap_4_edges = "L L R R D D R' R' L' L' U U".split()
-swap_5_edges = "F' R' F B' D B".split()
-orient_2_edges = "L R' F L R' D L R' B L R' U U L R' F L R' D L R' B L R'".split()
-swap_3_corners = "R U' R' D R U R' D'".split()
-orient_2_corners = "R B' R' U' B' U F U' B U R B R' F'".split()
+SWAP_2_EDGES_ADJ = "R U R' U R U U R' U".split()
+R_PERMUTATION = "F F R' F' U' F' U F R F' U U F U U F' U'".split()
+SWAP_3_EDGES_FACE = "R R U R U R' U' R' U' R' U R'".split()
+SWAP_3_EDGES_MID = "L' R U U R' L F F".split()
+SWAP_4_EDGES = "L L R R D D R' R' L' L' U U".split()
+SWAP_5_EDGES = "F' R' F B' D B".split()
+ORIENT_2_EDGES = "L R' F L R' D L R' B L R' U U L R' F L R' D L R' B L R'".split()
+SWAP_3_CORNERS = "R U' R' D R U R' D'".split()
+ORIENT_2_CORNERS = "R B' R' U' B' U F U' B U R B R' F'".split()
 
 def _inverse_move(move):
+    """Invert a move"""
     if '\'' in move:
         return move.strip('\'')
-    else:
-        return move+'\''
+    return move+'\''
 
 def _mirror_move(move, face=Face.R):
     table = {
@@ -71,7 +72,12 @@ def _mirror_move(move, face=Face.R):
     return table[face][move]
 
 def _rotate_move(move, axis, n=1):
-    if n==0:
+    """Rotate a move clockwise about an axis
+
+    The axis of rotation should correspond to a primitive rotation operation of
+    a cube Face.
+    """
+    if n == 0:
         return move
     table = {
         Face.U: {
@@ -159,11 +165,12 @@ def _rotate_move(move, axis, n=1):
             'D\'':   'R\'',
         }
     }
-    for i in range(n):
+    for _ in range(n):
         move = table[axis][move]
     return move
 
 def inverse(formula):
+    """Invert a formula"""
     result = copy.copy(formula)
     result.reverse()
     for i, move in enumerate(result):
@@ -186,167 +193,216 @@ def rotate(formula, axis, n=1):
     return result
 
 def simplify(formula):
-    s = ''.join(formula).strip()
-    for move in 'FBLRUD':
-        s = s.replace(move+'\'', move.lower())
+    """Simplify a formula
 
-    noops = ["Ff","Bb","Ll","Rr","Uu","Dd"]
+    Repeatedly remove noops [F F']; replace triple rotations [F F F] with their
+    corresponding inverse single rotation [F']; and find non-interacting
+    sandwiches [F B F'] and rearrange them [F F' B] for future cancellation.
+
+    """
+    # To treat each action as a single character, replace inverses with lowercase
+    string_form = ''.join(formula).strip()
+    for move in 'FBLRUD':
+        string_form = string_form.replace(move+'\'', move.lower())
+
+    noops = ["Ff", "Bb", "Ll", "Rr", "Uu", "Dd"]
     noops += [op[::-1] for op in noops]
     triples = [op*3 for op in 'FBLRUDfblrud']
-    singles = [op for op in 'fblrudFBLRUD']
-    outers = ["Ff","Bb","Ll","Rr","Uu","Dd",'fF', 'bB', 'lL', 'rR', 'uU', 'dD']
-    inners = ['B','F','R','L','D','U']*2
+    singles = 'fblrudFBLRUD'
+    # Sandwiches
+    outers = ["Ff", "Bb", "Ll", "Rr", "Uu", "Dd", 'fF', 'bB', 'lL', 'rR', 'uU', 'dD']
+    inners = ['B', 'F', 'R', 'L', 'D', 'U']*2
     while True:
-        s_prev = s
+        prev_string = string_form
         # Noops: [F F'] -> []
         for noop in noops:
-            s = s.replace(noop, '')
+            string_form = string_form.replace(noop, '')
         # Triples: [F F F] -> [F']
-        for op3, op1 in zip(triples, singles):
-            s = s.replace(op3, op1)
+        for triple, single in zip(triples, singles):
+            string_form = string_form.replace(triple, single)
         # Sandwiches: [F B F'] -> [B]; [L R R L'] -> [R R]
         for outer, inner in zip(outers, inners):
             sandwich1 = outer[0]+inner+outer[1]
-            s = s.replace(sandwich1, inner)
+            string_form = string_form.replace(sandwich1, inner)
             sandwich2 = outer[0]+inner.lower()+outer[1]
-            s = s.replace(sandwich2, inner.lower())
+            string_form = string_form.replace(sandwich2, inner.lower())
             sandwich1 = outer[0]+inner*2+outer[1]
-            s = s.replace(sandwich1, inner*2)
+            string_form = string_form.replace(sandwich1, inner*2)
             sandwich2 = outer[0]+inner.lower()*2+outer[1]
-            s = s.replace(sandwich2, inner.lower()*2)
-        if s == s_prev:
+            string_form = string_form.replace(sandwich2, inner.lower()*2)
+        if string_form == prev_string:
+            # No change; already simplified
             break
-    simplified = [move if move in 'FBLRUD' else (move.upper()+'\'') for move in s]
+
+    # Convert back to normal form
+    simplified = [move if move in 'FBLRUD' else (move.upper()+'\'') for move in string_form]
     return simplified
 
 def variations(formula):
+    """Generate all variations of formula, accounting for rotations, mirrors, and inverses"""
     # Consider each possible orientation of the cube
-    variations = []
-    f0 = formula
-    l0 = rotate(formula, Face.U, 1)
-    b0 = rotate(formula, Face.U, 2)
-    r0 = rotate(formula, Face.D, 1)
-    u0 = rotate(formula, Face.L, 1)
-    d0 = rotate(formula, Face.R, 1)
-    formulas = [f0, l0, b0, r0, u0, d0]
+    formulas = []
+    orient_f = formula
+    orient_l = rotate(formula, Face.U, 1)
+    orient_b = rotate(formula, Face.U, 2)
+    orient_r = rotate(formula, Face.D, 1)
+    orient_u = rotate(formula, Face.L, 1)
+    orient_d = rotate(formula, Face.R, 1)
+    formulas = [orient_f, orient_l, orient_b, orient_r, orient_u, orient_d]
+    # Rotate the corresponding Face 0 to 3 times
     faces = [Face.F, Face.L, Face.B, Face.R, Face.D, Face.U]
     for n in range(4):
-        for f, face in zip(formulas, faces):
-            f = rotate(f, face, n)
-            variations.append(f)
+        for formula_, face in zip(formulas, faces):
+            formula_ = rotate(formula_, face, n)
+            formulas.append(formula_)
 
-    variations += [mirror(x) for x in variations]# Add mirrored algs
-    variations += [inverse(x) for x in variations]# Add inverse algs
+    formulas += [mirror(x) for x in formulas]# Add mirrored algs
+    formulas += [inverse(x) for x in formulas]# Add inverse algs
 
     # Remove duplicate formulas
-    variations = [' '.join(x) for x in variations]
-    variations = sorted(list(set(variations)))
-    variations = [x.split() for x in variations]
-    return variations
+    formulas = [' '.join(x) for x in formulas]
+    formulas = sorted(list(set(formulas)))
+    formulas = [x.split() for x in formulas]
+    return formulas
 
 def random_formula(length=3):
-    f = [random.choice(list(cube.Action.keys())) for _ in range(length)]
-    # f = formula.simplify(f)
-    return f
+    """Generate a random formula of a given length"""
+    formula_ = [random.choice(list(cube.Action.keys())) for _ in range(length)]
+    # formula_ = simplify(formula_)
+    return formula_
 
-# def random_conjugate(prefix_length=1, body_length=1):
-#     """Generates a random formula of the form (X Y X')"""
-#     assert prefix_length > 0 and body_length>0, "Lengths ({}, {}) must be positive".format(prefix_length, body_length)
-#     prefix = random_formula(prefix_length)
-#     suffix = formula.inverse(prefix)
-#     body = random_formula(body_length)
-#     f = prefix + body + suffix
-#     f = formula.simplify(f)
-#     return f
-#
-# def random_commutator(x_length=3, y_length=1):
-#     """Generates a random formula of the form (X Y X' Y')"""
-#     assert x_length > 0 and y_length>0, "Lengths ({}, {}) must be positive".format(x_length, y_length)
-#     X = random_formula(x_length)
-#     Xinv = formula.inverse(X)
-#     Y = random_formula(y_length)
-#     Yinv = formula.inverse(Y)
-#     f = X + Y + Xinv + Yinv
-#     f = formula.simplify(f)
-#     return f
+def random_conjugate(prefix_length=1, body_length=1):
+    """Generates a random formula of the form (X Y X')"""
+    if prefix_length <= 0 or body_length <= 0:
+        raise ValueError("Lengths ({}, {}) must be positive".format(prefix_length, body_length))
+    prefix = random_formula(prefix_length)
+    suffix = inverse(prefix)
+    body = random_formula(body_length)
+    formula_ = prefix + body + suffix
+    formula_ = simplify(formula_)
+    return formula_
 
+def random_commutator(x_length=3, y_length=1):
+    """Generates a random formula of the form (X Y X' Y')"""
+    if x_length <= 0 and y_length <= 0:
+        raise ValueError("Lengths ({}, {}) must be positive".format(x_length, y_length))
+    x_part = random_formula(x_length)
+    x_inv = inverse(x_part)
+    y_part = random_formula(y_length)
+    y_inv = inverse(y_part)
+    formula_ = x_part + y_part + x_inv + y_inv
+    formula_ = simplify(formula_)
+    return formula_
+
+
+def test_mirroring():
+    """Test mirroring on some example formulas"""
+    # A typical formula, whose basic and mirror versions have different effects
+    formula_ = SWAP_3_CORNERS
+    mirrored = mirror(formula_)
+    assert len(mirrored) == len(formula_)
+    assert mirror(mirrored) == formula_
+
+    # A formula whose mirror version has the same net effect on the cube
+    formula_ = ORIENT_2_CORNERS
+    mirrored = mirror(formula_)
+    assert len(mirrored) == len(formula_)
+    assert mirror(mirrored) == formula_
+    assert cube.Cube().apply(sequence=formula_) == cube.Cube().apply(sequence=mirrored)
+
+def test_simplify():
+    """Test simplify on some example formulas"""
+    # Nested noops
+    formula_ = "L R F F' R' U' D'".split()
+    simplified = simplify(formula_)
+    assert simplified == "L U' D'".split()
+
+    # Trailing noops
+    formula_ = "L D D'".split()
+    simplified = simplify(formula_)
+    assert simplified == "L".split()
+
+    # A formula and its inverse should cancel completely
+    formula_ = "L R F B U D L' R' F' B' U' D'".split()
+    simplified = simplify(formula_ + inverse(formula_))
+    alternate = simplify(inverse(formula_) + formula_)
+    assert simplified == [] and alternate == []
+
+    # An irreducible formula
+    formula_ = "D' D'".split()
+    simplfied = simplify(formula_)
+    assert simplfied == formula_
+
+    # A formula with a quadruple rotation
+    formula_ = "L B' F' D D D D F B L".split()
+    simplified = simplify(formula_)
+    assert simplified == ['L', 'L']
+
+    # A formula with non-interacting sandwiches of nested noops
+    formula_ = "U F L' B U' D L' U' U' D' U D U L D' U B' L F' U'".split()
+    simplified = simplify(formula_)
+    assert simplified == []
+
+    # Another sandwich
+    formula_ = "L' R' L R".split()
+    simplified = simplify(formula_)
+    assert simplified == []
+
+    # A double sandwich
+    formula_ = "L' R' R' L R R".split()
+    simplified = simplify(formula_)
+    assert simplified == []
+
+    # A sandwich of a quadruple and a noop
+    formula_ = "D D U D D U'".split()
+    simplified = simplify(formula_)
+    assert simplified == []
+
+    # TODO: sandwiches of non-interacting double rotations
+    formula_ = "D D U U D D U U".split()
+    simplified = simplify(formula_)
+    if simplified != []:
+        warnings.warn('Simplify failed to reduce {} to []'.format(formula_))
+
+def test_rotate():
+    """Test rotate on some example formulas"""
+
+    # Rotating then un-rotating by using the opposite cube Face
+    formula_ = ORIENT_2_CORNERS
+    rotated = rotate(formula_, cube.Face.U)
+    unrotated = rotate(rotated, cube.Face.D)
+    assert unrotated == formula_
+
+    # Rotating twice has the same effect regardless of direction
+    cw_rotated = rotate(formula_, cube.Face.F, 2)
+    ccw_rotated = rotate(formula_, cube.Face.B, 2)
+    assert cw_rotated == ccw_rotated
+
+    # Rotating clockwise three times is the same as rotating counter-clockwise once
+    cw_rotated = ' '.join(rotate(formula_, cube.Face.L, 3))
+    ccw_rotated = ' '.join(rotate(formula_, cube.Face.R, 1))
+    assert ccw_rotated == cw_rotated
+
+    # Rotating zero times is a noop
+    formula_ = "R F B U L D".split()
+    unrotated = rotate(formula_, cube.Face.U, n=0)
+    assert formula_ == unrotated
+
+
+def test_variations():
+    """Test variations on some example formulas"""
+    # The primitive actions are the variations of a single primitive action
+    formula_ = ["R"]
+    variations_ = [x[0] for x in variations(formula_)]
+    assert sorted(variations_) == sorted(cube.actions)
+
+    # A typical formula that has all 96 variations
+    formula_ = ORIENT_2_CORNERS
+    variations_ = variations(formula_)
+    assert len(variations_) == 96
 
 def test():
-    def test_mirroring():
-        f = "R B' R' U' B' U F U' B U R B R' F'".split()
-        g = mirror(f)
-        assert mirror(g) == f
-        c = cube.Cube()
-        d = cube.Cube()
-        c.apply(sequence=f)
-        d.apply(sequence=g)
-        assert d == c
-
-    def test_simplify():
-        f = "L R F F' R' U' D'".split()
-        s = simplify(f)
-        assert s == "L U' D'".split()
-
-        f = "L D D'".split()
-        s = simplify(f)
-        assert s == "L".split()
-
-        f = "L R F B U D L' R' F' B' U' D'".split()
-        s = simplify(f + inverse(f))
-        t = simplify(inverse(f) + f)
-        assert s == [] and t == []
-
-        f = "D' D'".split()
-        t = simplify(f)
-        assert t == f, str(t)+" != "+str(f)
-
-        f = "L B' F' D D D D F B L".split()
-        s = simplify(f)
-        assert s == ['L','L']
-
-        f = ['U', 'F', "L'", 'B', "U'", 'D', "L'", "U'", "U'", "D'", 'U', 'D', 'U', 'L', "D'", 'U', "B'", 'L', "F'", "U'"]
-        s = simplify(f)
-        assert s == []
-
-        f = "L' R' L R".split()
-        s = simplify(f)
-        assert s == []
-
-        f = "L' R' R' L R R".split()
-        s = simplify(f)
-        assert s == []
-
-        f = ['D', 'D', 'U', 'D', 'D', "U'"]
-        s = simplify(f)
-        assert s == []
-
-
-    def test_rotate():
-        f = "R B' R' U' B' U F U' B U R B R' F'"
-        g = ' '.join(rotate(f.split(), cube.Face.U))
-        h = ' '.join(rotate(g.split(), cube.Face.D))
-        assert h==f
-        g = ' '.join(rotate(f.split(), cube.Face.F, 2))
-        h = ' '.join(rotate(f.split(), cube.Face.B, 2))
-        assert h==g
-        g = ' '.join(rotate(f.split(), cube.Face.L, 3))
-        h = ' '.join(rotate(f.split(), cube.Face.R, 1))
-        assert h==g
-        f = "R F B U L D".split()
-        g = rotate(f, cube.Face.U, n=0)
-        assert f == g
-
-
-    def test_variations():
-        f = ["R"]
-        c = ' '.join([' '.join(x) for x in sorted(variations(f))])
-        actions = ' '.join(sorted(cube.actions))
-        assert c == actions
-
-        f = "R B' R' U' B' U F U' B U R B R' F'".split()
-        c = variations(f)
-        assert len(c) == 96
-
+    """Run all tests"""
     test_mirroring()
     test_simplify()
     test_rotate()
