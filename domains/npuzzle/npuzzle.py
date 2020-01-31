@@ -10,7 +10,7 @@ class NPuzzle:
 
         self.state = np.arange(self.n+1).reshape(self.width, self.width)
         self.blank_idx = (self.width-1, self.width-1)
-        self.labels = list(range(1,self.n+1))+[0]
+        self.labels = list(range(1, self.n+1))+[0]
 
         self.sequence = []
 
@@ -29,7 +29,7 @@ class NPuzzle:
         if loc is None:
             loc = self.blank_idx
         row, col = loc
-        row, col = row-1, col
+        row = row-1
         if row >= 0:
             return row, col
         return None
@@ -37,7 +37,7 @@ class NPuzzle:
         if loc is None:
             loc = self.blank_idx
         row, col = loc
-        row, col = row+1, col
+        row = row+1
         if row < self.width:
             return row, col
         return None
@@ -45,7 +45,7 @@ class NPuzzle:
         if loc is None:
             loc = self.blank_idx
         row, col = loc
-        row, col = row, col-1
+        col = col-1
         if col >= 0:
             return row, col
         return None
@@ -53,7 +53,7 @@ class NPuzzle:
         if loc is None:
             loc = self.blank_idx
         row, col = loc
-        row, col = row, col+1
+        col = col+1
         if col < self.width:
             return row, col
         return None
@@ -70,11 +70,11 @@ class NPuzzle:
             random.seed(seed)
             np.random.seed(seed)
         # need both even and odd n_steps for blank to reach every space
-        n_steps = random.choice([self.n**2,self.n**2+1])
-        for i in range(n_steps):
-            a = random.choice(self.actions())
-            self.transition(a)
-            self.sequence.append(a)
+        n_steps = random.choice([self.n**2, self.n**2+1])
+        for _ in range(n_steps):
+            action = random.choice(self.actions())
+            self.transition(action)
+            self.sequence.append(action)
         if seed is not None:
             random.setstate(py_st)
             np.random.set_state(np_st)
@@ -84,8 +84,8 @@ class NPuzzle:
         t_row, t_col = tile_idx
         b_row, b_col = self.blank_idx
         # Within bounds
-        assert t_row >= 0 and t_row < self.width
-        assert t_col >= 0 and t_col < self.width
+        assert 0 <= t_row < self.width
+        assert 0 <= t_col < self.width
         # Adjacent tile
         assert sum([np.abs(b_row-t_row), np.abs(b_col-t_col)]) == 1
         self._unchecked_transition(tile_idx, self.blank_idx)
@@ -96,7 +96,10 @@ class NPuzzle:
         self.state[tile_idx], self.state[blank_idx] = self.state[blank_idx], self.state[tile_idx]
 
     def __repr__(self):
-        return '{}-Puzzle(\n{})'.format(self.n, np.asarray(list(map(lambda x: self.labels[x], self.state.flatten()))).reshape(self.width, self.width))
+        string_form = np.asarray(list(map(lambda x: self.labels[x],
+                                          self.state.flatten()))
+                                ).reshape(self.width, self.width)
+        return '{}-Puzzle(\n{})'.format(self.n, string_form)
 
     def __hash__(self):
         return hash(repr(self))
@@ -119,7 +122,7 @@ class NPuzzle:
                 for (src_idx, dst_idx) in swap_list:
                     new_state[dst_idx] = old_state[src_idx]
                 self.state = new_state.reshape(self.width, self.width)
-                self.blank_idx = tuple(np.argwhere(self.state==self.n)[0])
+                self.blank_idx = tuple(np.argwhere(self.state == self.n)[0])
             else:# starting blanks don't line up
                 pass # cannot execute macro
         elif sequence is not None:
@@ -167,7 +170,7 @@ def test_custom_baseline():
 
     baseline = NPuzzle(15)
     baseline.scramble(seed=40)# Seed 40 has blank in lower right corner
-    assert baseline.blank_idx == (3,3)
+    assert baseline.blank_idx == (3, 3)
 
     newpuz = copy.deepcopy(baseline)
     newpuz.transition(newpuz.left())
