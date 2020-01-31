@@ -1,5 +1,6 @@
-from domains.cube import Cube
 import random
+
+from domains.cube import Cube
 
 class CubeEnv:
     """An OpenAI gym-style wrapper for the Cube class
@@ -31,7 +32,7 @@ class CubeEnv:
             10: 'F\'',
             11: 'B\'',
         }
-        self.action_lookup = dict([(meaning, id) for id, meaning in self.action_meanings.items()])
+        self.action_lookup = {meaning: id for id, meaning in self.action_meanings.items()}
         self.n_actions = len(self.action_meanings)
 
     @property
@@ -44,7 +45,10 @@ class CubeEnv:
     def state(self):
         """:obj:`list` of :obj:`str`: List of color codes for all non-center squares
         """
-        square_colors = [square for face in self.cube.faces for i, square in enumerate(face) if i != 4]
+        square_colors = [square
+                         for face in self.cube.faces
+                         for i, square in enumerate(face)
+                         if i != 4]
         color_codes = dict((c, i) for (i, c) in enumerate('WYGBRO'))
         square_codes = [color_codes[color] for color in square_colors]
         return square_codes
@@ -86,24 +90,26 @@ class CubeEnv:
             (state, reward, done)
 
         """
-        assert(action < self.n_actions)
+        assert action < self.n_actions
         self.cube.transform(self.action_meanings[action])
         done = (self.state == self.goal)
-        r = 1000.0 if done else -1.0
-        return self.state, r, done
+        reward = 1000.0 if done else -1.0
+        return self.state, reward, done
 
+    # Note: This function assumes your terminal supports the extended ANSI color codes
     def render(self):
+        """Render the cube as colored ASCII art"""
         self.cube.render()
 
 
 def test():
-    c = CubeEnv()
-    c.reset(scramble_len=50)
-    c.render()
+    env = CubeEnv()
+    env.reset(scramble_len=50)
+    # env.render()
 
-    d = CubeEnv()
-    d.reset(sequence=c.sequence)
-    assert c.state == d.state
+    other_env = CubeEnv()
+    other_env.reset(sequence=env.sequence)
+    assert env.state == other_env.state
 
     print('All tests passed.')
 
