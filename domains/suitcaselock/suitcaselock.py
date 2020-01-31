@@ -62,7 +62,7 @@ class SuitcaseLock:
         return self
 
     def transition(self, action):
-        assert type(action) is np.ndarray, 'Action must be of type numpy.ndarray'
+        assert isinstance(action, np.ndarray), 'Action must be of type numpy.ndarray'
         assert action.shape == self.state.shape, 'Action shape {} incompatible with lock shape {}'.format(action.shape, self.state.shape)
         self._unchecked_transition(action)
         return self
