@@ -2,8 +2,10 @@ import copy
 import random
 import numpy as np
 
+
 class NPuzzle:
-    def __init__(self, n=8, start_blank=None):
+    """N-Puzzle simulator"""
+    def __init__(self, n=15, start_blank=None):
         self.n = int(n)
         self.width = int(np.round(np.sqrt(n+1)))
         assert self.width**2-1 == self.n
@@ -16,16 +18,21 @@ class NPuzzle:
 
         if start_blank is not None:
             while start_blank[0] < self.blank_idx[0]:
-                self.transition(self.up())
+                self.transition(self.above())
             while start_blank[1] < self.blank_idx[1]:
                 self.transition(self.left())
             assert self.blank_idx == start_blank
 
     def actions(self):
-        directions = [self.up, self.down, self.left, self.right]
+        """Return a list of actions for the current state"""
+        directions = [self.above, self.below, self.left, self.right]
         return [d(self.blank_idx) for d in directions if d(self.blank_idx) is not None]
 
-    def up(self, loc=None):
+    def above(self, loc=None):
+        """Return the tile index above the given location (or None)
+
+        The default behavior uses the current blank index as the location
+        """
         if loc is None:
             loc = self.blank_idx
         row, col = loc
@@ -33,7 +40,12 @@ class NPuzzle:
         if row >= 0:
             return row, col
         return None
-    def down(self, loc=None):
+
+    def below(self, loc=None):
+        """Return the tile index below the given location (or None)
+
+        The default behavior uses the current blank index as the location
+        """
         if loc is None:
             loc = self.blank_idx
         row, col = loc
@@ -41,7 +53,12 @@ class NPuzzle:
         if row < self.width:
             return row, col
         return None
+
     def left(self, loc=None):
+        """Return the tile index left of the given location (or None)
+
+        The default behavior uses the current blank index as the location
+        """
         if loc is None:
             loc = self.blank_idx
         row, col = loc
@@ -49,7 +66,12 @@ class NPuzzle:
         if col >= 0:
             return row, col
         return None
+
     def right(self, loc=None):
+        """Return the tile index right of the given location (or None)
+
+        The default behavior uses the current blank index as the location
+        """
         if loc is None:
             loc = self.blank_idx
         row, col = loc
@@ -59,11 +81,16 @@ class NPuzzle:
         return None
 
     def reset(self):
+        """Reset the NPuzzle to the canonical 'solved' state"""
         self.state = np.arange(self.n+1).reshape(self.width, self.width)
         self.blank_idx = (self.width-1, self.width-1)
         return self
 
     def scramble(self, seed=None):
+        """Scramble the NPuzzle with randomly selected actions
+
+        Specify a random seed for repeatable results.
+        """
         if seed is not None:
             py_st = random.getstate()
             np_st = np.random.get_state()
@@ -81,6 +108,11 @@ class NPuzzle:
         return self
 
     def transition(self, tile_idx):
+        """Transform the NPuzzle with a single action
+
+        The action must be specified as a tile index and must be within the
+        bounds of the NPuzzle and adjacent to the current blank index.
+        """
         t_row, t_col = tile_idx
         b_row, b_col = self.blank_idx
         # Within bounds
@@ -113,6 +145,12 @@ class NPuzzle:
         return not self.__eq__(another)
 
     def apply_macro(self, sequence=None, model=None):
+        """Apply a sequence of actions or an effect model to transform the NPuzzle
+
+        If using a model, it should be specified as a tuple (swap_list, blank_idx)
+        which represents a list of tile position swaps and the required blank index
+        for satisfying the model's precondition.
+        """
         assert sequence is not None or model is not None
         if model is not None:
             swap_list, starting_blank_idx = model
@@ -123,8 +161,8 @@ class NPuzzle:
                     new_state[dst_idx] = old_state[src_idx]
                 self.state = new_state.reshape(self.width, self.width)
                 self.blank_idx = tuple(np.argwhere(self.state == self.n)[0])
-            else:# starting blanks don't line up
-                pass # cannot execute macro
+            else:  # starting blanks don't line up
+                pass  # cannot execute macro
         elif sequence is not None:
             for move in sequence:
                 self.transition(move)
@@ -133,6 +171,15 @@ class NPuzzle:
         return self
 
     def summarize_effects(self, baseline=None):
+        """Summarize the position changes in the NPuzzle relative to a baseline NPuzzle
+
+        The default behavior compares the current NPuzzle against a solved NPuzzle.
+
+        Returns:
+            An effect model tuple (swap_list, blank_idx), where swap_list is a
+            tuple of (source_idx, destination_idx) pairs, and blank_idx is the
+            starting blank index (i.e. the one from the baseline NPuzzle).
+        """
         if baseline is None:
             baseline = copy.deepcopy(self).reset()
         src_indices = np.arange(self.n+1)
@@ -143,7 +190,9 @@ class NPuzzle:
         swap_list = tuple([swap for swap in swap_list if swap[0] != swap[1]])
         return swap_list, baseline.blank_idx
 
+
 def test_default_baseline():
+    """Test NPuzzle when building models with the default baseline"""
     puz = NPuzzle(15)
     puz.scramble()
 
@@ -160,7 +209,9 @@ def test_default_baseline():
     baseline.apply_macro(model=puz.summarize_effects())
     assert baseline == puz
 
+
 def test_custom_baseline():
+    """Test NPuzzle when building models with a custom baseline"""
     puz = NPuzzle(15)
     puz.transition(puz.left())
     puz.transition(puz.left())
@@ -169,7 +220,7 @@ def test_custom_baseline():
     assert model == (((15, 12), (12, 13), (13, 14), (14, 15)), (3, 3))
 
     baseline = NPuzzle(15)
-    baseline.scramble(seed=40)# Seed 40 has blank in lower right corner
+    baseline.scramble(seed=40)  # Seed 40 has blank in lower right corner
     assert baseline.blank_idx == (3, 3)
 
     newpuz = copy.deepcopy(baseline)
@@ -184,7 +235,13 @@ def test_custom_baseline():
     assert copy.deepcopy(baseline).apply_macro(model=new_model) == newpuz
     assert puz != newpuz
 
-if __name__ == '__main__':
+
+def test():
+    """Test NPuzzle functionality"""
     test_default_baseline()
     test_custom_baseline()
     print('All tests passed.')
+
+
+if __name__ == '__main__':
+    test()
