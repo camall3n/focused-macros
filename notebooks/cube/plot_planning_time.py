@@ -9,7 +9,7 @@ import seaborn as sns
 
 from domains import cube
 from domains.cube import pattern
-import notebooks.picklefix
+import notebooks.picklefix  # pylint: disable=W0611
 
 results_dir = 'results/cube/gbfs/default_goal/'
 version = 'v0.4'
@@ -30,7 +30,7 @@ for filename in result_files:
     tag = filename.split('/')[-2].split('-')[0]
     if tag == 'full_random':
         tag = 'random'
-    v = filename.split('/')[-2].split('-')[-1] if tag == 'generated' else version
+    v = filename.split('/')[-2].split('-')[-1] if tag == 'learned' else version
     if 'default_goal' in filename:
         goal = cube.Cube()
     else:
@@ -54,7 +54,7 @@ names = []
 plot_vars = [
     {'tag':'random', 'desc':'random', 'color': 'C2', 'zorder': 5},
     {'tag':'primitive', 'desc':'primitive', 'color': 'C0', 'zorder': 15},
-    {'tag':'generated', 'desc':'learned', 'color': 'C3', 'zorder': 10},
+    {'tag':'learned', 'desc':'learned', 'color': 'C3', 'zorder': 10},
     {'tag':'expert', 'desc':'expert', 'color': 'C1', 'zorder': 20},
 ]
 for plot_dict in plot_vars:
@@ -63,10 +63,13 @@ for plot_dict in plot_vars:
     c = plot_dict['color']
     z = plot_dict['zorder']
     if len(curve_data.query('tag==@tag')) > 0:
-        sns.lineplot(data=curve_data.query('tag==@tag'), x='transitions', y='n_errors', legend=False, estimator=None, units='seed', ax=ax, linewidth=2, alpha=.6, color=c, zorder=z)
+        sns.lineplot(data=curve_data.query('tag==@tag'),
+                     x='transitions', y='n_errors',
+                     legend=False, estimator=None, units='seed',
+                     ax=ax, linewidth=2, alpha=.6, color=c, zorder=z)
         lines.append(ax.get_lines()[-1])
         names.append(desc)
-# lines, names = zip(*[(l, d['desc']) for d,l in zip(plot_vars,lines)])
+# lines, names = zip(*[(l, d['desc']) for d, l in zip(plot_vars,lines)])
 ax.legend(lines,names,framealpha=1, borderpad=0.7)
 # ax.set_title('Planning performance by action/macro-action type (Rubik\'s cube)')
 ax.set_ylim([0,50])
@@ -94,7 +97,7 @@ for filename in result_files:
     tag = filename.split('/')[-2].split('-')[0]
     if tag == 'full_random':
         tag = 'random'
-    v = filename.split('/')[-2].split('-')[-1] if tag == 'generated' else 'v'+version
+    v = filename.split('/')[-2].split('-')[-1] if tag == 'learned' else 'v'+version
     if 'default_goal' in filename:
         goal = cube.Cube()
     else:
@@ -108,6 +111,8 @@ for filename in result_files:
 data = pd.DataFrame(data).query("version!='v0.2'")
 data.groupby('tag', as_index=False).mean()
 #%%
+all_tags = data['tag'].unique()
+
 print('Solve Counts')
 print()
 for tag in all_tags:
@@ -137,7 +142,7 @@ plot_vars = [
     # {'tag':'primitive', 'desc':'actions only', 'color': 'C0', 'marker': 'o', 'zorder': 15},
     # {'tag':'random', 'desc':'actions + random macros', 'color': 'C2', 'marker': '^', 'zorder': 5},
     {'tag':'expert', 'desc':'actions + expert macros', 'color': 'C1', 'marker': 'X', 'zorder': 20},
-    {'tag':'generated', 'desc':'actions + learned macros', 'color': 'C3', 'marker': 'P', 'zorder': 10},
+    {'tag':'learned', 'desc':'actions + learned macros', 'color': 'C3', 'marker': 'P', 'zorder': 10},
 ]
 for plot_dict in plot_vars:
     tag = plot_dict['tag']
@@ -156,7 +161,7 @@ ax.set_xlabel('Plan length (macro-action steps)')
 plt.savefig('results/plots/cube/cube_plan_length_macros.png')
 plt.show()
 
-data.query("tag=='generated'").mean()['n_action_steps']
+data.query("tag=='learned'").mean()['n_action_steps']
 data.query("tag=='expert'").mean()['n_action_steps']
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
@@ -164,7 +169,7 @@ plot_vars = [
     # {'tag':'primitive', 'desc':'actions only', 'color': 'C0', 'marker': 'o', 'zorder': 15},
     # {'tag':'random', 'desc':'actions + random macros', 'color': 'C2', 'marker': '^', 'zorder': 5},
     {'tag':'expert', 'desc':'actions + expert macros', 'color': 'C1', 'marker': 'X', 'zorder': 20},
-    {'tag':'generated', 'desc':'actions + learned macros', 'color': 'C3', 'marker': 'P', 'zorder': 10},
+    {'tag':'learned', 'desc':'actions + learned macros', 'color': 'C3', 'marker': 'P', 'zorder': 10},
 ]
 for plot_dict in plot_vars:
     tag = plot_dict['tag']
@@ -197,7 +202,7 @@ for filename in result_files:
     tag = filename.split('/')[-2].split('-')[0]
     if tag == 'full_random':
         tag = 'random'
-    v = filename.split('/')[-2].split('-')[-1] if tag == 'generated' else 'v'+version
+    v = filename.split('/')[-2].split('-')[-1] if tag == 'learned' else 'v'+version
     if 'default_goal' in filename:
         goal = cube.Cube()
     else:
@@ -206,8 +211,8 @@ for filename in result_files:
     n_action_steps = len(np.concatenate(actions))
     n_macro_steps = len(actions)
     macro_lengths = list(map(len,actions))
-    x = [c for c,n in candidates]
-    y = [n.h_score for c,n in candidates]
+    x = [c for c, n in candidates]
+    y = [n.h_score for c, n in candidates]
 
     # Extend final value to end of plot
     if n_errors > 0:
@@ -218,7 +223,7 @@ for filename in result_files:
 data = pd.DataFrame(data).query("version!='v0.2'")
 
 fig, ax = plt.subplots(figsize=(8,6))
-sns.violinplot(x='tag', y='macro_length', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','generated':'C3'}, hue_order=['primitive','expert','random','generated'], style='tag', style_order=['primitive','expert','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
+sns.violinplot(x='tag', y='macro_length', data=data, hue='tag', palette={'primitive':'C0','expert':'C1','random':'C2','learned':'C3'}, hue_order=['primitive','expert','random','learned'], style='tag', style_order=['primitive','expert','random','learned'], ax=ax, cut=0, inner=None, dodge=False)
 
 ax.set_title('Macro length distribution (Rubik\'s cube)')
 ax.set_ylabel('Length of macro (number of primitive actions)')

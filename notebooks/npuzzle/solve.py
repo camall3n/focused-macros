@@ -1,12 +1,13 @@
 import argparse
 import copy
-import numpy as np
+import os
 import pickle
 import random
-import os
 import sys
-from npuzzle.npuzzle import NPuzzle
-from npuzzle import macros
+
+import numpy as np
+
+from domains.npuzzle import NPuzzle, macros
 from notebooks import search
 
 if 'ipykernel' in sys.argv[0]:
@@ -17,7 +18,7 @@ parser.add_argument('-n', type=int, default=15, choices=[8, 15, 24, 35, 48, 63, 
 parser.add_argument('--random_seed','-s', type=int, default=1,
                     help='Seed to use for RNGs')
 parser.add_argument('--macro_type','-m', type=str, default='primitive',
-                    choices=['primitive','random','generated'],
+                    choices=['primitive','random','learned'],
                     help='Type of macro_list to consider during search')
 parser.add_argument('--search_alg', type=str, default='gbfs', choices = ['astar', 'gbfs', 'weighted-astar'],
                     help='Search algorithm to run')
@@ -57,9 +58,9 @@ elif args.macro_type == 'random':
     macros.generate_random_macro_set(seed)
     macro_list = macros.random.macros
     model_list = macros.random.models
-elif args.macro_type == 'generated':
-    macro_list = macros.generated.macros
-    model_list = macros.generated.models
+elif args.macro_type == 'learned':
+    macro_list = macros.learned.macros
+    model_list = macros.learned.models
 
 
 # Set up the search problem
@@ -72,19 +73,36 @@ def get_successors(puz):
     if args.macro_type != 'primitive':
         valid_macros = macro_list[puz.blank_idx]
         valid_models = model_list[puz.blank_idx]
-        macro_successors = [(copy.deepcopy(puz).apply_macro(model=m), s) for s,m in zip(valid_macros, valid_models)]
+        macro_successors = [(copy.deepcopy(puz).apply_macro(model=model), macro)
+                            for (macro, model) in zip(valid_macros, valid_models)]
         successors += macro_successors
     return successors
 
 #%% Run the search
 if args.search_alg == 'astar':
-    search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+    search_results = search.astar(start=start,
+                                  is_goal=is_goal,
+                                  step_cost=step_cost,
+                                  heuristic=heuristic,
+                                  get_successors=get_successors,
+                                  max_transitions=args.max_transitions)
 elif args.search_alg == 'gbfs':
-    search_results = search.gbfs(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+    search_results = search.gbfs(start=start,
+                                 is_goal=is_goal,
+                                 step_cost=step_cost,
+                                 heuristic=heuristic,
+                                 get_successors=get_successors,
+                                 max_transitions=args.max_transitions)
 elif args.search_alg == 'weighted-astar':
     assert args.g_weight is not None and args.h_weight is not None, 'Must specify weights if using weighted A*.'
     gh_weights = args.g_weight, args.h_weight
-    search_results = search.weighted_astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions, gh_weights=gh_weights)
+    search_results = search.weighted_astar(start=start,
+                                           is_goal=is_goal,
+                                           step_cost=step_cost,
+                                           heuristic=heuristic,
+                                           get_successors=get_successors,
+                                           max_transitions=args.max_transitions,
+                                           gh_weights=gh_weights)
 
 #%% Save the results
 tag = '{}-puzzle/'.format(args.n)

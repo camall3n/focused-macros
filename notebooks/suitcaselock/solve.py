@@ -1,10 +1,12 @@
 import argparse
 import copy
-import numpy as np
+import os
 import pickle
 import random
-import os
 import sys
+
+import numpy as np
+
 from domains.suitcaselock import SuitcaseLock
 from notebooks import search
 
@@ -57,13 +59,29 @@ def get_successors(lock):
 
 #%% Run the search
 if args.search_alg == 'astar':
-    search_results = search.astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+    search_results = search.astar(start=start,
+                                  is_goal=is_goal,
+                                  step_cost=step_cost,
+                                  heuristic=heuristic,
+                                  get_successors=get_successors,
+                                  max_transitions=args.max_transitions)
 elif args.search_alg == 'gbfs':
-    search_results = search.gbfs(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions)
+    search_results = search.gbfs(start=start,
+                                 is_goal=is_goal,
+                                 step_cost=step_cost,
+                                 heuristic=heuristic,
+                                 get_successors=get_successors,
+                                 max_transitions=args.max_transitions)
 elif args.search_alg == 'weighted-astar':
     assert args.g_weight is not None and args.h_weight is not None, 'Must specify weights if using weighted A*.'
     gh_weights = args.g_weight, args.h_weight
-    search_results = search.weighted_astar(start, is_goal, step_cost, heuristic, get_successors, args.max_transitions, gh_weights=gh_weights)
+    search_results = search.weighted_astar(start=start,
+                                           is_goal=is_goal,
+                                           step_cost=step_cost,
+                                           heuristic=heuristic,
+                                           get_successors=get_successors,
+                                           max_transitions=args.max_transitions,
+                                           gh_weights=gh_weights)
 
 #%% Save the results
 tag = 'n_vars-{}/n_values-{}/entanglement-{}'

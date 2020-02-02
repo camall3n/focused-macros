@@ -5,10 +5,10 @@ import os
 import pandas as pd
 import pickle
 import seaborn as sns
-import notebooks.picklefix
+import notebooks.picklefix  # pylint: disable=W0611
 
-default_results = sorted(glob.glob('results/npuzzle/gbfs/15-puzzle/default_goal/'+'generated/*.pickle'))
-random_results = sorted(glob.glob('results/npuzzle/gbfs/15-puzzle/random_goal/'+'generated/*.pickle'))
+default_results = sorted(glob.glob('results/npuzzle/gbfs/15-puzzle/default_goal/'+'learned/*.pickle'))
+random_results = sorted(glob.glob('results/npuzzle/gbfs/15-puzzle/random_goal/'+'learned/*.pickle'))
 
 #%%
 transition_cap = 1.5e4
@@ -23,8 +23,8 @@ def generate_plot(filename, ax, color=None, label=None):
         goal = states[0].reset().scramble(seed=seed+1000)
 
     n_errors = len(states[-1].summarize_effects(baseline=goal)[0])
-    x = [c for c,n in candidates]
-    y = [n.h_score for c,n in candidates]
+    x = [c for c, n in candidates]
+    y = [n.h_score for c, n in candidates]
 
     # Extend final value to end of plot
     if n_errors > 0:
@@ -42,12 +42,12 @@ ax.set_xlim([0,transition_cap])
 ax.set_ylabel('Number of errors remaining')
 ax.set_xlabel('Number of transitions considered')
 lines, names = [], []
-for i,f in enumerate(random_results):
+for i, f in enumerate(random_results):
     label = None if i > 0 else 'random goals'
     generate_plot(f, ax, 'C4', label=label)
 lines.append(ax.get_lines()[-1])
 names.append('random goals')
-for i,f in enumerate(default_results):
+for i, f in enumerate(default_results):
     label = None if i > 0 else 'default goal'
     generate_plot(f, ax, 'C3', label=label)
 lines.append(ax.get_lines()[-1])
@@ -61,7 +61,7 @@ data = []
 all_tags = ['default', 'random']
 all_results = [default_results, random_results]
 for tag, results in zip(all_tags, all_results):
-    for i,filename in enumerate(results):
+    for i, filename in enumerate(results):
         with open(filename, 'rb') as f:
             search_results = pickle.load(f)
         seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])

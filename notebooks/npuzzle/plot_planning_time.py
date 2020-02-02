@@ -7,7 +7,7 @@ import pickle
 import os
 import pandas as pd
 import seaborn as sns
-import notebooks.picklefix
+import notebooks.picklefix  # pylint: disable=W0611
 
 n_puzzle = 15
 alg = 'gbfs'
@@ -21,7 +21,7 @@ elif alg == 'gbfs':
 # n_vars, n_values, transition_cap = 12, 4, 40e6
 
 result_files = sorted(glob.glob(results_dir+'*/*.pickle'))
-all_tags = ['primitive', 'random', 'generated']
+all_tags = ['primitive', 'random', 'learned']
 
 #%%
 curve_data = []
@@ -39,8 +39,8 @@ for filename in result_files:
     else:
         goal = states[0].reset().scramble(seed=seed+1000)
     n_errors = len(states[-1].summarize_effects(baseline=goal)[0])
-    x = [c for c,n in candidates]
-    y = [n.h_score for c,n in candidates]
+    x = [c for c, n in candidates]
+    y = [n.h_score for c, n in candidates]
 
     # Extend final value to end of plot
     if n_errors > 0:
@@ -57,7 +57,7 @@ names = []
 plot_vars = [
     {'tag':'primitive', 'desc':'actions only', 'color': 'C0', 'zorder': 10},
     {'tag':'random', 'desc':'actions + random macros', 'color': 'C2', 'zorder': 5},
-    {'tag':'generated', 'desc':'actions + learned macros', 'color': 'C3', 'zorder': 15},
+    {'tag':'learned', 'desc':'actions + learned macros', 'color': 'C3', 'zorder': 15},
 ]
 for plot_dict in plot_vars:
     tag = plot_dict['tag']
@@ -68,7 +68,7 @@ for plot_dict in plot_vars:
         sns.lineplot(data=curve_data.query('tag==@tag'), x='transitions', y='n_errors', legend=False, estimator=None, units='seed', ax=ax, linewidth=2, alpha=.6, color=c, zorder=z)
         lines.append(ax.get_lines()[-1])
         names.append(desc)
-# lines, names = zip(*[(l, d['desc']) for d,l in zip(plot_vars,lines)])
+# lines, names = zip(*[(l, d['desc']) for d, l in zip(plot_vars,lines)])
 ax.legend(lines,names,framealpha=1, borderpad=0.7)
 ax.hlines(n_puzzle+1,0,transition_cap,linestyles='dashed',linewidths=1)
 ax.set_ylim([0,ax.get_ylim()[1]])
@@ -83,7 +83,7 @@ plt.show()
 #%%
 solves = []
 data = []
-for i,filename in enumerate(result_files):
+for i, filename in enumerate(result_files):
     with open(filename, 'rb') as f:
         try:
             search_results = pickle.load(f)
@@ -134,7 +134,7 @@ ax.set_xticklabels(map(int,np.asarray(ax.get_xticks(),dtype=int)//1e3))
 ax.set_yticklabels([])
 plt.tight_layout()
 # lines = ax.get_lines()
-# for i,c in enumerate(['C2','C0','C3']):
+# for i, c in enumerate(['C2','C0','C3']):
 #     lines[i].set_color(c)
 #     lines[i].set_alpha(1.)
 ax.legend(handles, labels,  loc='lower right')
@@ -188,8 +188,8 @@ for filename in result_files:
     n_errors = len(states[-1].summarize_effects(baseline=goal)[0])
     n_action_steps = len(np.concatenate(actions))
     n_macro_steps = len(actions)
-    x = [c for c,n in candidates]
-    y = [n.h_score for c,n in candidates]
+    x = [c for c, n in candidates]
+    y = [n.h_score for c, n in candidates]
 
     # Extend final value to end of plot
     if n_errors > 0:
@@ -208,7 +208,7 @@ data = pd.DataFrame(data)
 
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
-sns.scatterplot(x='n_action_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], markers=['o','^','P'], ax=ax, s=150)
+sns.scatterplot(x='n_action_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','random':'C2','learned':'C3'}, hue_order=['primitive','random','learned'], style='tag', style_order=['primitive','random','learned'], markers=['o','^','P'], ax=ax, s=150)
 ax.set_ylim([0,n_puzzle+1])
 ax.set_title('Final plan quality vs. length (15-Puzzle)')
 ax.set_ylabel('Number of errors remaining')
@@ -216,14 +216,14 @@ ax.set_xlabel('Plan length (primitive action steps)')
 
 handles, labels = ax.get_legend_handles_labels()
 handles = handles[1:]
-labels = ['actions only','actions + random macros', 'actions + generated macros']
+labels = ['actions only','actions + random macros', 'actions + learned macros']
 ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
 plt.savefig('results/plots/npuzzle/npuzzle_plan_length_actions.png')
 plt.show()
 
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
-sns.scatterplot(x='n_macro_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], markers=['o','^','P'], ax=ax, s=150)
+sns.scatterplot(x='n_macro_steps', y='n_errors', data=data, hue='tag', palette={'primitive':'C0','random':'C2','learned':'C3'}, hue_order=['primitive','random','learned'], style='tag', style_order=['primitive','random','learned'], markers=['o','^','P'], ax=ax, s=150)
 ax.set_ylim([0,n_puzzle+1])
 ax.set_title('Final plan quality vs. length (15-Puzzle)')
 ax.set_ylabel('Number of errors remaining')
@@ -231,7 +231,7 @@ ax.set_xlabel('Plan length (macro-action steps)')
 
 handles, labels = ax.get_legend_handles_labels()
 handles = handles[1:]
-labels = ['actions only','actions + random macros', 'actions + generated macros']
+labels = ['actions only','actions + random macros', 'actions + learned macros']
 ax.legend(handles=handles, labels=labels, framealpha=1, borderpad=0.7)
 plt.savefig('results/plots/npuzzle/npuzzle_plan_length_macros.png')
 plt.show()
@@ -255,8 +255,8 @@ for filename in result_files:
     n_action_steps = len(np.concatenate(actions))
     n_macro_steps = len(actions)
     macro_lengths = list(map(len, actions))
-    x = [c for c,n in candidates]
-    y = [n.h_score for c,n in candidates]
+    x = [c for c, n in candidates]
+    y = [n.h_score for c, n in candidates]
 
     # Extend final value to end of plot
     if n_errors > 0:
@@ -275,7 +275,7 @@ for filename in result_files:
 data = pd.DataFrame(data)
 
 fig, ax = plt.subplots(figsize=(8,6))
-sns.violinplot(x='tag', y='macro_length', data=data, hue='tag', palette={'primitive':'C0','random':'C2','generated':'C3'}, hue_order=['primitive','random','generated'], style='tag', style_order=['primitive','random','generated'], ax=ax, cut=0, inner=None, dodge=False)
+sns.violinplot(x='tag', y='macro_length', data=data, hue='tag', palette={'primitive':'C0','random':'C2','learned':'C3'}, hue_order=['primitive','random','learned'], style='tag', style_order=['primitive','random','learned'], ax=ax, cut=0, inner=None, dodge=False)
 
 ax.legend(loc='upper center')
 ax.set_title('Macro length distribution (15-puzzle)')

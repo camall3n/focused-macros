@@ -1,12 +1,12 @@
 import copy
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
 
-from notebooks.rrank import rrank
-from domains.suitcaselock import SuitcaseLock
+from domains.suitcaselock import SuitcaseLock, rank_mod2
 
 def compute_cost_matrix(n=6, v=2, k=1):
     lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
@@ -14,7 +14,7 @@ def compute_cost_matrix(n=6, v=2, k=1):
 
     # Get the actions matrix
     M = np.asarray(actions[:n])
-    rrank(M)
+    rank_mod2(M)
 
     # Compute the adjacency matrix
     n_states = v**n
@@ -26,13 +26,12 @@ def compute_cost_matrix(n=6, v=2, k=1):
     def get_successors(lock):
         return [copy.deepcopy(lock).apply_macro(diff=a) for a in actions]
 
-    for s in lock.states():
-        id = get_state_id(s)
-        next_states = get_successors(s)
-        [get_state_id(s_prime) for s_prime in next_states]
-        for s_prime in next_states:
-            id_prime = get_state_id(s_prime)
-            A[id, id_prime] = 1
+    for state in lock.states():
+        state_id = get_state_id(state)
+        next_states = get_successors(state)
+        for next_state in next_states:
+            next_state_id = get_state_id(next_state)
+            A[state_id,next_state_id] = 1
 
     # Compute whether there is a path from i to j of length <= L
     HasPath = [np.eye(n_states), A]
@@ -62,7 +61,7 @@ def compute_heuristic_matrix(n=6, v=2, k=1):
     H = np.zeros((n_states, n_states), dtype=int)
     for row, start in enumerate(lock.states()):
         for col, goal in enumerate(lock.states()):
-            H[row, col] = heuristic(start,goal)
+            H[row,col] = heuristic(start,goal)
 
     return H
 

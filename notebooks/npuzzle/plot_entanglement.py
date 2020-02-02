@@ -1,22 +1,17 @@
-import copy
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import random
-import seaborn as sns
-from tqdm import tqdm
 
 from domains.npuzzle import npuzzle
 from domains.npuzzle import macros
 
-filter = lambda x,y: zip(*[(x,y) for x,y in zip(x,y) if x!=1])
+filter_ = lambda x,y: zip(*[(x,y) for x,y in zip(x,y) if x!=1])
 rnd_macro_len = list(map(len,macros.random.macros[(0,0)]))
 rnd_macro_ent = list(map(lambda x: len(x[0]),macros.random.models[(0,0)]))
-rnd_macro_len, rnd_macro_ent = filter(rnd_macro_len, rnd_macro_ent)
+rnd_macro_len, rnd_macro_ent = filter_(rnd_macro_len, rnd_macro_ent)
 
-gen_macro_len = list(map(len,macros.generated.macros[(0,0)]))
-gen_macro_ent = list(map(lambda x: len(x[0]),macros.generated.models[(0,0)]))
-gen_macro_len, gen_macro_ent = filter(gen_macro_len, gen_macro_ent)
+gen_macro_len = list(map(len,macros.learned.macros[(0,0)]))
+gen_macro_ent = list(map(lambda x: len(x[0]),macros.learned.models[(0,0)]))
+gen_macro_len, gen_macro_ent = filter_(gen_macro_len, gen_macro_ent)
 
 #%%
 noise = 0.
@@ -48,9 +43,9 @@ plt.tight_layout()
 plt.show()
 
 #%% Visualize some macros
-for blank_idx in [(3,3)]:#macros.generated.models.keys():
-    macro_list = macros.generated.macros[blank_idx]
-    model_list = macros.generated.models[blank_idx]
+for blank_idx in [(3,3)]:#macros.learned.models.keys():
+    macro_list = macros.learned.macros[blank_idx]
+    model_list = macros.learned.models[blank_idx]
     for i in range(len(macro_list)):
         macro = macro_list[i]
         model = model_list[i]

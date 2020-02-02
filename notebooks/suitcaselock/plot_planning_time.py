@@ -1,15 +1,13 @@
-import copy
 import glob
 from itertools import groupby, count
+import pickle
+
 import numpy as np
 import matplotlib.pyplot as plt
-import pickle
-import os
 import pandas as pd
 import seaborn as sns
-import notebooks.picklefix
-from notebooks.rrank import rrank, reduce
-from notebooks.search import dijkstra
+
+import notebooks.picklefix  # pylint: disable=W0611
 
 alg = 'gbfs'
 n_vars = 20
@@ -46,8 +44,8 @@ for filename in result_files:
     entanglement = int(filename.split('/')[-2].split('-')[-1])
     goal = states[0].reset().scramble(seed=seed+1000)
     n_errors = sum(states[-1].summarize_effects(baseline=goal)>0)
-    x = [c for c,n in candidates]
-    y = [n.h_score for c,n in candidates]
+    x = [c for c, n in candidates]
+    y = [n.h_score for c, n in candidates]
 
     # Extend final value to end of plot
     if n_errors > 0:
@@ -57,7 +55,8 @@ for filename in result_files:
         # divide steps by 2, since we can ignore decrement actions
         x = [steps/2 for steps in x]
 
-    [curve_data.append({'transitions': t, 'n_errors': err, 'seed': seed, 'entanglement': entanglement}) for t, err in zip(x,y)]
+    for t, err in zip(x,y):
+        curve_data.append({'transitions': t, 'n_errors': err, 'seed': seed, 'entanglement': entanglement})
 
 #%%
 curve_data = pd.DataFrame(curve_data)
@@ -81,11 +80,8 @@ plt.show()
 solves = []
 data = []
 failures = []
-len(states[0].actions())*n_vars
-len(states[0].actions())*n_values**n_vars
-max_transitions
 
-for i,filename in enumerate(result_files):
+for i, filename in enumerate(result_files):
     seed = int(filename.split('/')[-1].split('.')[0].split('-')[-1])
     k = int(filename.split('/')[-2].split('-')[-1])
     with open(filename, 'rb') as f:
@@ -139,8 +135,7 @@ def as_range(iterable): # not sure how to do this part elegantly
     l = list(iterable)
     if len(l) > 1:
         return '{0}-{1}'.format(l[0], l[-1])
-    else:
-        return '{0}'.format(l[0])
+    return '{0}'.format(l[0])
 
 print('Missing:')
 for k in all_k_values:
@@ -153,8 +148,6 @@ plt.rcParams.update({'font.size': 24})
 for yscale_mode in ['linear']:
     fig, ax = plt.subplots(figsize=(8,6))
     sns.boxplot(x='k',y='transitions', data=data, color='C0', ax=ax)
-
-    # sns.scatterplot(x='entanglement',y='transitions', data=data.query('n_errors==0'), color='C0', ax=ax)
 
     plt.xlabel('Variables modified per action')
     plt.ylabel('Simulator steps {}'.format(' (millions)' if yscale_mode=='linear' else ''))
