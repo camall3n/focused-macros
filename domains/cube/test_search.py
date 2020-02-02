@@ -14,7 +14,7 @@ def test():
     start = copy.deepcopy(newcube)
     start.apply(pattern.SCRAMBLE_1)
 
-    skills = macros.primitive.actions
+    macros_ = macros.primitive.actions
     models = macros.primitive.models
 
     is_goal = lambda node: node.state == newcube
@@ -22,7 +22,7 @@ def test():
     max_transitions = 3e3
     def get_successors(cube_):
         return [(copy.deepcopy(cube_).apply(swap_list=model), macro)
-                for (macro, model) in zip(skills, models)]
+                for (macro, model) in zip(macros_, models)]
 
     search_results = search.astar(start=start,
                                   is_goal=is_goal,
@@ -46,7 +46,7 @@ def test():
     start = copy.deepcopy(newcube)
     start.apply(pattern.SCRAMBLE_1)
 
-    skills = macros.primitive.actions + macros.expert.macros
+    macros_ = macros.primitive.actions + macros.expert.macros
     models = macros.primitive.models + macros.expert.models
 
     search_results = search.astar(start=start,

@@ -35,7 +35,7 @@ def main():
 
     #%% Save the results
     os.makedirs('results/macros/cube', exist_ok=True)
-    with open('results/macros/cube/v{}-clean_skills.pickle'.format(version), 'wb') as file:
+    with open('results/macros/cube/v{}-clean_macros.pickle'.format(version), 'wb') as file:
         pickle.dump(clean_macros, file)
 
 

@@ -27,5 +27,5 @@ for filename in filenames:
 
 #%% Save the results
 os.makedirs('results/macros/npuzzle/', exist_ok=True)
-with open('results/macros/npuzzle/v{}-clean_skills.pickle'.format(version), 'wb') as f:
+with open('results/macros/npuzzle/v{}-clean_macros.pickle'.format(version), 'wb') as f:
     pickle.dump(macros, f)

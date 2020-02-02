@@ -1,10 +1,10 @@
-from collections import defaultdict
 import argparse
 import copy
-import pickle
 import os
+import pickle
 import sys
-from npuzzle import npuzzle
+
+from domains.npuzzle import npuzzle
 from notebooks import search
 
 if 'ipykernel' in sys.argv[0]:
@@ -17,7 +17,7 @@ parser.add_argument('-r', type=int, default=0,
 parser.add_argument('-c', type=int, default=0,
                     help='Initial col for blank space')
 parser.add_argument('-v', type=str, required=True,
-                    help='Which version to use for generated macros')
+                    help='Which version to use for learned macros')
 parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=62500,
                     help='Maximum number of variables changed per primitive action')
 parser.add_argument('--save_best_n', type=int, default=100,
@@ -33,11 +33,10 @@ startpuz = copy.deepcopy(puzzle)
 is_goal = lambda node: False
 step_cost = lambda action: 1
 def heuristic(puz):
-    swap_list, starting_blank_idx = puz.summarize_effects(baseline=puzzle)
+    swap_list, _ = puz.summarize_effects(baseline=puzzle)
     if len(swap_list) == 0:
         return float('inf')
-    else:
-        return len(swap_list)
+    return len(swap_list)
 
 def get_successors(puz):
     return [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]

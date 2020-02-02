@@ -30,7 +30,7 @@ class learned:  # pylint: disable=R0903,C0103
 def load_learned_macros(version):
     """Load the set of learned macro-actions for a given version"""
     results_dir = 'results/macros/cube/'
-    filename = results_dir+'v'+version+'-clean_skills.pickle'
+    filename = results_dir+'v'+version+'-clean_macros.pickle'
     try:
         with open(filename, 'rb') as file:
             _macros = pickle.load(file)
