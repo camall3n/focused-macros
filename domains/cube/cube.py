@@ -2,7 +2,7 @@ import copy
 import enum
 import random
 
-class ANSIColor:
+class ANSIColor:  # pylint: disable=R0903
     """Namespace for ANSI color codes"""
 ANSIColor.RED = '\x1b[41m'
 ANSIColor.ORANGE = '\x1b[48;5;130m'
@@ -14,7 +14,7 @@ ANSIColor.CYAN = '\x1b[46m'
 ANSIColor.WHITE = '\x1b[47m'
 ANSIColor.RESET = '\x1b[49m'
 
-class CubeColor:
+class CubeColor:  # pylint: disable=R0903
     """Namespace for Cube color codes"""
 CubeColor.W = 'W'
 CubeColor.Y = 'Y'
@@ -202,7 +202,7 @@ def get_inverse_swaps(swap_list):
     return result
 
 class Cube:
-    """Rubik's cube puzzle"""
+    """Rubik's cube puzzle simulator"""
     def __init__(self):
         self.reset()
 
@@ -243,7 +243,7 @@ class Cube:
         assert sequence is not None or swap_list is not None
         if swap_list is not None:
             cube_copy = copy.deepcopy(self)
-            for ((start_face, start_pos), (end_face, end_pos)) in swap_list:
+            for ((start_face,start_pos), (end_face,end_pos)) in swap_list:
                 self.faces[end_face][end_pos] = cube_copy.faces[start_face][start_pos]
                 self.indices[end_face][end_pos] = cube_copy.indices[start_face][start_pos]
         elif sequence is not None:
@@ -253,12 +253,12 @@ class Cube:
             self.sequence += sequence
         return self
 
-    def scramble(self, n=60):
+    def scramble(self, length=60):
         """Scramble the Cube with randomly selected actions
 
         For repeatable results, see domains.cube.pattern.scramble()
         """
-        formula_ = [random.choice(ACTIONS) for _ in range(n)]
+        formula_ = [random.choice(ACTIONS) for _ in range(length)]
         self.apply(formula_)
         return self
 
@@ -387,7 +387,7 @@ class Cube:
         The default behavior compares the current Cube against a solved Cube.
 
         Returns:
-            A list of position swaps ((StartFace, StartPos), (EndFace, EndPos))
+            A tuple of position swaps ((StartFace, StartPos), (EndFace, EndPos))
         """
         if not baseline:
             baseline = Cube()

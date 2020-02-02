@@ -5,13 +5,13 @@ import warnings
 from domains import cube
 from domains.cube import formula
 
-class primitive:
+class primitive:  # pylint: disable=R0903,C0103
     """Namespace for primitive actions and their corresponding models"""
     alg_formulas = [[a] for a in cube.ACTIONS]
     actions = alg_formulas
     models = [cube.Cube().apply(sequence=a).summarize_effects() for a in actions]
 
-class expert:
+class expert:  # pylint: disable=R0903,C0103
     """Namespace for expert macro-actions and their corresponding models"""
     alg_formulas = [
         formula.R_PERMUTATION,
@@ -24,7 +24,7 @@ class expert:
     macros = [variation for f in alg_formulas for variation in formula.variations(f)]
     models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in macros]
 
-class learned:
+class learned:  # pylint: disable=R0903,C0103
     """Namespace for learned macro-actions and their corresponding models"""
 
 def load_learned_macros(version):
@@ -40,13 +40,13 @@ def load_learned_macros(version):
 
     _models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in _macros]
 
-    global learned
+    global learned  # pylint: disable=W0601,C0103
     learned.macros = _macros
     learned.models = _models
 
 load_learned_macros('0.4')
 
-class random:
+class random:  # pylint: disable=R0903,C0103
     """Namespace for randomly generated macro-actions and their corresponding models"""
 
 def generate_random_macro_set(seed):
@@ -61,7 +61,7 @@ def generate_random_macro_set(seed):
                for variation in formula.variations(formula.simplify(formula_))]
     _models = [cube.Cube().apply(sequence=macro).summarize_effects() for macro in _macros]
 
-    global random
+    global random  # pylint: disable=W0601,C0103
     random.seed = seed
     random.alg_formulas = random_formulas
     random.macros = _macros

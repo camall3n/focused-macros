@@ -1,79 +1,71 @@
 import copy
 
 from domains import cube
+from domains.cube import pattern, macros
 from notebooks import search
-from domains.cube.macros import primitive, expert, random
-from domains.cube import pattern
 
 def test():
+    """Test search functionality with Cube primitive actions and expert macro-actions"""
     # Set up the scramble
     newcube = cube.Cube()
-    scramble = pattern.SCRAMBLE_1
 
+    # Primitive action search
+    print('Running primitive action search...')
     start = copy.deepcopy(newcube)
-    start.apply(scramble)
-    start.render()
+    start.apply(pattern.SCRAMBLE_1)
 
-    #%% Run the search
-    skills = primitive.actions
-    models = primitive.models
+    skills = macros.primitive.actions
+    models = macros.primitive.models
 
-    def is_goal(node): node.state == newcube
-    def step_cost(skill): len(skill)
-    def heuristic(cube): len(cube.summarize_effects())
+    is_goal = lambda node: node.state == newcube
+    heuristic = lambda cube: len(cube.summarize_effects())
     max_transitions = 3e3
-    def debug_fn(cube): cube.render() if cube else None
-    def get_successors(cube):
-        return [(copy.deepcopy(cube).apply(swap_list=m), s) for s,m in zip(skills, models)]
+    def get_successors(cube_):
+        return [(copy.deepcopy(cube_).apply(swap_list=model), macro)
+                for (macro, model) in zip(skills, models)]
 
-    #%%
-    states, actions, n_expanded, n_transitions = search.astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions)[:4]
+    search_results = search.astar(start=start,
+                                  is_goal=is_goal,
+                                  step_cost=len,
+                                  heuristic=heuristic,
+                                  get_successors=get_successors,
+                                  max_transitions=max_transitions)
+    actions = search_results[1]
 
-    #%%
-    for s in states:
-        s.render()
-    #%%
     testcube = copy.deepcopy(newcube)
-    testcube.apply(scramble)
-    for a in actions:
-        testcube.apply(a)
-    n_errors = len(testcube.summarize_effects())
-    #%%
-    actions
-    sum(len(a) for a in actions)
-    n_expanded
-    n_transitions
-    n_errors
+    testcube.apply(pattern.SCRAMBLE_1)
+    n_starting_errors = len(testcube.summarize_effects())
+    for action in actions:
+        testcube.apply(action)
+    n_remaining_errors_primitive = len(testcube.summarize_effects())
+    assert n_remaining_errors_primitive < n_starting_errors
 
-    #%%
+
+    # Expert macro-action search
+    print('Running expert macro-action search...')
     start = copy.deepcopy(newcube)
-    start.apply(scramble)
-    start.render()
+    start.apply(pattern.SCRAMBLE_1)
 
-    #%% Run the search
-    skills = primitive.actions + expert.macros
-    models = primitive.models + expert.models
-    def step_cost(skill): 1
+    skills = macros.primitive.actions + macros.expert.macros
+    models = macros.primitive.models + macros.expert.models
 
-    #%%
-    states, actions, n_expanded, n_transitions = search.astar(start, is_goal, step_cost, heuristic, get_successors, max_transitions)[:4]
+    search_results = search.astar(start=start,
+                                  is_goal=is_goal,
+                                  step_cost=lambda _: 1,
+                                  heuristic=heuristic,
+                                  get_successors=get_successors,
+                                  max_transitions=max_transitions)
+    actions = search_results[1]
 
-    #%%
-    for s in states:
-        s.render()
-    #%%
     testcube = copy.deepcopy(newcube)
-    testcube.apply(scramble)
-    for a in actions:
-        testcube.apply(a)
-    n_errors = len(testcube.summarize_effects())
-    #%%
-    actions
-    sum(len(a) for a in actions)
-    len(actions)
-    n_expanded
-    n_transitions
-    n_errors
+    testcube.apply(pattern.SCRAMBLE_1)
+    n_starting_errors = len(testcube.summarize_effects())
+    for action in actions:
+        testcube.apply(action)
+    n_remaining_errors_expert = len(testcube.summarize_effects())
+    assert n_remaining_errors_expert < n_remaining_errors_primitive
+
+    print('All tests passed.')
 
 if __name__ == '__main__':
     test()

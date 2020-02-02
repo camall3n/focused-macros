@@ -32,7 +32,7 @@ class CubeEnv:
             10: 'F\'',
             11: 'B\'',
         }
-        self.action_lookup = {meaning: id for id, meaning in self.action_meanings.items()}
+        self.action_lookup = {meaning: id for (id, meaning) in self.action_meanings.items()}
         self.n_actions = len(self.action_meanings)
 
     @property
@@ -66,7 +66,7 @@ class CubeEnv:
         """
         self.cube.reset()
         if sequence is None:
-            self.cube.scramble(scramble_len)
+            self.cube.scramble(length=scramble_len)
         else:
             self.cube.apply(sequence=[self.action_meanings[a] for a in sequence])
         return self.state
