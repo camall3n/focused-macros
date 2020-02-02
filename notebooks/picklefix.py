@@ -8,13 +8,13 @@
 #
 # So if pickle.load complains, import this module.
 
+import sys
+
 import notebooks.search
 import domains.cube
 import domains.npuzzle
 import domains.suitcaselock
 
-
-import sys
 sys.modules['notebooks.astar'] = notebooks.search
 sys.modules['cube'] = domains.cube
 sys.modules['npuzzle'] = domains.npuzzle

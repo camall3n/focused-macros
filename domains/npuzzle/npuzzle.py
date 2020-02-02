@@ -29,7 +29,7 @@ class NPuzzle:
         return [d(self.blank_idx) for d in directions if d(self.blank_idx) is not None]
 
     def above(self, loc=None):
-        """Return the tile index above the given location (or None)
+        """Return the tile index above the given (row, col) location tuple, or None
 
         The default behavior uses the current blank index as the location
         """
@@ -42,7 +42,7 @@ class NPuzzle:
         return None
 
     def below(self, loc=None):
-        """Return the tile index below the given location (or None)
+        """Return the tile index below the given (row, col) location tuple, or None
 
         The default behavior uses the current blank index as the location
         """
@@ -55,7 +55,7 @@ class NPuzzle:
         return None
 
     def left(self, loc=None):
-        """Return the tile index left of the given location (or None)
+        """Return the tile index left of the given (row, col) location tuple, or None
 
         The default behavior uses the current blank index as the location
         """
@@ -68,7 +68,7 @@ class NPuzzle:
         return None
 
     def right(self, loc=None):
-        """Return the tile index right of the given location (or None)
+        """Return the tile index right of the given (row, col) location tuple, or None
 
         The default behavior uses the current blank index as the location
         """
