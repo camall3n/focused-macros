@@ -74,11 +74,12 @@ for k in tqdm(range(1,n)):
     for trial in range(n_trials):
         D = compute_cost_matrix(n, v, k)
         H = compute_heuristic_matrix(n, v, k)
-        data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial} for d, h in zip(D.flatten(), H.flatten())])
+        data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial}
+                     for d, h in zip(D.flatten(), H.flatten())])
 data = pd.DataFrame(data)
 
 #%%
 fig, ax = plt.subplots(figsize=(8,6))
 sns.pointplot(data=data, x='distance', y='heuristic', hue='k', ci='sd', dodge=0.25)
-plt.savefig('results/plots/heuristic_vs_true_distance.png')
+plt.savefig('results/plots/suitcaselock_heuristic_vs_true_distance.png')
 plt.show()
