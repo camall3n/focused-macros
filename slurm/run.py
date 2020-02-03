@@ -18,11 +18,13 @@ import re
 import subprocess
 import sys
 
-defaultjob = 'run'
 
 def parse_args():
-    # Parse input arguments
-    #   Use --help to see a pretty description of the arguments
+    """Parse input arguments
+
+    Use --help to see a pretty description of the arguments
+    """
+    defaultjob = 'run'
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--command', type=str, required=True,
                         help='The command to run (e.g. "python -m module.name --arg=value")')
@@ -55,10 +57,45 @@ def parse_args():
                              ' addr1@brown.edu[, addr2@brown.edu]')
     parser.add_argument('--hold_jid', type=str, default=None,
                         help='Hold job until the specified jobid or jobid_taskid has finished')
-    return parser.parse_args()
-args = parse_args()
+    args = parser.parse_args()
+
+    if args.jobname == defaultjob:
+        args.jobname = "run{}".format(args.taskid)
+    elif not re.match(r'^(\w|\.)+$', args.jobname):
+        # We want to create a script file, so make sure the filename is legit
+        print("Invalid job name: {}".format(args.jobname))
+        sys.exit()
+
+    return args
+
+
+
+def launch(cmd, args):
+    """Print the sbatch command and launch a subprocess to execute it"""
+    print(cmd)
+    if not args.dry_run:
+        try:
+            byte_str = subprocess.check_output(cmd, shell=True)
+            jobid = int(byte_str.decode('utf-8').split('.')[0])
+            if args.email is not None:
+                notify_cmd = 'sbatch '
+                notify_cmd += '-o /dev/null ' # don't save stdout file
+                notify_cmd += '-e /dev/null ' # don't save stderr file
+                notify_cmd += '--mail-type=BEGIN' # send email when this new job starts
+                notify_cmd += '--mail-user="{}" '.format(args.email) # email address
+                notify_cmd += '--depend=afterany:{} '.format(jobid)
+                notify_cmd += '-J ~{} '.format(args.jobname[1:]) # modify the jobname slightly
+                notify_cmd += '--wrap="sleep 0"' # the actual job is a NO-OP
+                subprocess.call(notify_cmd, shell=True)
+        except (subprocess.CalledProcessError, ValueError) as err:
+            print(err)
+            sys.exit()
+
 
 def run():
+    """Build the bash script and send it to the cluster"""
+    args = parse_args()
+
     # Define the bash script that sbatch should run (with values
     # that need to be filled in using the input args).
     venv_path = os.path.join(args.env, 'bin', 'activate')
@@ -87,14 +124,13 @@ source {}
     # Slurm runs scripts in current working directory by default
 
     # Duration
-    if args.duration == 'test':
-        cmd += '-t 0:10:00 ' # 10 minutes
-    elif args.duration == 'short':
-        cmd += '-t 1:00:00 ' # 1 hour
-    elif args.duration == 'long':
-        cmd += '-t 1-00:00:00 '# 1 day
-    elif args.duration == 'vlong':
-        cmd += '-t 7-00:00:00 '# 1 week
+    duration_map = {
+        'test': '0:10:00',  # 10 minutes
+        'short': '1:00:00',  # 1 hour
+        'long': '1-00:00:00',  # 1 day
+        'vlong': '7-00:00:00',  # 1 week
+    }
+    cmd += '-t {} '.format(duration_map[args.duration])
 
     # Number of CPU/GPU resources
     cmd += '-n {} '.format(args.cpus)
@@ -127,45 +163,18 @@ source {}
             cmd += ' '
     elif args.tasklist is not None:
         cmd += "--array={taskblock} "
-    else:
-        pass
 
     # Prevent Slurm from running this new job until the specified job ID is finished.
     if args.hold_jid is not None:
         cmd += "--depend=afterany:{} ".format(args.hold_jid)
     cmd += "{}".format(jobfile)
 
-    def launch(cmd):
-        print(cmd)
-        if not args.dry_run:
-            try:
-                byte_str = subprocess.check_output(cmd, shell=True)
-                jobid = int(byte_str.decode('utf-8').split('.')[0])
-                if args.email is not None:
-                    notify_cmd = 'sbatch '
-                    notify_cmd += '-o /dev/null ' # don't save stdout file
-                    notify_cmd += '-e /dev/null ' # don't save stderr file
-                    notify_cmd += '--mail-type=BEGIN' # send email when this new job starts
-                    notify_cmd += '--mail-user="{}" '.format(args.email) # email address
-                    notify_cmd += '--depend=afterany:{} '.format(jobid)
-                    notify_cmd += '-J ~{} '.format(args.jobname[1:]) # modify the jobname slightly
-                    notify_cmd += '--wrap="sleep 0"' # the actual job is a NO-OP
-                    subprocess.call(notify_cmd, shell=True)
-            except (subprocess.CalledProcessError, ValueError) as err:
-                print(err)
-                sys.exit()
-
     if args.tasklist is None:
-        launch(cmd)
+        launch(cmd, args)
     else:
         taskblocks = args.tasklist.split(',')
         for taskblock in taskblocks:
-            launch(cmd.format(taskblock=taskblock))
+            launch(cmd.format(taskblock=taskblock), args)
 
-if args.jobname == defaultjob:
-    args.jobname = "run{}".format(args.taskid)
-elif not re.match(r'^(\w|\.)+$', args.jobname):
-    # We want to create a script file, so make sure the filename is legit
-    print("Invalid job name: {}".format(args.jobname))
-    sys.exit()
-run()
+if __name__ == '__main__':
+    run()

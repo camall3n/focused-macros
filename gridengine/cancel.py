@@ -27,14 +27,10 @@ def parse_args():
                         help="Don't actually submit jobs to grid engine")
     parser.set_defaults(dry_run=False)
     return parser.parse_args()
-args = parse_args()
 
 
-cmd = "qdel {} ".format(args.jobid)
-if args.tasklist is not None:
-    cmd += "-t {taskblock}"
-
-def cancel(cmd):
+def launch_cancel_proc(cmd, args):
+    """Print the qdel command and launch a subprocess to execute it"""
     print(cmd)
     if not args.dry_run:
         try:
@@ -43,13 +39,28 @@ def cancel(cmd):
             print(err)
             sys.exit()
 
-if args.tasklist is None:
-    yn = input('Are you sure you want to cancel all tasks for this job? (y/N)\n> ')
-    if yn in ['y','yes','Y',"YES"]:
-        cancel(cmd)
-    elif yn in ['n','no','N',"NO",'']:
-        print('Job cancellation aborted.')
-else:
-    taskblocks = args.tasklist.split(',')
-    for taskblock in taskblocks:
-        cancel(cmd.format(taskblock=taskblock))
+
+def cancel():
+    """Parse the jobs/tasks to cancel and send the appropriate commands to the cluster"""
+    args = parse_args()
+
+    cmd = "qdel {} ".format(args.jobid)
+    if args.tasklist is not None:
+        cmd += "-t {taskblock}"
+
+    if args.tasklist is None:
+        yes_or_no = input('Are you sure you want to cancel all tasks for this job? (y/[n])\n> ')
+        if yes_or_no in ['y','yes','Y',"YES"]:
+            launch_cancel_proc(cmd, args)
+        else:
+            if yes_or_no not in ['n','no','N',"NO",'']:
+                print('Unable to process response "{}"'.format(yes_or_no))
+            print('Job cancellation aborted.')
+    else:
+        taskblocks = args.tasklist.split(',')
+        for taskblock in taskblocks:
+            launch_cancel_proc(cmd.format(taskblock=taskblock), args)
+
+
+if __name__ == '__main__':
+    cancel()
