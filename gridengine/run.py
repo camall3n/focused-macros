@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 
-#-------------------------------------------------------------------------
-# run
-#
-# This file simplifies the process of sending jobs to the cluster.
-# It parses input arguments that describe how the jobs should be
-# submitted, writes a bash script to a file, and finally calls qsub
-# with that bash script as an argument.
-#
-# When qsub runs the script, the first thing it does is source a
-# virtualenv script that configures the python environment properly.
-#-------------------------------------------------------------------------
+"""
+gridengine.run
+
+This file simplifies the process of sending jobs to the cluster.
+It parses input arguments that describe how the jobs should be
+submitted, writes a bash script to a file, and finally calls qsub
+with that bash script as an argument.
+
+When qsub runs the script, the first thing it does is source a
+virtualenv script that configures the python environment properly.
+"""
 
 import argparse
-import datetime
 import os
 import re
 import subprocess
 import sys
-import time
 
 defaultjob = 'run'
 
@@ -26,21 +24,37 @@ def parse_args():
     # Parse input arguments
     #   Use --help to see a pretty description of the arguments
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--command', help='The command to run (e.g. "python -m module.name --arg=value")', type=str, required=True)
-    parser.add_argument('--jobname', help='A name for the job (max 10 chars)', type=str, default=defaultjob)
-    parser.add_argument('--jobtype', help='Which type of job to request', choices=['cpu', 'gpu'], default='cpu')
-    parser.add_argument('--env', help='Path to virtualenv', type=str, default='./env')
-    parser.add_argument('--nresources', help='Number of CPUs / GPUs to request', type=int, default=1)
-    parser.add_argument('--duration', help='Expected duration of job', choices=['test', 'short', 'long', 'vlong'], default='vlong')
-    parser.add_argument('--host', help='Wildcard for targeting a specific host or set of hosts', type=str, default=None)
-    parser.add_argument('-t','--taskid', help='Task ID of first task', type=int, default=1)
-    parser.add_argument('--tasklist', help='Comma separated list of task IDs to submit (e.g. "18-22:1,26,29,34-49:1")', type=str, default=None)
-    parser.add_argument('-n','--ntasks', help='Number of tasks', type=int, default=0)
-    parser.add_argument('-max','--maxtasks', help='Maximum number of simultaneous tasks', type=int, default=-1)
-    parser.add_argument('-y','--dry_run', help="Don't actually submit jobs to grid engine", action='store_true')
+    parser.add_argument('--command', type=str, required=True,
+                        help='The command to run (e.g. "python -m module.name --arg=value")')
+    parser.add_argument('--jobname', type=str, default=defaultjob,
+                        help='A name for the job (max 10 chars)')
+    parser.add_argument('--jobtype', choices=['cpu', 'gpu'], default='cpu',
+                        help='Which type of job to request')
+    parser.add_argument('--env', type=str, default='./env',
+                        help='Path to virtualenv')
+    parser.add_argument('--nresources', type=int, default=1,
+                        help='Number of CPUs / GPUs to request')
+    parser.add_argument('--duration', choices=['test', 'short', 'long', 'vlong'], default='vlong',
+                        help='Expected duration of job')
+    parser.add_argument('--host', type=str, default=None,
+                        help='Wildcard for targeting a specific host or set of hosts')
+    parser.add_argument('-t','--taskid', type=int, default=1,
+                        help='Task ID of first task')
+    parser.add_argument('--tasklist', type=str, default=None,
+                        help='Comma separated list of task IDs to submit'
+                             ' (e.g. "18-22:1,26,29,34-49:1")')
+    parser.add_argument('-n','--ntasks', type=int, default=0,
+                        help='Number of tasks')
+    parser.add_argument('-max','--maxtasks', type=int, default=-1,
+                        help='Maximum number of simultaneous tasks')
+    parser.add_argument('-y','--dry_run', action='store_true',
+                        help="Don't actually submit jobs to grid engine")
     parser.set_defaults(dry_run=False)
-    parser.add_argument('--email', help='Email address(es) to notify when job is complete: addr1@brown.edu[, addr2@brown.edu]', type=str, default=None)
-    parser.add_argument('--hold_jid', help='Hold job until the specified job ID has finished', type=int, default=None)
+    parser.add_argument('--email', type=str, default=None,
+                        help='Email address(es) to notify when job is complete:'
+                             ' addr1@brown.edu[, addr2@brown.edu]')
+    parser.add_argument('--hold_jid', type=int, default=None,
+                        help='Hold job until the specified job ID has finished')
     return parser.parse_args()
 args = parse_args()
 
@@ -63,8 +77,8 @@ source {}
     # Write the script to a file
     os.makedirs("gridengine/scripts/", exist_ok=True)
     jobfile = "gridengine/scripts/{}".format(args.jobname)
-    with open(jobfile, 'w') as f:
-        f.write(script_body)
+    with open(jobfile, 'w') as file:
+        file.write(script_body)
 
     # Call the appropriate qsub command. The default behavior is to use
     # GridEngine's range feature, which starts a batch job with multiple tasks
@@ -129,8 +143,8 @@ source {}
                     notify_cmd += '-N ~{} '.format(args.jobname[1:]) # modify the jobname slightly
                     notify_cmd += '-b y sleep 0' # the actual job is a NO-OP
                     subprocess.call(notify_cmd, shell=True)
-            except (subprocess.CalledProcessError, ValueError) as e:
-                print(e)
+            except (subprocess.CalledProcessError, ValueError) as err:
+                print(err)
                 sys.exit()
 
     if args.tasklist is None:
