@@ -4,115 +4,123 @@ import os
 import pickle
 import random
 import sys
+from types import SimpleNamespace
 
 import numpy as np
 
 from domains.npuzzle import NPuzzle, macros
 from notebooks import search
 
-if 'ipykernel' in sys.argv[0]:
-    sys.argv = [sys.argv[0]]
-parser = argparse.ArgumentParser()
-parser.add_argument('-n', type=int, default=15, choices=[8, 15, 24, 35, 48, 63, 80],
-                    help='Number of tiles')
-parser.add_argument('--random_seed','-s', type=int, default=1,
-                    help='Seed to use for RNGs')
-parser.add_argument('--macro_type','-m', type=str, default='primitive',
-                    choices=['primitive','random','learned'],
-                    help='Type of macro_list to consider during search')
-parser.add_argument('--search_alg', type=str, default='gbfs', choices = ['astar', 'gbfs', 'weighted-astar'],
-                    help='Search algorithm to run')
-parser.add_argument('--g_weight', type=float, default=None,
-                    help='Weight for g-score in weighted A*')
-parser.add_argument('--h_weight', type=float, default=None,
-                    help='Weight for h-score in weighted A*')
-parser.add_argument('--random-goal','-r', action='store_true', default=False,
-                    help='Generate a random goal instead of the default solve configuration')
-parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
-                    help='Maximum number of state transitions')
-args = parser.parse_args()
-#
-seed = args.random_seed
+def parse_args():
+    """Parse input arguments
 
-# Set up the scramble
-random.seed(seed)
-np.random.seed(seed)
-
-newpuz = NPuzzle(n=args.n)
-start = copy.deepcopy(newpuz).scramble(seed=seed)
-if args.random_goal:
-    goal = copy.deepcopy(newpuz).scramble(seed=seed+1000)
-    print('Using goal pattern: {:03d}'.format(seed+1000))
-else:
-    goal = newpuz
-
-print('Using seed: {:03d}'.format(seed))
-print('Start:', start)
-print('Goal:', goal)
-
-# Define the macros / models
-if args.macro_type == 'primitive':
-    macro_list = []
-    model_list = []
-elif args.macro_type == 'random':
-    macros.generate_random_macro_set(seed)
-    macro_list = macros.random.macros
-    model_list = macros.random.models
-elif args.macro_type == 'learned':
-    macro_list = macros.learned.macros
-    model_list = macros.learned.models
+    Use --help to see a pretty description of the arguments
+    """
+    if 'ipykernel' in sys.argv[0]:
+        sys.argv = [sys.argv[0]]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-n', type=int, default=15, choices=[8, 15, 24, 35, 48, 63, 80],
+                        help='Number of tiles')
+    parser.add_argument('--random_seed','-s', type=int, default=1,
+                        help='Seed to use for RNGs')
+    parser.add_argument('--macro_type','-m', type=str, default='primitive',
+                        choices=['primitive','random','learned'],
+                        help='Type of macro_list to consider during search')
+    parser.add_argument('--search_alg', type=str, default='gbfs',
+                        choices = ['astar', 'gbfs', 'weighted_astar'],
+                        help='Search algorithm to run')
+    parser.add_argument('--g_weight', type=float, default=None,
+                        help='Weight for g-score in weighted A*')
+    parser.add_argument('--h_weight', type=float, default=None,
+                        help='Weight for h-score in weighted A*')
+    parser.add_argument('--random-goal','-r', action='store_true', default=False,
+                        help='Generate a random goal instead of the default solve configuration')
+    parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
+                        help='Maximum number of state transitions')
+    return parser.parse_args()
 
 
-# Set up the search problem
-is_goal = lambda node: node.state == goal
-heuristic = lambda puz: len(puz.summarize_effects(baseline=goal)[0])
-step_cost = lambda macro: 1
+def solve():
+    """Instantiate an N-Puzzle and solve with the specified macro-actions and search algorithm"""
+    args = parse_args()
+    #
 
-def get_successors(puz):
-    successors = [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]
-    if args.macro_type != 'primitive':
-        valid_macros = macro_list[puz.blank_idx]
-        valid_models = model_list[puz.blank_idx]
-        macro_successors = [(copy.deepcopy(puz).apply_macro(model=model), macro)
-                            for (macro, model) in zip(valid_macros, valid_models)]
-        successors += macro_successors
-    return successors
+    # Set up the scramble
+    random.seed(args.random_seed)
+    np.random.seed(args.random_seed)
 
-#%% Run the search
-if args.search_alg == 'astar':
-    search_results = search.astar(start=start,
-                                  is_goal=is_goal,
-                                  step_cost=step_cost,
-                                  heuristic=heuristic,
-                                  get_successors=get_successors,
-                                  max_transitions=args.max_transitions)
-elif args.search_alg == 'gbfs':
-    search_results = search.gbfs(start=start,
-                                 is_goal=is_goal,
-                                 step_cost=step_cost,
-                                 heuristic=heuristic,
-                                 get_successors=get_successors,
-                                 max_transitions=args.max_transitions)
-elif args.search_alg == 'weighted-astar':
-    assert args.g_weight is not None and args.h_weight is not None, 'Must specify weights if using weighted A*.'
-    gh_weights = args.g_weight, args.h_weight
-    search_results = search.weighted_astar(start=start,
-                                           is_goal=is_goal,
-                                           step_cost=step_cost,
-                                           heuristic=heuristic,
-                                           get_successors=get_successors,
-                                           max_transitions=args.max_transitions,
-                                           gh_weights=gh_weights)
+    start = NPuzzle(n=args.n).scramble(seed=args.random_seed)
 
-#%% Save the results
-tag = '{}-puzzle/'.format(args.n)
-if args.random_goal:
-    tag += 'random_goal/'
-else:
-    tag += 'default_goal/'
-tag += args.macro_type
+    if args.random_goal:
+        goal = NPuzzle(n=args.n).scramble(seed=args.random_seed+1000)
+        print('Using goal pattern: {:03d}'.format(args.random_seed+1000))
+    else:
+        goal = NPuzzle(n=args.n)
 
-results_dir = 'results/npuzzle/{}/{}/'.format(args.search_alg,tag)
-os.makedirs(results_dir, exist_ok=True)
-with open(results_dir+'seed-{:03d}.pickle'.format(seed), 'wb') as f:
-    pickle.dump(search_results, f)
+    print('Using seed: {:03d}'.format(args.random_seed))
+    print('Start:', start)
+    print('Goal:', goal)
+
+    # Define the macros / models
+    if args.macro_type == 'random':
+        macros.generate_random_macro_set(args.random_seed)
+
+    macro_dict = {
+        'primitive': SimpleNamespace(macros=[], models=[]),
+        'random': macros.random,
+        'learned': macros.learned,
+    }
+    macro_list = macro_dict[args.macro_type].macros
+    model_list = macro_dict[args.macro_type].models
+
+    # Set up the search problem
+    search_fn = {
+        'astar': search.astar,
+        'gbfs': search.gbfs,
+        'weighted_astar': search.weighted_astar,
+    }[args.search_alg]
+
+    def get_successors(puz):
+        successors = [(copy.deepcopy(puz).transition(a), [a]) for a in puz.actions()]
+        if args.macro_type != 'primitive':
+            valid_macros = macro_list[puz.blank_idx]
+            valid_models = model_list[puz.blank_idx]
+            macro_successors = [(copy.deepcopy(puz).apply_macro(model=model), macro)
+                                for (macro, model) in zip(valid_macros, valid_models)]
+            successors += macro_successors
+        return successors
+
+    search_dict = {
+        'start': start,
+        'is_goal': lambda node: node.state == goal,
+        'step_cost': lambda macro: 1,
+        'heuristic': lambda puz: len(puz.summarize_effects(baseline=goal)[0]),
+        'get_successors': get_successors,
+        'max_transitions': args.max_transitions,
+    }
+
+    if search_fn == 'weighted_astar':
+        assert (args.g_weight is not None
+                and args.h_weight is not None), 'Must specify weights if using weighted A*.'
+        gh_weights = (args.g_weight, args.h_weight)
+        search_dict['gh_weights'] = gh_weights
+
+    #%% Run the search
+    search_results = search_fn(*search_dict)
+
+    #%% Save the results
+    tag = '{}-puzzle/'.format(args.n)
+    if args.random_goal:
+        tag += 'random_goal/'
+    else:
+        tag += 'default_goal/'
+    tag += args.macro_type
+
+    results_dir = 'results/npuzzle/{}/{}/'.format(args.search_alg,tag)
+    os.makedirs(results_dir, exist_ok=True)
+    with open(results_dir+'seed-{:03d}.pickle'.format(args.random_seed), 'wb') as file:
+        pickle.dump(search_results, file)
+
+
+if __name__ == '__main__':
+    solve()
