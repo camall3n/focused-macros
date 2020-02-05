@@ -183,6 +183,8 @@ def plot_learning_curves(data, plot_var_list, category):
 
 def plot_planning_boxes(data, plot_var_list, category):
     """Boxplot planning time, with hue according to the specified category"""
+
+    # In order to get the right legend on the plot, first make an empty plot with colored lines
     plt.figure()
     palette = []
     for plot_vars in plot_var_list:
@@ -193,8 +195,8 @@ def plot_planning_boxes(data, plot_var_list, category):
     plt.show()
     plt.close()
 
+    # Now we make the actual plot, since seaborn's catplot doesn't accept an 'ax' argument
     plt.rcParams.update({'font.size': cfg.FONTSIZE, 'figure.figsize': cfg.FIGSIZE})
-
     catplot = sns.catplot(data=data.query('n_errors==0'), y=category, x='transitions',
                           kind='boxen', palette=reversed(palette), orient='h', legend='True')
     catplot.despine(right=False, top=False)
