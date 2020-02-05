@@ -225,6 +225,7 @@ class Cube:
             [(Face.U, Pos(i)) for i in range(9)],
             [(Face.D, Pos(i)) for i in range(9)],
         ]
+        return self
 
     def transform(self, action):
         """Transform the Cube with a single quarter-turn action"""

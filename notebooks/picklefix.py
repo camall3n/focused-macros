@@ -19,3 +19,4 @@ sys.modules['notebooks.astar'] = notebooks.search
 sys.modules['cube'] = domains.cube
 sys.modules['npuzzle'] = domains.npuzzle
 sys.modules['suitcaselock'] = domains.suitcaselock
+sys.modules['notebooks.search'].Node = notebooks.search.SearchNode
