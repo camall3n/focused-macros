@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 
 from domains import cube
@@ -41,6 +43,7 @@ def load_and_plot_macros():
     plt.xticks(range(1,25,3))
     plt.xlabel('Number of steps per macro-action')
     plt.ylabel('Number of variables modified')
+    os.makedirs('results/plots/cube/', exist_ok=True)
     plt.savefig('results/plots/cube/cube_entanglement.png')
     plt.show()
 

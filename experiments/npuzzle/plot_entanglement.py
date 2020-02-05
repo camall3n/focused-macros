@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -40,6 +42,7 @@ def load_and_plot_macros():
     plt.legend(loc='upper left')
     plt.tight_layout()
     # plt.title('Entanglement by macro-action type (15-puzzle)')
+    os.makedirs('results/plots/npuzzle/', exist_ok=True)
     plt.savefig('results/plots/npuzzle/npuzzle_entanglement.png')
     plt.show()
 
