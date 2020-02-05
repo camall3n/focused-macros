@@ -158,7 +158,7 @@ source {}
         assert args.tasklist is None, 'Arguments ntasks and tasklist not supported simultaneously.'
         cmd += "--array={}-{}".format(args.taskid, args.taskid+args.ntasks-1) # specify task range
         if args.maxtasks > 0:
-            cmd += '%{}'.format(args.maxtasks) # set maximum number of running tasks
+            cmd += '%{} '.format(args.maxtasks) # set maximum number of running tasks
         else:
             cmd += ' '
     elif args.tasklist is not None:
