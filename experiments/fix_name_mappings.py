@@ -1,5 +1,5 @@
 # I pickled some objects before changing the directory structure.
-#   notebooks.astar -> notebooks.search
+#   notebooks.astar -> notebooks.search -> experiments.search
 #   cube -> domains.cube
 #   npuzzle -> domains.npuzzle
 #   suitcaselock ->domains.suitcaselock
@@ -10,13 +10,14 @@
 
 import sys
 
-import notebooks.search
+import experiments.search
 import domains.cube
 import domains.npuzzle
 import domains.suitcaselock
 
-sys.modules['notebooks.astar'] = notebooks.search
+sys.modules['notebooks.astar'] = experiments.search
+sys.modules['notebooks.search'] = experiments.search
+sys.modules['experiments.search'].Node = experiments.search.SearchNode
 sys.modules['cube'] = domains.cube
 sys.modules['npuzzle'] = domains.npuzzle
 sys.modules['suitcaselock'] = domains.suitcaselock
-sys.modules['notebooks.search'].Node = notebooks.search.SearchNode

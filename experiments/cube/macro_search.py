@@ -4,7 +4,7 @@ import os
 
 from domains import cube
 from domains.cube import macros
-from notebooks import search
+from experiments import search
 
 
 def main():

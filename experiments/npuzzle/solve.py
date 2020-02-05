@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from domains.npuzzle import NPuzzle, macros
-from notebooks import search
+from experiments import search
 
 def parse_args():
     """Parse input arguments

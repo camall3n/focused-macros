@@ -5,7 +5,7 @@ import pickle
 import sys
 
 from domains.npuzzle import npuzzle
-from notebooks import search
+from experiments import search
 
 
 def main():

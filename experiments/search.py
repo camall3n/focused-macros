@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from tqdm import tqdm
 
-import notebooks.priorityqueue as pq
+import experiments.priorityqueue as pq
 
 class SearchNode:
     """A single graph search node for forward state-space planning

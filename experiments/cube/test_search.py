@@ -2,7 +2,7 @@ import copy
 
 from domains import cube
 from domains.cube import pattern, macros
-from notebooks import search
+from experiments import search
 
 def test():
     """Test search functionality with Cube primitive actions and expert macro-actions"""

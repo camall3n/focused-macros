@@ -4,7 +4,7 @@ import os
 
 from domains.cube import ACTIONS as primitive_actions
 from domains.cube.macros import expert
-import notebooks.picklefix  # pylint: disable=W0611
+import experiments.fix_name_mappings  # pylint: disable=W0611
 
 
 def main():

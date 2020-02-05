@@ -5,7 +5,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from notebooks.plot_planning_time import (
+from experiments.plot_planning_time import (
     parse_args, parse_filepath, cube_cfg, npuzzle_cfg, suitcaselock_cfg
 )
 

@@ -8,7 +8,7 @@ import sys
 import numpy as np
 
 from domains.suitcaselock import SuitcaseLock
-from notebooks import search
+from experiments import search
 
 
 def parse_args():

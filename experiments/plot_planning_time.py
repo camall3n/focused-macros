@@ -10,11 +10,11 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import notebooks.picklefix  # pylint: disable=W0611
+import experiments.fix_name_mappings  # pylint: disable=W0611
 
-import notebooks.cube.plot_config as cube_cfg
-import notebooks.npuzzle.plot_config as npuzzle_cfg
-import notebooks.suitcaselock.plot_config as suitcaselock_cfg
+import experiments.cube.plot_config as cube_cfg
+import experiments.npuzzle.plot_config as npuzzle_cfg
+import experiments.suitcaselock.plot_config as suitcaselock_cfg
 
 def parse_args():
     """Parse input arguments
