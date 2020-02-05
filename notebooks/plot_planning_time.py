@@ -1,7 +1,6 @@
 import argparse
 from collections import namedtuple
 import glob
-from itertools import groupby, count
 import os
 import pickle
 import sys
@@ -17,22 +16,25 @@ import notebooks.cube.plot_config as cube_cfg
 import notebooks.npuzzle.plot_config as npuzzle_cfg
 import notebooks.suitcaselock.plot_config as suitcaselock_cfg
 
-def parse_args(args=[]):
+def parse_args():
     """Parse input arguments
 
     Use --help to see a pretty description of the arguments
     """
     if 'ipykernel' in sys.argv[0]:
-        sys.argv = [sys.argv[0]] + args
+        sys.argv = [sys.argv[0]] + 'suitcaselock'.split(' ')
     parser = argparse.ArgumentParser()
     parser.add_argument('name', type=str, choices=['cube', 'npuzzle', 'suitcaselock'],
                         help='Name of experiment to plot')
+    parser.add_argument('--alg', type=str, default='gbfs',
+                        choices=['gbfs', 'astar', 'weighted_astar'],
+                        help='Search algorithm')
     return parser.parse_args()
 
 
-def parse_filepath(path, field_names):
-    assert path.startswith(RESULTS_DIR)
-    path = path[len(RESULTS_DIR):]
+def parse_filepath(path, field_names, prefix):
+    assert path.startswith(prefix)
+    path = path[len(prefix):]
     filename_sections = path.split('/')
 
     parsed_sections = []
@@ -60,7 +62,7 @@ def load_data(alg):
     for filepath in result_files:
         if not os.path.isfile(filepath):
             continue
-        metadata = parse_filepath(filepath, cfg.FIELDS)
+        metadata = parse_filepath(filepath, cfg.FIELDS, prefix=RESULTS_DIR)
         if metadata.alg != alg:
             continue
         with open(filepath, 'rb') as file:
@@ -68,9 +70,6 @@ def load_data(alg):
         states, actions, _, n_transitions, candidates = search_results[:5]
         goal = cfg.get_goal(states[0], metadata)
         n_errors = cfg.heuristic(states[-1], goal)
-        n_action_steps = cfg.get_primitive_steps(actions)
-        n_macro_steps = cfg.get_macro_steps(actions)
-        macro_lengths = cfg.get_macro_lengths(actions)
 
         sim_steps = [transitions for transitions, node in candidates]
         h_scores = [node.h_score for transitions, node in candidates]
@@ -89,7 +88,7 @@ def load_data(alg):
             })
 
         # # Save macro data
-        # for length in macro_lengths:
+        # for length in cfg.get_macro_lengths(actions):
         #     macro_data.append({
         #         **metadata._asdict(),
         #         'macro_length': length,
@@ -100,8 +99,8 @@ def load_data(alg):
             **metadata._asdict(),
             'transitions': n_transitions,
             'n_errors': n_errors,
-            'n_action_steps': n_action_steps,
-            'n_macro_steps': n_macro_steps,
+            'n_action_steps': cfg.get_primitive_steps(actions),
+            'n_macro_steps': cfg.get_macro_steps(actions),
         })
 
     results = [learning_curves, final_results] #, macro_data
@@ -213,7 +212,7 @@ def get_summary(results, category):
     return str(summary)
 
 def make_plots():
-    learning_curves, final_results = load_data(alg='gbfs')
+    learning_curves, final_results = load_data(alg=args.alg)
     os.makedirs('results/plots/'+cfg.NAME+'/', exist_ok=True)
     if 'learning_curves' in cfg.PLOTS:
         plot_learning_curves(learning_curves.query("goal_type=='default_goal'"),
@@ -251,7 +250,7 @@ def make_plots():
             file.write(summary_text)
 
 if __name__ == '__main__':
-    args = parse_args(['suitcaselock'])
+    args = parse_args()
     cfg = {
         'cube': cube_cfg,
         'npuzzle': npuzzle_cfg,
