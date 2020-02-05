@@ -65,13 +65,13 @@ def solve():
     if args.macro_type == 'random':
         macros.generate_random_macro_set(args.random_seed)
 
-    macro_dict = {
+    macro_namespace = {
         'primitive': SimpleNamespace(macros=[], models=[]),
         'random': macros.random,
         'learned': macros.learned,
-    }
-    macro_list = macro_dict[args.macro_type].macros
-    model_list = macro_dict[args.macro_type].models
+    }[args.macro_type]
+    macro_list = macro_namespace.macros
+    model_list = macro_namespace.models
 
     # Set up the search problem
     search_fn = {
