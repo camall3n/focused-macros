@@ -12,10 +12,6 @@ def compute_cost_matrix(n=6, v=2, k=1):
     lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
     actions = lock.actions()[:n]
 
-    # Get the actions matrix
-    M = np.asarray(actions[:n])
-    rank_mod2(M)
-
     # Compute the adjacency matrix
     n_states = v**n
     A = np.eye(n_states,dtype=int)
@@ -34,22 +30,22 @@ def compute_cost_matrix(n=6, v=2, k=1):
             A[state_id,next_state_id] = 1
 
     # Compute whether there is a path from i to j of length <= L
-    HasPath = [np.eye(n_states), A]
-    l = 1
-    while np.any(HasPath[-1] != np.ones((n_states,n_states))):
-        HasPath.append((np.matmul(HasPath[-1],A)>0).astype(int))
-        l += 1
-        if l >= n_states:
+    has_path = [np.eye(n_states), A]
+    length = 1
+    while np.any(has_path[-1] != np.ones((n_states,n_states))):
+        has_path.append((np.matmul(has_path[-1],A)>0).astype(int))
+        length += 1
+        if length >= n_states:
             break
 
     # Compute the newly added paths at each length L
-    PathLength = [0*np.eye(n_states)]
-    for i in range(len(HasPath)):
-        PathLength.append( (i+1)*(HasPath[i]-HasPath[i-1]) )
+    path_length = [0*np.eye(n_states)]
+    for i, _ in enumerate(has_path):
+        path_length.append( (i+1)*(has_path[i]-has_path[i-1]) )
 
     # Compute the shortest path length from i to j
-    D = np.sum(np.stack(PathLength), 0)
-    return D
+    distance_matrix = np.sum(np.stack(path_length), 0)
+    return distance_matrix
 
 def compute_heuristic_matrix(n=6, v=2, k=1):
     lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
@@ -58,12 +54,12 @@ def compute_heuristic_matrix(n=6, v=2, k=1):
     # Compute the goal-count heuristic from i to j
     heuristic = lambda start, goal: sum(goal.summarize_effects(baseline=start) > 0)
 
-    H = np.zeros((n_states, n_states), dtype=int)
+    heuristic_matrix = np.zeros((n_states, n_states), dtype=int)
     for row, start in enumerate(lock.states()):
         for col, goal in enumerate(lock.states()):
-            H[row,col] = heuristic(start,goal)
+            heuristic_matrix[row,col] = heuristic(start,goal)
 
-    return H
+    return heuristic_matrix
 
 #%%
 n = 6
