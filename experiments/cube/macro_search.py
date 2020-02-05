@@ -42,7 +42,7 @@ def main():
 
     #%% Save the results
     os.makedirs('results/macros/cube', exist_ok=True)
-    with open('results/macros/cube/macro_results.pickle', 'wb') as file:
+    with open('results/macros/cube/macro-results.pickle', 'wb') as file:
         pickle.dump(search_results, file)
 
 if __name__ == '__main__':
