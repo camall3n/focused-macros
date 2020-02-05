@@ -6,7 +6,7 @@ import pandas as pd
 import seaborn as sns
 from tqdm import tqdm
 
-from domains.suitcaselock import SuitcaseLock, rank_mod2
+from domains.suitcaselock import SuitcaseLock
 
 def compute_cost_matrix(n=6, v=2, k=1):
     lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
@@ -62,20 +62,21 @@ def compute_heuristic_matrix(n=6, v=2, k=1):
     return heuristic_matrix
 
 #%%
-n = 6
-v = 2
-n_trials = 10
-data = []
-for k in tqdm(range(1,n)):
-    for trial in range(n_trials):
-        D = compute_cost_matrix(n, v, k)
-        H = compute_heuristic_matrix(n, v, k)
-        data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial}
-                     for d, h in zip(D.flatten(), H.flatten())])
-data = pd.DataFrame(data)
+if __name__ == '__main__':
+    n = 6
+    v = 2
+    n_trials = 10
+    data = []
+    for k in tqdm(range(1,n)):
+        for trial in range(n_trials):
+            D = compute_cost_matrix(n, v, k)
+            H = compute_heuristic_matrix(n, v, k)
+            data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial}
+                         for d, h in zip(D.flatten(), H.flatten())])
+    data = pd.DataFrame(data)
 
-#%%
-fig, ax = plt.subplots(figsize=(8,6))
-sns.pointplot(data=data, x='distance', y='heuristic', hue='k', ci='sd', dodge=0.25)
-plt.savefig('results/plots/suitcaselock_heuristic_vs_true_distance.png')
-plt.show()
+    #%%
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.pointplot(data=data, x='distance', y='heuristic', hue='k', ci='sd', dodge=0.25)
+    plt.savefig('results/plots/suitcaselock_heuristic_vs_true_distance.png')
+    plt.show()
