@@ -2,9 +2,8 @@ import glob
 import pickle
 import os
 
-version = '0.2'
 results_dir = 'results/macros/npuzzle/'
-filenames = glob.glob(results_dir+'v'+version+'-*-results.pickle')
+filenames = glob.glob(results_dir+'macro-*-results.pickle')
 macros = {}
 for filename in filenames:
     r = int(filename.split('/')[-1].split('-')[-3][1:])
@@ -26,5 +25,5 @@ for filename in filenames:
 
 #%% Save the results
 os.makedirs('results/macros/npuzzle/', exist_ok=True)
-with open('results/macros/npuzzle/v{}-clean_macros.pickle'.format(version), 'wb') as f:
+with open('results/macros/npuzzle/clean_macros.pickle', 'wb') as f:
     pickle.dump(macros, f)

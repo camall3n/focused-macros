@@ -9,7 +9,6 @@ from notebooks import search
 
 def main():
     """Search for disentangled macro-actions using A*"""
-    version = '0.4'
     cost_mode = 'per-macro'
     max_transitions = 1e6
     save_best_n = 1200
@@ -43,7 +42,7 @@ def main():
 
     #%% Save the results
     os.makedirs('results/macros/cube', exist_ok=True)
-    with open('results/macros/cube/v{}-results.pickle'.format(version), 'wb') as file:
+    with open('results/macros/cube/macro_results.pickle', 'wb') as file:
         pickle.dump(search_results, file)
 
 if __name__ == '__main__':

@@ -10,10 +10,10 @@ from domains import npuzzle
 class learned:
     """Namespace for learned macro-actions and their corresponding models"""
 
-def load_learned_macros(version):
-    """Load the set of learned macro-actions for a given version"""
+def load_learned_macros():
+    """Load the set of learned macro-actions"""
     results_dir = 'results/macros/npuzzle/'
-    filename = results_dir+'v'+version+'-clean_macros.pickle'
+    filename = results_dir+'clean_macros.pickle'
     try:
         with open(filename, 'rb') as file:
             _macros = pickle.load(file)
@@ -33,7 +33,7 @@ def load_learned_macros(version):
     learned.macros = _macros
     learned.models = _models
 
-load_learned_macros('0.2')
+load_learned_macros()
 
 class random:
     """Namespace for randomly generated macro-actions and their corresponding models"""

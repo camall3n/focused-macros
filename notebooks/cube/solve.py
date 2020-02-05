@@ -23,9 +23,6 @@ def parse_args():
     parser.add_argument('--macro_type','-m', type=str, default='expert',
                         choices=['primitive','expert','random','learned'],
                         help='Type of macros to consider during search')
-    parser.add_argument('--macro_version','-v', type=str, default='0.4',
-                        choices=['0.1','0.2','0.3','0.4'],
-                        help='Which version to use for learned macros')
     parser.add_argument('--search_alg', type=str, default='gbfs',
                         choices=['astar','gbfs','weighted_astar'],
                         help='Search algorithm to run')
@@ -106,8 +103,6 @@ def solve():
 
     #%% Save the results
     tag = args.macro_type
-    if args.macro_type == 'learned':
-        tag += '-v{}'.format(args.macro_version)
     if args.random_goal:
         tag = 'random_goal/'+tag
     else:
