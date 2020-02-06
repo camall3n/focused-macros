@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import glob
 import pickle
 import os
@@ -6,7 +7,7 @@ def main():
     """Combine N-Puzzle macros for different starting positions into a single file"""
     results_dir = 'results/macros/npuzzle/'
     filenames = glob.glob(results_dir+'macro-*-results.pickle')
-    macros = {}
+    macros = OrderedDict()
     for filename in filenames:
         row = int(filename.split('/')[-1].split('-')[-3][1:])
         col = int(filename.split('/')[-1].split('-')[-2][1:])
