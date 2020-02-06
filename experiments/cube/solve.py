@@ -98,7 +98,7 @@ def solve():
         search_dict['gh_weights'] = gh_weights
 
     #%% Run the search
-    search_results = search_fn(*search_dict)
+    search_results = search_fn(**search_dict)
 
 
     #%% Save the results
