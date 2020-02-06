@@ -42,6 +42,8 @@ def show_missing(max_seed):
 
     columns = [column for column in list(completed_runs.columns) if column != 'seed']
     keys = completed_runs[columns].values
+    if len(keys) == 0:
+        return
     str_keys = list(map(lambda x: np.array(list(map(str, x))), keys))
     unique_idx = np.unique(np.stack(str_keys), axis=0, return_index=True)[1]
 
