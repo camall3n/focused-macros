@@ -6,6 +6,7 @@ import pickle
 import sys
 
 import matplotlib.pyplot as plt
+from matplotlib.axes._axes import _log as matplotlib_axes_logger
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -197,6 +198,7 @@ def plot_planning_boxes(data, plot_var_list, category):
 
     # Now we make the actual plot, since seaborn's catplot doesn't accept an 'ax' argument
     plt.rcParams.update({'font.size': cfg.FONTSIZE, 'figure.figsize': cfg.FIGSIZE})
+    matplotlib_axes_logger.setLevel('ERROR')
     catplot = sns.catplot(data=data.query('n_errors==0'), y=category, x='transitions',
                           kind='boxen', palette=reversed(palette), orient='h', legend='True')
     catplot.despine(right=False, top=False)
