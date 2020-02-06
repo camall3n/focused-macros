@@ -66,7 +66,7 @@ def show_missing(max_seed):
     print(results)
 
 if __name__ == '__main__':
-    args = parse_args(['suitcaselock'])
+    args = parse_args()
     cfg = {
         'cube': cube_cfg,
         'npuzzle': npuzzle_cfg,
