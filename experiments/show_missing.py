@@ -17,9 +17,9 @@ def as_range(iterable):
         return '{0}-{1}'.format(list_[0], list_[-1])
     return '{0}'.format(list_[0])
 
-def ranges_to_string(range):
+def ranges_to_string(range_):
     """Convert a list of ranges to a comma-separated string of ranges"""
-    return ','.join(as_range(g) for _, g in groupby(range, key=lambda n, c=count(): n-next(c)))
+    return ','.join(as_range(g) for _, g in groupby(range_, key=lambda n, c=count(): n-next(c)))
 # ------------------------------------------------------------------------------
 
 def show_missing(max_seed):
