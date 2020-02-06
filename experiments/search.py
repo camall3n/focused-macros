@@ -45,7 +45,7 @@ def reconstruct_path(node):
         states.append(node.parent.state)
         actions.append(node.action)
         node = node.parent
-    return reversed(states), reversed(actions)
+    return list(reversed(states)), list(reversed(actions))
 
 def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
                     max_transitions=0, save_best_n=1, quiet=False, gh_weights=(1,1)):
