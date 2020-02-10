@@ -152,6 +152,10 @@ def autoscale_yticks(ax):
 
 def plot_learning_curves(data, plot_var_list, category):
     """Plot n_errors vs. time, with hue according to the specified category"""
+
+    if data.empty:
+        return
+
     plt.rcParams.update({'font.size': cfg.FONTSIZE})
     _, ax = plt.subplots(figsize=cfg.FIGSIZE)
 
@@ -185,6 +189,8 @@ def plot_learning_curves(data, plot_var_list, category):
 def plot_planning_boxes(data, plot_var_list, category):
     """Boxplot planning time, with hue according to the specified category"""
 
+    if data.empty:
+        return
     # In order to get the right legend on the plot, first make an empty plot with colored lines
     plt.figure()
     palette = []
@@ -219,6 +225,8 @@ def plot_planning_boxes(data, plot_var_list, category):
 
 def plot_entanglement_boxes(data):
     """Boxplot planning time vs entanglement"""
+    if data.empty:
+        return
     plt.rcParams.update({'font.size': cfg.FONTSIZE})
     _, ax = plt.subplots(figsize=cfg.FIGSIZE)
     sns.boxplot(x='entanglement', y='transitions', data=data, color='C0', ax=ax)
