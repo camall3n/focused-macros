@@ -11,8 +11,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-import experiments.fix_name_mappings  # pylint: disable=W0611
-
 import experiments.cube.plot_config as cube_cfg
 import experiments.npuzzle.plot_config as npuzzle_cfg
 import experiments.suitcaselock.plot_config as suitcaselock_cfg
