@@ -1,5 +1,5 @@
 # Finding Disentangled Macro-Actions for Efficient Planning with the Goal-Count Heuristic
-Preprint forthcoming.
+https://arxiv.org/abs/2004.13242
 
 ### Installation
 
