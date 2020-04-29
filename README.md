@@ -66,7 +66,7 @@ python3 -m experiments.npuzzle.macro_cleanup
 
 Visualize learned 15-puzzle macros:
 ```
-python -m experiments.npuzzle.plot_entanglement
+python3 -m experiments.npuzzle.plot_entanglement
 ```
 
 Solve 15-puzzle:
@@ -93,7 +93,7 @@ python3 -m experiments.cube.macro_cleanup
 
 Visualize Rubik's cube macro-actions:
 ```
-python -m experiments.cube.plot_entanglement
+python3 -m experiments.cube.plot_entanglement
 ```
 
 Solve Rubik's cube:
