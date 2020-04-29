@@ -5,7 +5,7 @@ https://arxiv.org/abs/2004.13242
 
 Download the repo:
 ```
-git clone https://github.com/IBM/skills-for-planning.git
+git clone https://github.com/camall3n/skills-for-planning.git
 ```
 
 Install the dependencies:
