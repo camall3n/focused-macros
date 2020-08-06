@@ -227,6 +227,29 @@ class Cube:
         ]
         return self
 
+    def __len__(self):
+        return len(Face) * (len(Pos) - 1) # skip middle squares
+
+    def __getitem__(self, key):
+        if key >= len(self):
+            raise IndexError('cube index out of range')
+        n_positions = len(Pos) - 1
+        face = key // n_positions
+        index = key % n_positions
+        position = index if index < Pos.M else index+1 # skip middle squares
+        return self.faces[Face(face)][Pos(position)]
+
+    def __iter__(self):
+        iter_face = 0
+        iter_pos = 0
+        while iter_face < len(Face):
+            yield self.faces[Face(iter_face)][Pos(iter_pos)]
+            iter_pos = (iter_pos+1)%len(Pos)
+            if iter_pos == Pos.M: # skip middle squares
+                iter_pos += 1
+            if iter_pos == 0:
+                iter_face += 1
+
     def transform(self, action):
         """Transform the Cube with a single quarter-turn action"""
         face, is_inverted = ACTION_MAP[action]
