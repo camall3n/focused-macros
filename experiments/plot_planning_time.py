@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('name', type=str, choices=['cube', 'npuzzle', 'suitcaselock'],
                         help='Name of experiment to plot')
     parser.add_argument('--alg', type=str, default='gbfs',
-                        choices=['gbfs', 'astar', 'weighted_astar'],
+                        choices=['gbfs', 'astar', 'weighted_astar', 'bfws'],
                         help='Search algorithm')
     return parser.parse_args()
 

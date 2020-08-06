@@ -27,7 +27,7 @@ def parse_args():
                         choices=['primitive','random','learned'],
                         help='Type of macro_list to consider during search')
     parser.add_argument('--search_alg', type=str, default='gbfs',
-                        choices = ['astar', 'gbfs', 'weighted_astar'],
+                        choices = ['astar', 'gbfs', 'weighted_astar','bfws'],
                         help='Search algorithm to run')
     parser.add_argument('--g_weight', type=float, default=None,
                         help='Weight for g-score in weighted A*')
@@ -37,6 +37,8 @@ def parse_args():
                         help='Generate a random goal instead of the default solve configuration')
     parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
                         help='Maximum number of state transitions')
+    parser.add_argument('--bfws_precision', type=int, default=2,
+                        help='The number of width values, w \in {1,...,P}, to use when the search algorithm is best-first width search')
     return parser.parse_args()
 
 
@@ -78,6 +80,7 @@ def solve():
         'astar': search.astar,
         'gbfs': search.gbfs,
         'weighted_astar': search.weighted_astar,
+        'bfws': search.bfws,
     }[args.search_alg]
 
     def get_successors(puz):
@@ -99,11 +102,14 @@ def solve():
         'max_transitions': args.max_transitions,
     }
 
-    if search_fn == 'weighted_astar':
+    if args.search_alg == 'weighted_astar':
         assert (args.g_weight is not None
                 and args.h_weight is not None), 'Must specify weights if using weighted A*.'
         gh_weights = (args.g_weight, args.h_weight)
         search_dict['gh_weights'] = gh_weights
+    elif args.search_alg == 'bfws':
+        search_dict['bfws'] = True
+        search_dict['bfws_precision'] = args.bfws_precision
 
     #%% Run the search
     search_results = search_fn(**search_dict)

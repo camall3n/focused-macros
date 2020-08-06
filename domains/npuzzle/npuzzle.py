@@ -23,6 +23,17 @@ class NPuzzle:
                 self.transition(self.left())
             assert self.blank_idx == start_blank
 
+    def __len__(self):
+        return len(self.state)
+
+    def __getitem__(self, key):
+        return self.state.reshape(-1)[key]
+
+    def __iter__(self):
+        values = self.state.reshape(-1)
+        for v in values:
+            yield v
+
     def actions(self):
         """Return a list of actions for the current state"""
         directions = [self.above, self.below, self.left, self.right]
