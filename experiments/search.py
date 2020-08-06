@@ -1,8 +1,11 @@
 from collections import defaultdict
+from collections.abc import Iterable
 
 from tqdm import tqdm
+import numpy as np
 
 import experiments.priorityqueue as pq
+from experiments.width import WidthAugmentedHeuristic
 
 class SearchNode:
     """A single graph search node for forward state-space planning
@@ -35,7 +38,12 @@ class SearchNode:
     @property
     def f_score(self):
         """Compute and return the estimated (weighted) path cost for this node"""
-        return self.gh_weights[0]*self.g_score + self.gh_weights[1]*self.h_score
+        result = self.gh_weights[0]*self.g_score + self.gh_weights[1]*np.asarray(self.h_score)
+        try:
+            result = tuple(result)
+        except TypeError:
+            result = result.item()
+        return result
 
 def reconstruct_path(node):
     """Iteratively reconstruct the search path by working backwards from the specified node"""
@@ -48,7 +56,8 @@ def reconstruct_path(node):
     return list(reversed(states)), list(reversed(actions))
 
 def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
-                    max_transitions=0, save_best_n=1, quiet=False, gh_weights=(1,1)):
+                    max_transitions=0, save_best_n=1, quiet=False, gh_weights=(1,1),
+                    bfws=False, bfws_precision=2):
     """Core implementation of weighted A*
 
     Weighted A* is a general search algorithm that performs forward best-first search
@@ -78,6 +87,10 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
             Whether to suppress progress bars
         gh_weights (tuple):
             Tuple of weights (g_weight, h_weight) for weighted A*
+        bfws (bool):
+            Whether to wrap the heuristic and use best-first width search, i.e. h -> (w,h)
+        bfws_precision (int):
+            The number of width values, w \in {1,...,P}, to use with BFWS (when `bfws` is True)
     """
     n_expanded = 0
     n_transitions = 0
@@ -85,6 +98,10 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
     closed_set = set()
     g_score = defaultdict(lambda: float('inf'))
     g_score[start] = 0
+    if bfws:
+        heuristic = WidthAugmentedHeuristic(n_variables=len(start),
+                                            heuristic=heuristic,
+                                            precision=bfws_precision)
     root = SearchNode(state=start, g_score=0, h_score=heuristic(start), parent=None, action=None)
     # Adding root to open set
     open_set.push((root.f_score, root))
@@ -171,3 +188,6 @@ def dijkstra(*args, **kwargs):
 def gbfs(*args, **kwargs):
     """Greedy best-first search (GBFS)"""
     return weighted_astar(*args, gh_weights=(0,1), **kwargs)
+
+def bfws(*args, **kwargs):
+    return gbfs(*args, **kwargs)
