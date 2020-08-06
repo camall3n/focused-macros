@@ -38,6 +38,15 @@ class SuitcaseLock:
         self._actions = None
         self.actions()
 
+    def __len__(self):
+        return self.n_vars
+
+    def __getitem__(self, key):
+        return self.state[key]
+
+    def __iter__(self):
+        return iter(self.state)
+
     def states(self):
         """Iterator for the possible states of the SuitcaseLock"""
         for i in range(self.n_values**self.n_vars):
