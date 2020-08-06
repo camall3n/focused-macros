@@ -75,7 +75,7 @@ python3 -m experiments.npuzzle.solve -m primitive --max_transitions=1e6 -s SEED
 python3 -m experiments.npuzzle.solve -m random --max_transitions=1e6 -s SEED
 python3 -m experiments.npuzzle.solve -m learned --max_transitions=1e6 -s SEED
 
-python3 -m experiments.npuzzle.solve -m learned --max_transitions=1e6 --random-goal -s SEED
+python3 -m experiments.npuzzle.solve -m learned --max_transitions=1e6 --random_goal -s SEED
 ```
 
 Plot 15-puzzle results:
@@ -103,7 +103,7 @@ python3 -m experiments.cube.solve -m random --max_transitions=2e6 -s SEED
 python3 -m experiments.cube.solve -m learned --max_transitions=2e6 -s SEED
 python3 -m experiments.cube.solve -m expert --max_transitions=2e6 -s SEED
 
-python3 -m experiments.cube.solve -m learned --max_transitions=2e6 --random-goal -s SEED
+python3 -m experiments.cube.solve -m learned --max_transitions=2e6 --random_goal -s SEED
 ```
 
 Plot Rubik's cube results:
