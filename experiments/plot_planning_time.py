@@ -92,7 +92,10 @@ def load_data(alg):
         n_errors = cfg.heuristic(states[-1], goal)
 
         sim_steps = [transitions for transitions, node in candidates]
-        h_scores = [node.h_score for transitions, node in candidates]
+        if metadata.alg != 'bfws':
+            h_scores = [node.h_score for transitions, node in candidates]
+        else:
+            h_scores = [node.h_score[1] for transitions, node in candidates]
 
         # Extend final value to end of plot
         if n_errors > 0:
