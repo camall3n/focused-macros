@@ -97,7 +97,7 @@ class NPuzzle:
         self.blank_idx = (self.width-1, self.width-1)
         return self
 
-    def scramble(self, seed=None):
+    def scramble(self, seed=None, n_steps=None):
         """Scramble the NPuzzle with randomly selected actions
 
         Specify a random seed for repeatable results.
@@ -108,7 +108,8 @@ class NPuzzle:
             random.seed(seed)
             np.random.seed(seed)
         # need both even and odd n_steps for blank to reach every space
-        n_steps = random.choice([self.n**2, self.n**2+1])
+        if n_steps == None:
+            n_steps = random.choice([self.n**2, self.n**2+1])
         for _ in range(n_steps):
             action = random.choice(self.actions())
             self.transition(action)
