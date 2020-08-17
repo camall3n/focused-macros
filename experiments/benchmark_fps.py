@@ -44,17 +44,55 @@ with CPUTimer() as timer:
         env.seed(seed)
     obs, _ = env.reset()
 
-    assert isinstance(obs.goal, LiteralConjunction)
-    heuristic = lambda obs: len([lit for lit in obs.goal.literals if lit not in obs.literals])
-
     if seed is not None:
         env.action_space.seed(seed)
 
-    for t in range(10):
+    for t in range(n_steps):
         action = env.action_space.sample(obs)
         obs, reward, done, _ = env.step(action)
-        print(heuristic(obs))
         if done:
             obs = env.reset()
     env.close()
 print('Hanoi (operator actions):', n_steps / timer.duration)
+
+
+env = gym.make("PDDLEnv{}-v0".format(env_name.capitalize()))
+if not render: env._render = None
+env.fix_problem_index(problem_index)
+
+if seed is not None:
+    env.seed(seed)
+obs0, _ = env.reset()
+
+assert isinstance(obs.goal, LiteralConjunction)
+heuristic = lambda obs: len([lit for lit in obs.goal.literals if lit not in obs.literals])
+h0 = heuristic(obs0)
+
+if seed is not None:
+    env.action_space.seed(seed)
+
+observations = []
+actions = []
+heuristic_values = []
+for t in range(30):
+    action = env.action_space.sample(obs)
+    obs, reward, done, _ = env.step(action)
+    actions.append(action)
+    observations.append(obs)
+    h = heuristic(obs)
+    heuristic_values.append(h)
+    if done:
+        obs = env.reset()
+env.set_state(obs0)
+obs = env.get_state()
+assert obs == obs0
+for t in range(30):
+    action = actions[t]
+    obs, reward, done, _ = env.step(action)
+    assert obs == observations[t]
+    h = heuristic(obs)
+    assert h == heuristic_values[t]
+    print(h, "==", heuristic_values[t])
+    if done:
+        obs = env.reset()
+print('All tests passed.')
