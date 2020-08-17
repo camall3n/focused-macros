@@ -2,6 +2,7 @@
 **.DS_Store
 data/
 env/
+venv/
 __pycache__/
 results/*/
 gridengine/logs/
@@ -9,4 +10,6 @@ gridengine/scripts/
 slurm/logs/
 slurm/scripts/
 paper/*.pdf
+.onager/
+.pylintrc
 
