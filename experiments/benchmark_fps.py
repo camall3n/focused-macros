@@ -5,6 +5,7 @@ from domains import npuzzle
 
 import gym
 import pddlgym
+from pddlgym.structs import LiteralConjunction
 
 class CPUTimer:
     def __enter__(self):
@@ -43,12 +44,16 @@ with CPUTimer() as timer:
         env.seed(seed)
     obs, _ = env.reset()
 
+    assert isinstance(obs.goal, LiteralConjunction)
+    heuristic = lambda obs: len([lit for lit in obs.goal.literals if lit not in obs.literals])
+
     if seed is not None:
         env.action_space.seed(seed)
 
-    for t in range(n_steps):
+    for t in range(10):
         action = env.action_space.sample(obs)
         obs, reward, done, _ = env.step(action)
+        print(heuristic(obs))
         if done:
             obs = env.reset()
     env.close()
