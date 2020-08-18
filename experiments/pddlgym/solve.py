@@ -96,6 +96,7 @@ def solve():
     def get_successors(state):
         env.set_state(state)
         valid_actions = sorted(list(env.action_space.all_ground_literals(state)))
+        random.shuffle(valid_actions)
         successors = [(restore_state(state).step(a)[0], [a]) for a in valid_actions]
         if args.macro_type != 'primitive':
             raise NotImplementedError('Search with macros not yet implemented for PDDLGym')
