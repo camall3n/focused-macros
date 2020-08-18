@@ -132,6 +132,8 @@ def solve():
     with open(results_dir+'seed-{:03d}.pickle'.format(args.random_seed), 'wb') as file:
         pickle.dump(search_results, file)
 
+    plan = search_results[1]
+    print("Plan length:", len(plan))
     if args.render:
         env._render = render_fn
         env.set_state(start)
@@ -140,8 +142,6 @@ def solve():
         env.seed(args.random_seed)
         obs = env.reset()
         env.render()
-        plan = search_results[1]
-        print("Plan length:", len(plan))
         for macro in plan:
             for action in macro:
                 env.step(action)
