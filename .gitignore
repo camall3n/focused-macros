@@ -12,4 +12,6 @@ slurm/scripts/
 paper/*.pdf
 .onager/
 .pylintrc
+.vscode
+*.code-workspace
 
