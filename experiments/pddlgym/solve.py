@@ -69,7 +69,7 @@ def solve():
     heuristic = lambda obs: len([lit for lit in goal.literals if lit not in obs.literals])
 
     print('Using seed: {:03d}'.format(args.random_seed))
-    print('Start:', start)
+    print('Objects:', sorted(list(start.objects)))
     print('Goal:', goal)
 
     # Define the macros / models
@@ -141,6 +141,7 @@ def solve():
         obs = env.reset()
         env.render()
         plan = search_results[1]
+        print("Plan length:", len(plan))
         for macro in plan:
             for action in macro:
                 env.step(action)
