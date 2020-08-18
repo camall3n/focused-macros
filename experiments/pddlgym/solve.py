@@ -135,7 +135,7 @@ def solve():
     if args.render:
         env._render = render_fn
         env.set_state(start)
-        video_path = os.path.join(results_dir+'seed-{:03d}.gif'.format(args.random_seed))
+        video_path = os.path.join(results_dir+'seed-{:03d}.mp4'.format(args.random_seed))
         env = VideoWrapper(env, video_path, fps=3)
         env.seed(args.random_seed)
         obs = env.reset()
