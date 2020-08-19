@@ -19,7 +19,7 @@ matplotlib==3.1.1
 numpy==1.16.4
 pandas==0.25.3
 parso==0.5.1
--e git+https://github.com/tomsilver/pddlgym.git@f12f12a029bf1c7cce6b0f438772f3b455efec11#egg=pddlgym
+-e git+https://github.com/tomsilver/pddlgym.git@2d022f8fe1792243da9e4e422996702ea7bb6ccb#egg=pddlgym
 pexpect==4.7.0
 pickleshare==0.7.5
 Pillow==6.1.0
