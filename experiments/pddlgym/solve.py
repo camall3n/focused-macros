@@ -6,7 +6,6 @@ import random
 import sys
 from types import SimpleNamespace
 
-import numpy as np
 import gym
 import pddlgym
 from pddlgym.structs import LiteralConjunction
@@ -53,7 +52,6 @@ def solve():
 
     # Set up the domain
     random.seed(args.random_seed)
-    np.random.seed(args.random_seed)
     env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
     if args.render:
         render_fn = env._render
