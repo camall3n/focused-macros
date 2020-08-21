@@ -17,27 +17,24 @@ def main():
                         help='Name of PDDL domain')
     parser.add_argument('--problem_index', type=int, default=None,
                         help='The index of the particular problem file to use')
+    parser.add_argument('-n', type=int, default=16,
+                        help='The number of (best) macros to output')
     args = parser.parse_args()
 
     results_dir = 'results/macros/pddlgym/{}/problem-{:02d}/'.format(args.env_name, args.problem_index)
     filenames = glob.glob(results_dir+'seed001-macros.pickle')
     assert(len(filenames)==1)
     filename = filenames[0]
-    macros = OrderedDict()
     with open(filename, 'rb') as file:
         search_results = pickle.load(file)
     best_n = search_results[-1]
     best_n = [(score, [a[0] for a in macro]) for score, macro in sorted(best_n)]
-
-    clean_macros = []
-    for _, macro in best_n:
-        if len(macro) > 1:
-            clean_macros.append(macro)
+    macros = [macro for (_, macro) in best_n if len(macro) > 1]
 
     # Set up the domain
     video_dir = results_dir+'macro_vis/'
     os.makedirs(video_dir, exist_ok=True)
-    for i, macro in enumerate(tqdm(clean_macros[:10])):
+    for i, macro in enumerate(tqdm(macros[:args.n])):
         env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
         env.fix_problem_index(args.problem_index)
         video_path = os.path.join(video_dir+'macro-{:03d}.mp4'.format(i))
@@ -48,6 +45,7 @@ def main():
             env.step(action)
             env.render()
         env.close()
+    print('Visualizations saved to:', video_dir)
 
 
 if __name__ == '__main__':
