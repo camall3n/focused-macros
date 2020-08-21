@@ -13,6 +13,7 @@ from pddlgym.utils import VideoWrapper
 
 # from domains.npuzzle import NPuzzle, macros
 from experiments import search
+from domains.pddlgym.macros import load_learned_macros
 
 def parse_args():
     """Parse input arguments
@@ -29,7 +30,7 @@ def parse_args():
     parser.add_argument('--random_seed','-s', type=int, default=1,
                         help='Seed to use for RNGs')
     parser.add_argument('--macro_type','-m', type=str, default='primitive',
-                        choices=['primitive','random','learned'],
+                        choices=['primitive', 'learned'],
                         help='Type of macro_list to consider during search')
     parser.add_argument('--search_alg', type=str, default='gbfs',
                         choices = ['astar', 'gbfs', 'weighted_astar', 'bfws'],
@@ -53,6 +54,8 @@ def solve():
     # Set up the domain
     random.seed(args.random_seed)
     env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
+    if args.macro_type == 'learned':
+        env = load_learned_macros(env, args.problem_index)
     if args.render:
         render_fn = env._render
         assert render_fn is not None
@@ -69,15 +72,6 @@ def solve():
     print('Using seed: {:03d}'.format(args.random_seed))
     print('Objects:', sorted(list(start.objects)))
     print('Goal:', goal)
-
-    # Define the macros / models
-    macro_namespace = {
-        'primitive': SimpleNamespace(macros=[], models=[]),
-        # 'random': macros.random,
-        # 'learned': macros.learned,
-    }[args.macro_type]
-    macro_list = macro_namespace.macros
-    model_list = macro_namespace.models
 
     # Set up the search problem
     search_fn = {
@@ -96,8 +90,6 @@ def solve():
         valid_actions = sorted(list(env.action_space.all_ground_literals(state)))
         random.shuffle(valid_actions)
         successors = [(restore_state(state).step(a)[0], [a]) for a in valid_actions]
-        if args.macro_type != 'primitive':
-            raise NotImplementedError('Search with macros not yet implemented for PDDLGym')
         return successors
 
     heuristic = lambda state: len([lit for lit in state.goal.literals if lit not in state.literals])
