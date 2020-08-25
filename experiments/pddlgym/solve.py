@@ -14,6 +14,7 @@ from pddlgym.utils import VideoWrapper
 # from domains.npuzzle import NPuzzle, macros
 from experiments import search
 from domains.pddlgym.macros import load_learned_macros
+from domains.pddlgym.pddlgymenv import scramble
 
 def parse_args():
     """Parse input arguments
@@ -29,6 +30,8 @@ def parse_args():
                         help='The index of the particular problem file to use')
     parser.add_argument('--random_seed','-s', type=int, default=1,
                         help='Seed to use for RNGs')
+    parser.add_argument('--scramble_length', '-n', type=int, default=100,
+                        help='Number of random actions to generate initial state.')
     parser.add_argument('--macro_type','-m', type=str, default='primitive',
                         choices=['primitive', 'learned'],
                         help='Type of macro_list to consider during search')
@@ -48,23 +51,21 @@ def parse_args():
     return parser.parse_args()
 
 def solve():
-    """Instantiate an N-Puzzle and solve with the specified macro-actions and search algorithm"""
+    """Instantiate PDDL domain with PDDLGym and solve with the specified macro-actions and search algorithm"""
     args = parse_args()
 
     # Set up the domain
     random.seed(args.random_seed)
     env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
+    env.fix_problem_index(args.problem_index)
+    start = scramble(env, seed=args.random_seed, steps=args.scramble_length)
     if args.macro_type == 'learned':
         env = load_learned_macros(env, args.problem_index)
-    if args.render:
-        render_fn = env._render
-        assert render_fn is not None
-        env._render = None
-    env.fix_problem_index(args.problem_index)
+        env.fix_problem_index(args.problem_index)
+    env._render = None
     env.seed(args.random_seed)
 
-    start, _ = env.reset()
-    env.action_space.seed(args.random_seed)
+    env.set_state(start)
     goal = start.goal
     assert isinstance(goal, LiteralConjunction)
     heuristic = lambda obs: len([lit for lit in goal.literals if lit not in obs.literals])
