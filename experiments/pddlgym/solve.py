@@ -28,10 +28,8 @@ def parse_args():
                         help='Name of PDDL domain')
     parser.add_argument('--problem_index', type=int, default=None,
                         help='The index of the particular problem file to use')
-    parser.add_argument('--random_seed','-s', type=int, default=1,
+    parser.add_argument('--random_seed','-s', type=int, default=0,
                         help='Seed to use for RNGs')
-    parser.add_argument('--scramble_length', '-n', type=int, default=100,
-                        help='Number of random actions to generate initial state.')
     parser.add_argument('--macro_type','-m', type=str, default='primitive',
                         choices=['primitive', 'learned'],
                         help='Type of macro_list to consider during search')
@@ -55,10 +53,10 @@ def solve():
     args = parse_args()
 
     # Set up the domain
-    random.seed(args.random_seed)
     env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
     env.fix_problem_index(args.problem_index)
-    start = scramble(env, seed=args.random_seed, steps=args.scramble_length)
+    start = scramble(env, seed=args.random_seed)
+    random.seed(args.random_seed)
     if args.macro_type == 'learned':
         env = load_learned_macros(env, args.problem_index)
         env.fix_problem_index(args.problem_index)
