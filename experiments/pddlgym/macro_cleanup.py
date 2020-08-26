@@ -29,9 +29,11 @@ def build_macro_operator(name, macro, primitive_operators, use_typing=False):
         operator = primitive_operators[action.predicate.name]
         binding = {param: '?'+var for (param, var) in zip(operator.params, action.pddl_variables())}
         typed_binding = {param: '?'+var for (param, var) in zip(operator.params, action.pddl_variables_typed())}
+
         for param in operator.params:
             params.add(binding[param])
             typed_params.add(typed_binding[param])
+
         for literal in operator.preconds.literals:
             bound_literal = bind_literal(literal, binding, use_typing=use_typing)
             if bound_literal.inverted_anti in net_effects:
@@ -42,7 +44,17 @@ def build_macro_operator(name, macro, primitive_operators, use_typing=False):
                 raise RuntimeError(msg)
             if bound_literal not in net_effects and bound_literal not in net_preconds:
                 net_preconds.add(bound_literal)
-        for literal in operator.effects.literals:
+
+        # clean operator effects:
+        #   keep [(A)] -> [(A)]
+        #   keep [(not A)] -> [(not A)]
+        #   convert [(not A), (A)] -> [(A)]
+        effect_literals = [
+            literal for literal in operator.effects.literals
+            if not literal.is_anti or (literal.inverted_anti not in operator.effects.literals)
+        ]
+
+        for literal in effect_literals:
             bound_literal = bind_literal(literal, binding)
             if bound_literal.inverted_anti in net_effects:
                 net_effects.remove(bound_literal.inverted_anti)
@@ -103,7 +115,7 @@ def main():
     macro_dir = env._domain_file.split('.')[0]+'/macros/'
     os.makedirs(macro_dir, exist_ok=True)
     problem_filename = env.problems[args.problem_index].problem_fname.split('/')[-1]
-    macro_file = macro_dir+problem_filename
+    macro_file = macro_dir+problem_filename+"_clean"
     with open(macro_file, 'w') as file:
         file.write(header+body+footer)
     print('Wrote macro-augmented domain to file: {}'.format(macro_file))
