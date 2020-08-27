@@ -1,0 +1,3 @@
+[submodule "pddlgym"]
+	path = pddlgym
+	url = ./pddlgym/
