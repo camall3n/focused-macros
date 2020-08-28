@@ -14,6 +14,7 @@ import seaborn as sns
 import experiments.cube.plot_config as cube_cfg
 import experiments.npuzzle.plot_config as npuzzle_cfg
 import experiments.suitcaselock.plot_config as suitcaselock_cfg
+import experiments.pddlgym.plot_config as pddlgym_cfg
 
 def parse_args():
     """Parse input arguments
@@ -23,8 +24,12 @@ def parse_args():
     if 'ipykernel' in sys.argv[0]:
         sys.argv = [sys.argv[0]] + 'suitcaselock'.split(' ')
     parser = argparse.ArgumentParser()
-    parser.add_argument('name', type=str, choices=['cube', 'npuzzle', 'suitcaselock'],
+    parser.add_argument('name', type=str, choices=['cube', 'npuzzle', 'suitcaselock', 'pddlgym'],
                         help='Name of experiment to plot')
+    parser.add_argument('--pddl_env', type=str, required=False,
+                        help='Name of pddl environment (used with PDDLGym)')
+    parser.add_argument('--pddl_problem_id', type=int, required=False,
+                        help='ID of pddl problem (used with PDDLGym)')
     parser.add_argument('--alg', type=str, default='gbfs',
                         choices=['gbfs', 'astar', 'weighted_astar', 'bfws'],
                         help='Search algorithm')
@@ -58,7 +63,7 @@ def parse_filepath(path, field_names, prefix):
 
     parsed_sections = []
     for text, field in zip (filename_sections, field_names):
-        if field in ['alg', 'goal_type', 'macro_type']:
+        if field in ['alg', 'goal_type', 'macro_type', 'pddl_env']:
             parsed_sections.append(text)
         elif field == 'puzzle_size':
             text = text.split('-')[0]
@@ -66,13 +71,13 @@ def parse_filepath(path, field_names, prefix):
         elif field == 'seed':
             text = text.split('.')[0].split('-')[-1]
             parsed_sections.append(int(text))
-        elif field in ['n_vars', 'n_values', 'entanglement']:
+        elif field in ['n_vars', 'n_values', 'entanglement', 'problem_id']:
             text = text.split('-')[-1]
             parsed_sections.append(int(text))
 
     return namedtuple('MetaData', field_names)(*parsed_sections)
 
-def load_data(alg):
+def load_data(alg, pddl_env=None, pddl_problem_id=None):
     """Load all data in RESULTS_DIR matching the specified algorithm"""
     result_files = sorted(glob.glob(RESULTS_DIR+'/**', recursive=True))
 
@@ -80,10 +85,16 @@ def load_data(alg):
     # macro_data = []
     final_results = []
     for filepath in result_files:
-        if not os.path.isfile(filepath):
+        if not os.path.isfile(filepath) or os.path.splitext(filepath)[-1] != '.pickle':
+            continue
+        if 'archive' in filepath:
             continue
         metadata = parse_filepath(filepath, cfg.FIELDS, prefix=RESULTS_DIR)
         if metadata.alg != alg:
+            continue
+        if pddl_env is not None and metadata.pddl_env != pddl_env:
+            continue
+        if pddl_problem_id is not None and metadata.problem_id != pddl_problem_id:
             continue
         with open(filepath, 'rb') as file:
             search_results = pickle.load(file)
@@ -176,14 +187,14 @@ def plot_learning_curves(data, plot_var_list, category):
     ax.legend(lines, names, framealpha=1, borderpad=0.7)
     ax.set_ylim(cfg.YLIM)
     ax.set_xlim(cfg.XLIM)
-    ax.set_xlabel('Simulator steps' + autoscale_xticks(ax))
+    ax.set_xlabel('Generated states' + autoscale_xticks(ax))
     ax.set_ylabel('Number of errors remaining')
     ax.set_axisbelow(False)
     # [i.set_linewidth(1) for i in ax.spines.values()]
     if cfg.HLINE:
         ax.hlines(cfg.HLINE, 0, cfg.TRANSITION_CAP, linestyles='dashed', linewidths=2)
     plt.savefig('results/plots/{}/{}_planning_curves_by_{}.png'.format(
-        cfg.NAME, cfg.NAME, category), dpi=100)
+        cfg.DIR, cfg.NAME, category), dpi=100)
     plt.show()
 
 
@@ -216,11 +227,11 @@ def plot_planning_boxes(data, plot_var_list, category):
     ax = plt.gca()
     ax.invert_yaxis()
     ax.set_yticklabels([])
-    ax.set_xlabel('Simulator steps' + autoscale_xticks(ax))
+    ax.set_xlabel('Generated states' + autoscale_xticks(ax))
     plt.tight_layout()
     ax.legend(handles, labels, loc='lower right')
     plt.gcf().savefig('results/plots/{}/{}_planning_time_by_{}.png'.format(
-        cfg.NAME, cfg.NAME, category), dpi=100)
+        cfg.DIR, cfg.NAME, category), dpi=100)
     plt.show()
 
 
@@ -235,18 +246,18 @@ def plot_entanglement_boxes(data):
     n_values = list(data['n_values'])[0]
 
     plt.xlabel('Variables modified per action')
-    ax.set_ylabel('Simulator steps')
+    ax.set_ylabel('Generated states')
     ax.set_yscale('linear')
-    ax.set_ylabel('Simulator steps' + autoscale_yticks(ax))
+    ax.set_ylabel('Generated states' + autoscale_yticks(ax))
     plt.tight_layout()
     plt.savefig('results/plots/{}/{}_{}ary.png'.format(
-        cfg.NAME, cfg.NAME, n_values), dpi=100)
+        cfg.DIR, cfg.NAME, n_values), dpi=100)
     plt.show()
 
 
 def get_summary(results, category):
     """Print a summary of the planning results broken down for the specified category"""
-    summary = results.groupby([category], as_index=False).mean()
+    summary = results.groupby([category], as_index=False).mean().round(1)
     summary['solves'] = [len(results.query(category+'==@tag and n_errors==0'))
                          for tag in summary[category]]
     summary['attempts'] = [len(results.query(category+'==@tag')) for tag in summary[category]]
@@ -254,21 +265,29 @@ def get_summary(results, category):
 
 def make_plots():
     """Make the plots and print summaries"""
-    learning_curves, final_results = load_data(alg=args.alg)
-    os.makedirs('results/plots/'+cfg.NAME+'/', exist_ok=True)
+    learning_curves, final_results = load_data(alg=args.alg,
+                                               pddl_env=args.pddl_env,
+                                               pddl_problem_id=args.pddl_problem_id)
+    os.makedirs('results/plots/'+cfg.DIR+'/', exist_ok=True)
     if 'learning_curves' in cfg.PLOTS:
-        plot_learning_curves(learning_curves.query("goal_type=='default_goal'"),
-                             cfg.PLOT_VARS, category='macro_type')
+        try:
+            data = learning_curves.query("goal_type=='default_goal'")
+        except pd.core.computation.ops.UndefinedVariableError:
+            data = learning_curves
+        plot_learning_curves(data, cfg.PLOT_VARS, category='macro_type')
     if 'planning_boxes' in cfg.PLOTS:
-        plot_planning_boxes(final_results.query("goal_type=='default_goal'"),
-                            cfg.PLOT_VARS, category='macro_type')
+        try:
+            data = final_results.query("goal_type=='default_goal'")
+        except pd.core.computation.ops.UndefinedVariableError:
+            data = final_results
+        plot_planning_boxes(data, cfg.PLOT_VARS, category='macro_type')
 
     if 'alt_learning_curves' in cfg.PLOTS:
-        plot_learning_curves(learning_curves.query("macro_type=='learned'"),
-                             cfg.PLOT_VARS_ALT, category='goal_type')
+        data = learning_curves.query("macro_type=='learned'")
+        plot_learning_curves(data, cfg.PLOT_VARS_ALT, category='goal_type')
     if 'alt_planning_boxes' in cfg.PLOTS:
-        plot_planning_boxes(final_results.query("macro_type=='learned'"),
-                            cfg.PLOT_VARS_ALT, category='goal_type')
+        data = final_results.query("macro_type=='learned'")
+        plot_planning_boxes(data, cfg.PLOT_VARS_ALT, category='goal_type')
 
     if 'entanglement_boxes' in cfg.PLOTS:
         for plot_vars in cfg.PLOT_VARS: # pylint: disable=W0612
@@ -276,7 +295,10 @@ def make_plots():
 
     summary_text = []
     if any([summary_type == 'macro_type' for summary_type in cfg.SUMMARIES]):
-        results = final_results.query("goal_type=='default_goal'")
+        try:
+            results = final_results.query("goal_type=='default_goal'")
+        except pd.core.computation.ops.UndefinedVariableError:
+            results = final_results
         results = results[['macro_type', 'transitions', 'n_errors']]
         summary_text.append(get_summary(results, category='macro_type'))
 
@@ -288,7 +310,7 @@ def make_plots():
     if summary_text:
         summary_text = '\n\n'.join(summary_text)
         print(summary_text)
-        with open('results/plots/{}/{}_summary.txt'.format(cfg.NAME, cfg.NAME), 'w') as file:
+        with open('results/plots/{}/{}_summary.txt'.format(cfg.DIR, cfg.NAME), 'w') as file:
             file.write(summary_text)
 
 if __name__ == '__main__':
@@ -297,7 +319,11 @@ if __name__ == '__main__':
         'cube': cube_cfg,
         'npuzzle': npuzzle_cfg,
         'suitcaselock': suitcaselock_cfg,
+        'pddlgym': pddlgym_cfg,
     }[args.name]
 
     RESULTS_DIR = 'results/' + cfg.NAME + '/'
+    if args.name == 'pddlgym':
+        cfg.DIR = cfg.DIR.format(args.pddl_env)
+        cfg.NAME = args.pddl_env
     make_plots()

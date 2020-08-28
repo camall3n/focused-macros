@@ -5,6 +5,7 @@ import numpy as np
 from domains.cube import pattern
 
 NAME = 'cube'
+DIR = NAME
 PLOTS = ['learning_curves', 'alt_learning_curves', 'alt_planning_boxes']
 SUMMARIES = ['macro_type', 'goal_type']
 FIELDS = 'alg', 'goal_type', 'macro_type', 'seed'

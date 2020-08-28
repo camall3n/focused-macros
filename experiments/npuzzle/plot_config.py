@@ -3,6 +3,7 @@ from collections import namedtuple
 import numpy as np
 
 NAME = 'npuzzle'
+DIR = NAME
 PLOTS = ['learning_curves', 'planning_boxes']
 SUMMARIES = ['macro_type', 'goal_type']
 FIELDS = 'alg', 'puzzle_size', 'goal_type', 'macro_type', 'seed'

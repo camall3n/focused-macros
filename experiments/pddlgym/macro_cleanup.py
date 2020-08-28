@@ -115,7 +115,7 @@ def main():
     macro_dir = env._domain_file.split('.')[0]+'/macros/'
     os.makedirs(macro_dir, exist_ok=True)
     problem_filename = env.problems[args.problem_index].problem_fname.split('/')[-1]
-    macro_file = macro_dir+problem_filename+"_clean"
+    macro_file = macro_dir+problem_filename
     with open(macro_file, 'w') as file:
         file.write(header+body+footer)
     print('Wrote macro-augmented domain to file: {}'.format(macro_file))

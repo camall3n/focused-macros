@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 NAME = 'suitcaselock'
+DIR = NAME
 PLOTS = ['entanglement_boxes']
 SUMMARIES = []
 FIELDS = 'alg', 'n_vars', 'n_values', 'entanglement', 'seed'
