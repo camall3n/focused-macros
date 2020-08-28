@@ -63,6 +63,7 @@ def solve():
     env._render = None
     env.seed(args.random_seed)
 
+    env.reset()
     env.set_state(start)
     goal = start.goal
     assert isinstance(goal, LiteralConjunction)
