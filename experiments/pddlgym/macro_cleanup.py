@@ -20,15 +20,31 @@ def bind_literal(literal, binding, use_typing=False):
     new_vars = [TypedEntity(binding[var], var.var_type) for var in literal.variables]
     return Literal(predicate, new_vars)
 
+def var_generator(prefix='var'):
+    i = 0
+    while True:
+        yield prefix+'{:04d}'.format(i)
+        i += 1
+
+def equal_operators(op1, op2):
+    return op1.params == op2.params and op1.effects == op2.effects and op1.preconds == op2.preconds
+
 def build_macro_operator(name, macro, primitive_operators, use_typing=False):
     params = set()
     typed_params = set()
     net_preconds = set()
     net_effects = set()
+    var_name_gen = var_generator(prefix='var')
+    lifted = {}
     for step, action in enumerate(macro):
+        grounded_var_names = action.pddl_variables()
+        var_types = action.predicate.var_types
+        lifted.update({name: next(var_name_gen) for name in grounded_var_names if name not in lifted})
+        lifted_var_names = [lifted[name] for name in grounded_var_names]
+
         operator = primitive_operators[action.predicate.name]
-        binding = {param: '?'+var for (param, var) in zip(operator.params, action.pddl_variables())}
-        typed_binding = {param: '?'+var for (param, var) in zip(operator.params, action.pddl_variables_typed())}
+        binding = {param: '?'+var for (param, var) in zip(operator.params, lifted_var_names)}
+        typed_binding = {param: '?'+var+' - '+type_ for (param, var, type_) in zip(operator.params, lifted_var_names, var_types)}
 
         for param in operator.params:
             params.add(binding[param])
@@ -96,13 +112,18 @@ def main():
     operators = env.action_space._action_predicate_to_operators
     start, _ = env.reset()
 
+    # Generate unique macros
     macros = []
-    for macro_id, macro in enumerate(raw_macros[:args.n]):
-        macro_name = 'macro{:04d}'.format(macro_id)
+    for macro in raw_macros:
+        macro_name = 'macro{:04d}'.format(len(macros))
         macro_operator = build_macro_operator(macro_name, macro,
                                               primitive_operators=operators,
                                               use_typing=env.domain.uses_typing)
-        macros.append(macro_operator)
+        if not any([equal_operators(macro_operator, m) for m in macros]):
+            macros.append(macro_operator)
+
+    # Only save the best N macros
+    macros = macros[:args.n]
 
     with open(env._domain_file, 'r') as file:
         domain_pddl = file.read()
