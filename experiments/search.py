@@ -113,15 +113,15 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
     with tqdm(total=max_transitions, disable=quiet) as progress:
         while open_set and n_transitions < max_transitions:
             _, current = open_set.pop()
+            if current.state in closed_set:
+                continue  # Node already in closed set; ignore it
+            closed_set.add(current.state)
+
             n_expanded += 1
             if is_goal(current):
                 candidates.append((n_transitions, current))
                 # Found goal! Reconstructing path...
                 return reconstruct_path(current) + (n_expanded, n_transitions, candidates)
-
-            if current.state in closed_set:
-                continue  # Node already in closed set; ignore it
-            closed_set.add(current.state)
 
             if (current.h_score < best.h_score
                     or (current.h_score == best.h_score
