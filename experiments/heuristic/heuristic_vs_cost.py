@@ -68,25 +68,25 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', type=int, default=6, help='Number of dials')
     parser.add_argument('-v', type=int, default=2, help='Number of digits per dial')
-    parser.add_argument('--n_trials', type=int, default=10, help='Number of trials per effect size')
+    parser.add_argument('-k', type=int, default=1, help='Average effect size')
+    parser.add_argument('--seed', '-s', type=int, default=1, help='Random seed')
     args = parser.parse_args()
 
     n = args.n
     v = args.v
+    k = args.k
+    assert 1 <= k < n
+    seed = args.seed
 
     results_dir = 'results/heuristic/lock_{}x{}ary/'.format(n, v)
     os.makedirs(results_dir, exist_ok=True)
 
-    n_trials = args.n_trials
-    data = []
-    for k in range(1,n):
-        for seed in range(n_trials):
-            np.random.seed(seed)
-            lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
-            D = compute_cost_matrix(lock, n, v, k)
-            H = compute_heuristic_matrix(lock, n, v, k)
-            data = pd.DataFrame([{'n_dials': n, 'n_values': v, 'k': k, 'distance': d, 'heuristic': h, 'seed': seed}
-                         for d, h in zip(D.flatten(), H.flatten())])
-            results_file = results_dir+'k-{:02d}_seed-{:03d}.csv'.format(k, seed)
-            data.to_csv(results_file, index=False)
-            print('Results saved to', results_file)
+    np.random.seed(seed)
+    lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
+    D = compute_cost_matrix(lock, n, v, k)
+    H = compute_heuristic_matrix(lock, n, v, k)
+    data = pd.DataFrame([{'n_dials': n, 'n_values': v, 'k': k, 'distance': d, 'heuristic': h, 'seed': seed}
+                    for d, h in zip(D.flatten(), H.flatten())])
+    results_file = results_dir+'k-{:02d}_seed-{:03d}.csv'.format(k, seed)
+    data.to_csv(results_file, index=False)
+    print('Results saved to', results_file)
