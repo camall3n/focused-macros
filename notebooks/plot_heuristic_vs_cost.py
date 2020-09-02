@@ -11,8 +11,7 @@ from tqdm import tqdm
 
 from domains.suitcaselock import SuitcaseLock
 
-def compute_cost_matrix(n=6, v=4, k=1):
-    lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
+def compute_cost_matrix(lock, n=6, v=4, k=1):
     actions = lock.actions()[:n]
 
     # Compute the adjacency matrix
@@ -50,8 +49,7 @@ def compute_cost_matrix(n=6, v=4, k=1):
     distance_matrix = np.sum(np.stack(path_length), 0)
     return distance_matrix
 
-def compute_heuristic_matrix(n=6, v=2, k=1):
-    lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
+def compute_heuristic_matrix(lock, n=6, v=2, k=1):
     n_states = v**n
 
     # Compute the goal-count heuristic from i to j
@@ -78,8 +76,9 @@ if __name__ == '__main__':
     data = []
     for k in tqdm(range(1,n)):
         for trial in tqdm(range(n_trials)):
-            D = compute_cost_matrix(n, v, k)
-            H = compute_heuristic_matrix(n, v, k)
+            lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
+            D = compute_cost_matrix(lock, n, v, k)
+            H = compute_heuristic_matrix(lock, n, v, k)
             data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial}
                          for d, h in zip(D.flatten(), H.flatten())])
     data = pd.DataFrame(data)
