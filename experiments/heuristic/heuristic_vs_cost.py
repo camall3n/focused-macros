@@ -2,6 +2,7 @@
 
 import argparse
 import copy
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -82,19 +83,9 @@ if __name__ == '__main__':
             data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial}
                          for d, h in zip(D.flatten(), H.flatten())])
     data = pd.DataFrame(data)
+    results_dir = 'results/heuristic/'
+    os.makedirs(results_dir, exist_ok=True)
+    results_file = results_dir+'data_{}x{}ary.csv'.format(n, v)
+    data.to_csv(results_file)
     print()
-
-    base_filename = 'results/plots/suitcaselock_heuristic_vs_true_distance_{}x{}ary'.format(n,v)
-
-    fig, ax = plt.subplots(figsize=(8,6))
-    sns.pointplot(data=data, x='distance', y='heuristic', hue='k', ci='sd', dodge=0.25)
-    plt.savefig(base_filename+'.png')
-    plt.show()
-
-    with open(base_filename+'.txt', 'w') as file:
-        file.write('k,corr\n')
-        print('k','corr')
-        for i in range(1,n):
-            s = '{},{:0.2f}\n'.format(i, data.query('k==@i')['distance'].corr(data['heuristic']).round(2))
-            file.write(s)
-            print(s.replace(',', ' ').replace('\n',''))
+    print('Results saved to', results_file)
