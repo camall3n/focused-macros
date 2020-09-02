@@ -27,7 +27,7 @@ if __name__ == "__main__":
     base_filename = 'results/plots/suitcaselock_heuristic_vs_true_distance_{}x{}ary'.format(n,v)
 
     fig, ax = plt.subplots(figsize=(8,6))
-    sns.pointplot(data=data, x='distance', y='heuristic', hue='k', ci='sd', dodge=0.25)
+    sns.pointplot(data=data, x='distance', y='heuristic', hue='k', ci=95, dodge=0.25)
     plt.savefig(base_filename+'.png')
     plt.show()
 
