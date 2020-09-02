@@ -73,19 +73,20 @@ if __name__ == '__main__':
 
     n = args.n
     v = args.v
+
+    results_dir = 'results/heuristic/lock_{}x{}ary/'.format(n, v)
+    os.makedirs(results_dir, exist_ok=True)
+
     n_trials = args.n_trials
     data = []
-    for k in tqdm(range(1,n)):
-        for trial in tqdm(range(n_trials)):
+    for k in range(1,n):
+        for seed in range(n_trials):
+            np.random.seed(seed)
             lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
             D = compute_cost_matrix(lock, n, v, k)
             H = compute_heuristic_matrix(lock, n, v, k)
-            data.extend([{'distance': d, 'heuristic': h, 'k': k, 'trial': trial}
+            data = pd.DataFrame([{'n_dials': n, 'n_values': v, 'k': k, 'distance': d, 'heuristic': h, 'seed': seed}
                          for d, h in zip(D.flatten(), H.flatten())])
-    data = pd.DataFrame(data)
-    results_dir = 'results/heuristic/'
-    os.makedirs(results_dir, exist_ok=True)
-    results_file = results_dir+'data_{}x{}ary.csv'.format(n, v)
-    data.to_csv(results_file)
-    print()
-    print('Results saved to', results_file)
+            results_file = results_dir+'k-{:02d}_seed-{:03d}.csv'.format(k, seed)
+            data.to_csv(results_file, index=False)
+            print('Results saved to', results_file)

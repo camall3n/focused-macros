@@ -1,4 +1,5 @@
 import argparse
+import glob
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,8 +17,12 @@ if __name__ == "__main__":
     n = args.n
     v = args.v
 
-    results_file = 'results/heuristic/data_{}x{}ary.csv'.format(n, v)
-    data = pd.read_csv(results_file)
+    results_dir = 'results/heuristic/lock_{}x{}ary/'.format(n, v)
+    results_files = glob.glob(results_dir+'*.csv')
+    data = []
+    for results_file in results_files:
+        data.append(pd.read_csv(results_file))
+    data = pd.concat(data)
 
     base_filename = 'results/plots/suitcaselock_heuristic_vs_true_distance_{}x{}ary'.format(n,v)
 
