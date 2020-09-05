@@ -37,7 +37,7 @@ def parse_args():
                         help='Generate a random goal instead of the default solve configuration')
     parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
                         help='Maximum number of state transitions')
-    parser.add_argument('--bfws_precision', type=int, default=2,
+    parser.add_argument('--bfws_precision', type=int, default=3,
                         help='The number of width values, w \in {1,...,P}, to use when the search algorithm is best-first width search')
     return parser.parse_args()
 
@@ -109,7 +109,7 @@ def solve():
         gh_weights = (args.g_weight, args.h_weight)
         search_dict['gh_weights'] = gh_weights
 
-    if args.search_alg in ['bfws_r0', 'bfws_rg']:
+    if 'bfws' in args.search_alg:
         search_dict['precision'] = args.bfws_precision
     if args.search_alg == 'bfws_rg':
         goal_fns = [(lambda x, i=i: x.state[i] == goal[i]) for i, _ in enumerate(goal)]

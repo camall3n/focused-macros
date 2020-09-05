@@ -12,7 +12,7 @@ from pddlgym.structs import LiteralConjunction
 from pddlgym.utils import VideoWrapper
 
 # from domains.npuzzle import NPuzzle, macros
-from experiments import search
+from experiments import search, bfws
 from domains.pddlgym.macros import load_learned_macros
 from domains.pddlgym.pddlgymenv import scramble
 
@@ -34,7 +34,7 @@ def parse_args():
                         choices=['primitive', 'learned'],
                         help='Type of macro_list to consider during search')
     parser.add_argument('--search_alg', type=str, default='gbfs',
-                        choices = ['astar', 'gbfs', 'weighted_astar', 'bfws'],
+                        choices = ['astar', 'gbfs', 'weighted_astar', 'bfws_r0', 'bfws_rg'],
                         help='Search algorithm to run')
     parser.add_argument('--g_weight', type=float, default=None,
                         help='Weight for g-score in weighted A*')
@@ -42,10 +42,8 @@ def parse_args():
                         help='Weight for h-score in weighted A*')
     parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
                         help='Maximum number of state transitions')
-    parser.add_argument('--bfws_precision', type=int, default=2,
+    parser.add_argument('--bfws_precision', type=int, default=3,
                         help='The number of width values, w \in {1,...,P}, to use when the search algorithm is best-first width search')
-    parser.add_argument('--render', action='store_true', dest='render',
-                        help='Whether to save the resulting video')
     return parser.parse_args()
 
 def solve():
@@ -78,7 +76,8 @@ def solve():
         'astar': search.astar,
         'gbfs': search.gbfs,
         'weighted_astar': search.weighted_astar,
-        'bfws': search.bfws,
+        'bfws_r0': bfws.bfws,
+        'bfws_rg': bfws.bfws,
     }[args.search_alg]
 
     def restore_state(state):
@@ -108,9 +107,17 @@ def solve():
                 and args.h_weight is not None), 'Must specify weights if using weighted A*.'
         gh_weights = (args.g_weight, args.h_weight)
         search_dict['gh_weights'] = gh_weights
-    elif args.search_alg == 'bfws':
-        search_dict['bfws'] = True
-        search_dict['bfws_precision'] = args.bfws_precision
+
+    if 'bfws' in args.search_alg:
+        search_dict['precision'] = args.bfws_precision
+    if args.search_alg == 'bfws_rg':
+        goal_fns = [(lambda x, i=i: x.state[i] == goal[i]) for i, _ in enumerate(goal)]
+        relevant_atoms = iw.iw(1, start, get_successors, goal_fns)
+        if not relevant_atoms:
+            relevant_atoms = iw.iw(2, start, get_successors, goal_fns)
+        if not relevant_atoms:
+            relevant_atoms = start.all_atoms()
+        search_dict['R'] = relevant_atoms
 
     #%% Run the search
     search_results = search_fn(**search_dict)
@@ -125,18 +132,6 @@ def solve():
 
     plan = search_results[1]
     print("Plan length:", len(plan))
-    if args.render:
-        env._render = render_fn
-        env.set_state(start)
-        video_path = os.path.join(results_dir+'seed-{:03d}.mp4'.format(args.random_seed))
-        env = VideoWrapper(env, video_path, fps=3)
-        env.seed(args.random_seed)
-        obs = env.reset()
-        env.render()
-        for macro in plan:
-            for action in macro:
-                env.step(action)
-                env.render()
     env.close()
 
 if __name__ == '__main__':

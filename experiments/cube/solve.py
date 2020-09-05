@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 from domains import cube
 from domains.cube import macros, pattern
-from experiments import search
+from experiments import search, bfws
 
 
 def parse_args():
@@ -24,7 +24,7 @@ def parse_args():
                         choices=['primitive','expert','random','learned'],
                         help='Type of macros to consider during search')
     parser.add_argument('--search_alg', type=str, default='gbfs',
-                        choices=['astar','gbfs','weighted_astar', 'bfws'],
+                        choices=['astar','gbfs','weighted_astar', 'bfws_r0', 'bfws_rg'],
                         help='Search algorithm to run')
     parser.add_argument('--cost_mode', type=str, default='per-macro',
                         choices=['per-macro','per-action'],
@@ -37,7 +37,7 @@ def parse_args():
                         help='Generate a random goal instead of the default solve configuration')
     parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
                         help='Maximum number of variables changed per primitive action')
-    parser.add_argument('--bfws_precision', type=int, default=2,
+    parser.add_argument('--bfws_precision', type=int, default=3,
                         help='The number of width values, w \in {1,...,P}, to use when the search algorithm is best-first width search')
     return parser.parse_args()
 
@@ -78,7 +78,8 @@ def solve():
         'astar': search.astar,
         'gbfs': search.gbfs,
         'weighted_astar': search.weighted_astar,
-        'bfws': search.bfws,
+        'bfws_r0': bfws.bfws,
+        'bfws_rg': bfws.bfws,
     }[args.search_alg]
 
     def get_successors(cube_):
@@ -99,9 +100,17 @@ def solve():
                 and args.h_weight is not None), 'Must specify weights if using weighted A*.'
         gh_weights = (args.g_weight, args.h_weight)
         search_dict['gh_weights'] = gh_weights
-    elif args.search_alg == 'bfws':
-        search_dict['bfws'] = True
-        search_dict['bfws_precision'] = args.bfws_precision
+
+    if 'bfws' in args.search_alg:
+        search_dict['precision'] = args.bfws_precision
+    if args.search_alg == 'bfws_rg':
+        goal_fns = [(lambda x, i=i: x.state[i] == goal[i]) for i, _ in enumerate(goal)]
+        relevant_atoms = iw.iw(1, start, get_successors, goal_fns)
+        if not relevant_atoms:
+            relevant_atoms = iw.iw(2, start, get_successors, goal_fns)
+        if not relevant_atoms:
+            relevant_atoms = start.all_atoms()
+        search_dict['R'] = relevant_atoms
 
     #%% Run the search
     search_results = search_fn(**search_dict)
