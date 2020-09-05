@@ -1,5 +1,6 @@
 from collections import defaultdict
 from collections.abc import Iterable
+from inspect import signature
 
 from tqdm import tqdm
 import numpy as np
@@ -55,6 +56,23 @@ def reconstruct_path(node):
         node = node.parent
     return list(reversed(states)), list(reversed(actions))
 
+def get_unique_atoms(states):
+    unique_states = sorted(list(set(states)), key=lambda x: tuple(list(x)))
+    unique_atoms = set([])
+    for state in unique_states:
+        for pos, val in enumerate(state):
+            unique_atoms.add((pos,val))
+    return unique_atoms
+
+def atoms_in_path(node, any_h=False):
+    """Get the set of atoms in the search path, working backwards from the specified
+       node. If any_h=False, stop once a node with a higher h-score is reached."""
+    states = [node.state]
+    while node.parent and (any_h or node.parent.h_score <= node.h_score):
+        states.append(node.parent.state)
+        node = node.parent
+    return get_unique_atoms(states)
+
 def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
                     max_transitions=0, save_best_n=1, quiet=False, gh_weights=(1,1),
                     bfws=False, bfws_precision=2):
@@ -87,10 +105,6 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
             Whether to suppress progress bars
         gh_weights (tuple):
             Tuple of weights (g_weight, h_weight) for weighted A*
-        bfws (bool):
-            Whether to wrap the heuristic and use best-first width search, i.e. h -> (w,h)
-        bfws_precision (int):
-            The number of width values, w \in {1,...,P}, to use with BFWS (when `bfws` is True)
     """
     n_expanded = 0
     n_transitions = 0
@@ -98,11 +112,12 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
     closed_set = set()
     g_score = defaultdict(lambda: float('inf'))
     g_score[start] = 0
-    if bfws:
-        heuristic = WidthAugmentedHeuristic(n_variables=len(start),
-                                            heuristic=heuristic,
-                                            precision=bfws_precision)
-    root = SearchNode(state=start, g_score=0, h_score=heuristic(start), parent=None, action=None)
+    n_heuristic_params = len(signature(heuristic).parameters)
+    if n_heuristic_params == 1:
+        heuristic_fn = lambda x, R: heuristic(x)
+    else:
+        heuristic_fn = lambda x, R: heuristic(x, R)
+    root = SearchNode(state=start, g_score=0, h_score=heuristic_fn(start, set([])), parent=None, action=None)
     _ = heuristic(start) # mark start state as seen by novelty function, if using
 
     # Adding root to open set
@@ -153,8 +168,9 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
                     # wait for them to be pulled out in due time. Duplicates will be
                     # ignored anyway after the first instance of `state` is added to
                     # `closed_set`.
+                    atoms = atoms_in_path(current)
                     neighbor = SearchNode(state=state, g_score=g_score[state],
-                                          h_score=heuristic(state), gh_weights=gh_weights,
+                                          h_score=heuristic_fn(state, atoms), gh_weights=gh_weights,
                                           parent=current, action=action)
                     if is_goal(neighbor):
                         candidates.append((n_transitions, neighbor))
@@ -190,6 +206,3 @@ def dijkstra(*args, **kwargs):
 def gbfs(*args, **kwargs):
     """Greedy best-first search (GBFS)"""
     return weighted_astar(*args, gh_weights=(0,1), **kwargs)
-
-def bfws(*args, **kwargs):
-    return gbfs(*args, **kwargs)

@@ -2,13 +2,14 @@ from collections import defaultdict
 import unittest
 
 class WidthAugmentedHeuristic:
-    def __init__(self, n_variables, heuristic, precision=2):
+    def __init__(self, n_variables, heuristic, R=set([]), precision=2):
         if precision < 2:
             raise ValueError('precision must be >= 2')
         if precision > 4:
             raise NotImplementedError('precision > 4 not yet supported')
         self.n_variables = n_variables
         self.heuristic = heuristic
+        self.R = R
         self.precision = precision
 
         self.history = dict()
@@ -22,10 +23,11 @@ class WidthAugmentedHeuristic:
                 for k in range(j+1, self.n_variables):
                     self.history[3][(i,j,k)] = defaultdict(set)
 
-    def __call__(self, x):
+    def __call__(self, x, atoms=set([])):
         h = self.heuristic(x)
-        w = self.get_width(x, h)
-        self.record(x, h)
+        r = 0 if not self.R else len(atoms.intersection(self.R))
+        w = self.get_width(x, (r, h))
+        self.record(x, (r, h))
         return w, h
 
     def record(self, x, h):
@@ -58,7 +60,9 @@ class WidthAugmentedHeuristic:
                 for k in range(j+1, self.n_variables):
                     if (x[i], x[j], x[k]) not in self.history[3][(i,j,k)][h]:
                         return 3
-        return 4
+        if self.precision == 4:
+            return 4
+        raise NotImplementedError
 
 class TestWidthAugmentedHeuristic(unittest.TestCase):
     def test_fixed_h(self):

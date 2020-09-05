@@ -34,6 +34,13 @@ class NPuzzle:
         for v in values:
             yield self.labels[v]
 
+    def all_atoms(self):
+        atoms = set([])
+        for pos, _ in enumerate(self):
+            for _, val in enumerate(self.labels):
+                atoms.add((pos, val))
+        return atoms
+
     def actions(self):
         """Return a list of actions for the current state"""
         directions = [self.above, self.below, self.left, self.right]

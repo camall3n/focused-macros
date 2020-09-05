@@ -1,5 +1,5 @@
 from collections import deque
-from experiments.search import SearchNode, reconstruct_path
+from experiments.search import SearchNode, reconstruct_path, get_unique_atoms
 from experiments.width import WidthAugmentedHeuristic
 
 def iw(k, start, get_successors, goal_fns):
@@ -58,20 +58,14 @@ def iw(k, start, get_successors, goal_fns):
                 open_queue.append(neighbor)
     else:
         # At least one goal_fn was not satisfied
-        print(n_transitions)
-        print(sum([1 if g is not None else 0 for g in goal_nodes]))
-        return []
-
-    print(n_transitions)
-    print(sum([1 if g is not None else 0 for g in goal_nodes]))
+        return set([])
 
     # All goal_fns were satisfied!
     goal_paths = [reconstruct_path(g) for g in goal_nodes]
     trajectories = [states for (states, actions) in goal_paths]
     visited_states = [state for trajectory in trajectories for state in trajectory]
-    unique_visited_states = sorted(list(set(visited_states)), key=lambda x: tuple(list(x)))
-
-    return unique_visited_states
+    relevant_atoms = get_unique_atoms(visited_states)
+    return relevant_atoms
 
 if __name__ == "__main__":
     from domains.npuzzle.npuzzle import NPuzzle

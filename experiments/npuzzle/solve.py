@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from domains.npuzzle import NPuzzle, macros
-from experiments import search, iw
+from experiments import search, iw, bfws
 
 def parse_args():
     """Parse input arguments
@@ -80,8 +80,8 @@ def solve():
         'astar': search.astar,
         'gbfs': search.gbfs,
         'weighted_astar': search.weighted_astar,
-        'bfws': search.bfws,
-        'bfwsr': search.bfws,
+        'bfws': bfws.bfws,
+        'bfwsr': bfws.bfwsr,
     }[args.search_alg]
 
     def get_successors(puz):
@@ -108,19 +108,17 @@ def solve():
                 and args.h_weight is not None), 'Must specify weights if using weighted A*.'
         gh_weights = (args.g_weight, args.h_weight)
         search_dict['gh_weights'] = gh_weights
-    elif args.search_alg == 'bfws':
-        search_dict['bfws'] = True
-        search_dict['bfws_precision'] = args.bfws_precision
 
+    if args.search_alg in ['bfws', 'bfwsr']:
+        search_dict['precision'] = args.bfws_precision
     if args.search_alg == 'bfwsr':
         goal_fns = [(lambda x, i=i: x.state[i] == goal[i]) for i, _ in enumerate(goal)]
-        relevant_states = iw.iw(1, start, get_successors, goal_fns)
-        if not relevant_states:
-            relevant_states = iw.iw(2, start, get_successors, goal_fns)
-        if not relevant_states:
-            print('Warning. Should do fallback with R_A.')
-        assert False
-
+        relevant_atoms = iw.iw(1, start, get_successors, goal_fns)
+        if not relevant_atoms:
+            relevant_atoms = iw.iw(2, start, get_successors, goal_fns)
+        if not relevant_atoms:
+            relevant_atoms = start.all_atoms()
+        search_dict['R'] = relevant_atoms
 
     #%% Run the search
     search_results = search_fn(**search_dict)
