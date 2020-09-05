@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from domains.npuzzle import NPuzzle, macros
-from experiments import search
+from experiments import search, iw
 
 def parse_args():
     """Parse input arguments
@@ -27,7 +27,7 @@ def parse_args():
                         choices=['primitive','random','learned'],
                         help='Type of macro_list to consider during search')
     parser.add_argument('--search_alg', type=str, default='gbfs',
-                        choices = ['astar', 'gbfs', 'weighted_astar','bfws'],
+                        choices = ['astar', 'gbfs', 'weighted_astar','bfws', 'bfwsr'],
                         help='Search algorithm to run')
     parser.add_argument('--g_weight', type=float, default=None,
                         help='Weight for g-score in weighted A*')
@@ -81,6 +81,7 @@ def solve():
         'gbfs': search.gbfs,
         'weighted_astar': search.weighted_astar,
         'bfws': search.bfws,
+        'bfwsr': search.bfws,
     }[args.search_alg]
 
     def get_successors(puz):
@@ -110,6 +111,16 @@ def solve():
     elif args.search_alg == 'bfws':
         search_dict['bfws'] = True
         search_dict['bfws_precision'] = args.bfws_precision
+
+    if args.search_alg == 'bfwsr':
+        goal_fns = [(lambda x, i=i: x.state[i] == goal[i]) for i, _ in enumerate(goal)]
+        relevant_states = iw.iw(1, start, get_successors, goal_fns)
+        if not relevant_states:
+            relevant_states = iw.iw(2, start, get_successors, goal_fns)
+        if not relevant_states:
+            print('Warning. Should do fallback with R_A.')
+        assert False
+
 
     #%% Run the search
     search_results = search_fn(**search_dict)
