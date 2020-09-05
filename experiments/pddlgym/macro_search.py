@@ -13,7 +13,7 @@ from experiments import search
 
 
 def main():
-    """Run A* to find macros for the specified N-Puzzle
+    """Run best-first-search to find macros for the specified PDDLGym domain
 
     Use --help to see a pretty description of the arguments
     """
