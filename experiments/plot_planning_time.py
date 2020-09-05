@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('--pddl_problem_id', type=int, required=False,
                         help='ID of pddl problem (used with PDDLGym)')
     parser.add_argument('--alg', type=str, default='gbfs',
-                        choices=['gbfs', 'astar', 'weighted_astar', 'bfws'],
+                        choices=['gbfs', 'astar', 'weighted_astar', 'bfws', 'bfwsr'],
                         help='Search algorithm')
     return parser.parse_args()
 
@@ -103,7 +103,7 @@ def load_data(alg, pddl_env=None, pddl_problem_id=None):
         n_errors = cfg.heuristic(states[-1], goal)
 
         sim_steps = [transitions for transitions, node in candidates]
-        if metadata.alg != 'bfws':
+        if metadata.alg not in ['bfws','bfwsr']:
             h_scores = [node.h_score for transitions, node in candidates]
         else:
             h_scores = [node.h_score[1] for transitions, node in candidates]
