@@ -53,8 +53,8 @@ def iw(k, start, get_successors, goal_fns):
 
             if state not in seen_set:
                 seen_set.add(state)
-                neighbor = SearchNode(state=state, g_score=0, h_score=0, gh_weights=(0,0),
-                    parent=current, action=action)
+                neighbor = SearchNode(state=state, g_score=0, h_score=0,
+                                      parent=current, action=action)
                 open_queue.append(neighbor)
     else:
         # At least one goal_fn was not satisfied

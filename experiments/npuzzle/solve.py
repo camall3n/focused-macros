@@ -27,7 +27,7 @@ def parse_args():
                         choices=['primitive','random','learned'],
                         help='Type of macro_list to consider during search')
     parser.add_argument('--search_alg', type=str, default='gbfs',
-                        choices = ['astar', 'gbfs', 'weighted_astar','bfws', 'bfwsr'],
+                        choices = ['astar', 'gbfs', 'weighted_astar','bfws_r0', 'bfws_rg'],
                         help='Search algorithm to run')
     parser.add_argument('--g_weight', type=float, default=None,
                         help='Weight for g-score in weighted A*')
@@ -80,8 +80,8 @@ def solve():
         'astar': search.astar,
         'gbfs': search.gbfs,
         'weighted_astar': search.weighted_astar,
-        'bfws': bfws.bfws,
-        'bfwsr': bfws.bfwsr,
+        'bfws_r0': bfws.bfws,
+        'bfws_rg': bfws.bfws,
     }[args.search_alg]
 
     def get_successors(puz):
@@ -109,9 +109,9 @@ def solve():
         gh_weights = (args.g_weight, args.h_weight)
         search_dict['gh_weights'] = gh_weights
 
-    if args.search_alg in ['bfws', 'bfwsr']:
+    if args.search_alg in ['bfws_r0', 'bfws_rg']:
         search_dict['precision'] = args.bfws_precision
-    if args.search_alg == 'bfwsr':
+    if args.search_alg == 'bfws_rg':
         goal_fns = [(lambda x, i=i: x.state[i] == goal[i]) for i, _ in enumerate(goal)]
         relevant_atoms = iw.iw(1, start, get_successors, goal_fns)
         if not relevant_atoms:

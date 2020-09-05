@@ -25,7 +25,7 @@ class WidthAugmentedHeuristic:
 
     def __call__(self, x, atoms=set([])):
         h = self.heuristic(x)
-        r = 0 if not self.R else len(atoms.intersection(self.R))
+        r = len(atoms.intersection(self.R))
         w = self.get_width(x, (r, h))
         self.record(x, (r, h))
         return w, h
