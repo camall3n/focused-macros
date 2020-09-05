@@ -12,7 +12,7 @@ from pddlgym.structs import LiteralConjunction
 from pddlgym.utils import VideoWrapper
 
 # from domains.npuzzle import NPuzzle, macros
-from experiments import search, bfws
+from experiments import search, iw, bfws
 from domains.pddlgym.macros import load_learned_macros
 from domains.pddlgym.pddlgymenv import scramble
 

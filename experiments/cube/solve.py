@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 from domains import cube
 from domains.cube import macros, pattern
-from experiments import search, bfws
+from experiments import search, iw, bfws
 
 
 def parse_args():
