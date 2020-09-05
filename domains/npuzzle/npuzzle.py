@@ -24,15 +24,15 @@ class NPuzzle:
             assert self.blank_idx == start_blank
 
     def __len__(self):
-        return len(self.state)
+        return len(self.state.reshape(-1))
 
     def __getitem__(self, key):
-        return self.state.reshape(-1)[key]
+        return self.labels[self.state.reshape(-1)[key]]
 
     def __iter__(self):
         values = self.state.reshape(-1)
         for v in values:
-            yield v
+            yield self.labels[v]
 
     def actions(self):
         """Return a list of actions for the current state"""
