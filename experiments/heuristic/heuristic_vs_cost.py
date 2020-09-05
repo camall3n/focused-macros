@@ -6,16 +6,27 @@ import json
 import os
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
+from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import floyd_warshall
 from tqdm import tqdm
 
 from domains.suitcaselock import SuitcaseLock
 
-get_state_id = lambda lock: int(''.join(map(str,lock.state)), base=v)
+class CPUTimer:
+    def __enter__(self):
+        self.start = time.time()
+        self.end = self.start
+        self.duration = 0.0
+        return self
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            self.end = time.time()
+            self.duration = self.end - self.start
+
+get_state_id = lambda lock: int(''.join(map(str,lock.state)), base=v)
 
 def compute_cost_matrix(lock, n=6, v=4, k=1):
     actions = lock.actions()[:n]
@@ -63,6 +74,32 @@ def compute_cost_matrix(lock, n=6, v=4, k=1):
         time.sleep(1)
     return min_path_length
 
+def compute_apsp_floyd_warshall(lock, n=6, v=2, k=1):
+    actions = lock.actions()[:n]
+
+    print('Computing the adjacency matrix')
+    n_states = v**n
+    if n_states > 2**16-1:
+        print('Warning: too many states for uint16: {} > {}'.format(n_states, 2**16-1))
+    A = np.eye(n_states, dtype=np.uint16)
+
+    # row = from
+    # column = to
+    def get_successors(lock):
+        return [copy.deepcopy(lock).apply_macro(diff=a) for a in actions]
+
+    for state in tqdm(lock.states(), total=n_states):
+        state_id = get_state_id(state)
+        next_states = get_successors(state)
+        for next_state in next_states:
+            next_state_id = get_state_id(next_state)
+            A[state_id,next_state_id] = 1
+
+    graph = csr_matrix(A)
+    min_path_length = floyd_warshall(csgraph=graph, directed=True, return_predecessors=False)
+    return min_path_length
+
+
 def compute_heuristic_matrix(lock, n=6, v=2, k=1):
     n_states = v**n
 
@@ -95,7 +132,11 @@ if __name__ == '__main__':
 
     np.random.seed(seed)
     lock = SuitcaseLock(n_vars=n, n_values=v, entanglement=k)
-    D = compute_cost_matrix(lock, n, v, k)
+
+    with CPUTimer() as timer:
+        D = compute_apsp_floyd_warshall(lock, n, v, k)
+    print('floyd_warshall:', timer.duration)
+    assert False
 
     print('Comparing heuristic to true cost')
     heuristic = lambda start, goal: sum(goal.summarize_effects(baseline=start) > 0)
