@@ -103,6 +103,8 @@ def _weighted_astar(start, is_goal, step_cost, heuristic, get_successors,
                                             heuristic=heuristic,
                                             precision=bfws_precision)
     root = SearchNode(state=start, g_score=0, h_score=heuristic(start), parent=None, action=None)
+    _ = heuristic(start) # mark start state as seen by novelty function, if using
+
     # Adding root to open set
     open_set.push((root.f_score, root))
     candidates = [(n_transitions, root)]
