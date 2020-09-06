@@ -111,12 +111,12 @@ def solve():
     if 'bfws' in args.search_alg:
         search_dict['precision'] = args.bfws_precision
     if args.search_alg == 'bfws_rg':
-        goal_fns = [(lambda x, i=i: x.state[i] == goal[i]) for i, _ in enumerate(goal)]
+        goal_fns = [(lambda x, i=i: goal.literals[i] in x.state.literals) for i, _ in enumerate(goal.literals)]
         relevant_atoms = iw.iw(1, start, get_successors, goal_fns)
         if not relevant_atoms:
             relevant_atoms = iw.iw(2, start, get_successors, goal_fns)
         if not relevant_atoms:
-            relevant_atoms = start.all_atoms()
+            relevant_atoms = None
         search_dict['R'] = relevant_atoms
 
     #%% Run the search
