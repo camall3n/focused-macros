@@ -1,3 +1,4 @@
+import glob
 import random
 from domains.cube import formula
 
@@ -19,6 +20,14 @@ def scramble(seed=0, length=60):
     random.seed(seed)
     formula_ = formula.random_formula(length)
     random.setstate(old_st)
+    return formula_
+
+def buchner2018pattern(seed=0):
+    filenames = glob.glob('domains/cube/buchner2018/scrambles/id-{:03d}_*.txt'.format(seed))
+    assert len(filenames)==1
+    with open(filenames[0], 'r') as file:
+        pattern = file.read()
+        formula_ = formula.simplify(pattern.split())
     return formula_
 
 def test():

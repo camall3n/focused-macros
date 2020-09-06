@@ -194,15 +194,17 @@ def rotate(formula, axis, n=1):
 def simplify(formula):
     """Simplify a formula
 
-    Repeatedly remove noops [F F']; replace triple rotations [F F F] with their
-    corresponding inverse single rotation [F']; and find non-interacting
-    sandwiches [F B F'] and rearrange them [F F' B] for future cancellation.
-
+    Replace half-turns [F2] with two quarter turns [F F], repeatedly remove
+    noops [F F']; replace triple rotations [F F F] with their corresponding
+    inverse single rotation [F']; and find non-interacting sandwiches [F B F']
+    and rearrange them [F F' B] for future cancellation.
     """
-    # To treat each action as a single character, replace inverses with lowercase
+    # To treat each action as a single character
     string_form = ''.join(formula).strip()
     for move in 'FBLRUD':
-        string_form = string_form.replace(move+'\'', move.lower())
+        string_form = string_form.replace(move+'2', move+move) # replace half-turns with quarter turns
+    for move in 'FBLRUD':
+        string_form = string_form.replace(move+'\'', move.lower()) # replace inverses with lowercase
 
     noops = ["Ff", "Bb", "Ll", "Rr", "Uu", "Dd"]
     noops += [op[::-1] for op in noops]
