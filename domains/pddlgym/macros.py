@@ -12,7 +12,10 @@ def load_learned_macros(env, problem_index):
     spec.id = name + '_macros' + version
 
     # Modify domain file to use macros
-    domain_macros_file = env._problem_dir+'/macros/'+env.problems[problem_index].problem_fname.split('/')[-1]
+    if 'generated-pddl' in env._problem_dir:
+        domain_macros_file = env._problem_dir+'/old_macros.pddl'
+    else:
+        domain_macros_file = env._problem_dir+'/macros/'+env.problems[problem_index].problem_fname.split('/')[-1]
     spec._kwargs['domain_file'] = domain_macros_file
 
     # Register macro-augmented domain with gym
