@@ -46,14 +46,14 @@ def remove_half_turns(filename):
 
 if __name__ == "__main__":
     problems = [
-        ('depot', 3),
-        ('doors', 9),
-        ('elevator', 8),
-        ('ferry', 4),
-        ('gripper', 19),
-        ('hanoi_operator_actions', 10),
+        ('depot', 3, True),
+        ('doors', 9, True),
+        ('elevator', 8, True),
+        ('ferry', 4, True),
+        ('gripper', 19, False),
+        ('hanoi_operator_actions', 10, False),
     ]
-    for env_name, problem_index in problems:
+    for env_name, problem_index, typed in problems:
         env = gym.make("PDDLEnv{}-v0".format(env_name.capitalize()))
         env.fix_problem_index(problem_index)
         initial_state, _ = env.reset()
@@ -78,7 +78,9 @@ if __name__ == "__main__":
                               start.literals,
                               new_prob_name,
                               problem.domain_name,
-                              problem.goal
+                              problem.goal,
+                              fast_downward_order=True,
+                              typed=typed,
                           )
             new_filename = os.path.join(output_dir, 'problem{:03d}.pddl'.format(seed))
             with open(new_filename, 'w') as file:
