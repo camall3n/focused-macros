@@ -122,7 +122,10 @@ def solve():
     search_results = search_fn(**search_dict)
 
     #%% Save the results
-    tag = '{}/problem-{}/{}'.format(args.env_name, args.problem_index, args.macro_type)
+    tag = '{}'.format(args.env_name)
+    if args.problem_index is not None:
+        tag += '/problem-{}'.format(args.problem_index)
+    tag += '/{}'.format(args.macro_type)
 
     results_dir = 'results/pddlgym-gen/{}/{}/'.format(args.search_alg,tag)
     os.makedirs(results_dir, exist_ok=True)
