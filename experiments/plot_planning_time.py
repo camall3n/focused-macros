@@ -24,7 +24,7 @@ def parse_args():
     if 'ipykernel' in sys.argv[0]:
         sys.argv = [sys.argv[0]] + 'suitcaselock'.split(' ')
     parser = argparse.ArgumentParser()
-    parser.add_argument('name', type=str, choices=['cube', 'npuzzle', 'suitcaselock', 'pddlgym'],
+    parser.add_argument('name', type=str, choices=['cube', 'cube-buchner2018', 'npuzzle', 'suitcaselock', 'pddlgym'],
                         help='Name of experiment to plot')
     parser.add_argument('--pddl_env', type=str, required=False,
                         help='Name of pddl environment (used with PDDLGym)')
@@ -317,10 +317,14 @@ if __name__ == '__main__':
     args = parse_args()
     cfg = {
         'cube': cube_cfg,
+        'cube-buchner2018': cube_cfg,
         'npuzzle': npuzzle_cfg,
         'suitcaselock': suitcaselock_cfg,
         'pddlgym': pddlgym_cfg,
     }[args.name]
+    if args.name == 'cube-buchner2018':
+        cfg.NAME += '-buchner2018'
+        cfg.DIR += '-buchner2018'
 
     RESULTS_DIR = 'results/' + cfg.NAME + '/'
     if args.name == 'pddlgym':
