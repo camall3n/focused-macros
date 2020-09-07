@@ -9,7 +9,6 @@ from types import SimpleNamespace
 import gym
 import pddlgym
 from pddlgym.structs import LiteralConjunction
-from pddlgym.utils import VideoWrapper
 
 # from domains.npuzzle import NPuzzle, macros
 from experiments import search, iw, bfws
@@ -24,12 +23,12 @@ def parse_args():
     if 'ipykernel' in sys.argv[0]:
         sys.argv = [sys.argv[0]]
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env_name', type=str, default='hanoi_operator_actions',
+    parser.add_argument('--env_name', type=str, default='hanoi',
                         help='Name of PDDL domain')
     parser.add_argument('--problem_index', type=int, default=None,
                         help='The index of the particular problem file to use')
-    parser.add_argument('--random_seed','-s', type=int, default=0,
-                        help='Seed to use for RNGs')
+    parser.add_argument('--seed','-s', type=int, default=0,
+                        help='Seed to use for RNGs and problem index')
     parser.add_argument('--macro_type','-m', type=str, default='primitive',
                         choices=['primitive', 'learned'],
                         help='Type of macro_list to consider during search')
@@ -51,23 +50,23 @@ def solve():
     args = parse_args()
 
     # Set up the domain
-    env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
-    env.fix_problem_index(args.problem_index)
-    start = scramble(env, seed=args.random_seed)
-    random.seed(args.random_seed)
+    env = gym.make("PDDLEnv-Gen-{}-v0".format(args.env_name.capitalize()))
+    env.fix_problem_index(args.seed)
+    # start = scramble(env, seed=args.seed)
+    random.seed(args.seed)
     if args.macro_type == 'learned':
-        env = load_learned_macros(env, args.problem_index)
-        env.fix_problem_index(args.problem_index)
+        env = load_learned_macros(env, 0)
+        env.fix_problem_index(args.seed)
     env._render = None
-    env.seed(args.random_seed)
+    env.seed(args.seed)
 
-    env.reset()
+    start, _ = env.reset()
     env.set_state(start)
     goal = start.goal
     assert isinstance(goal, LiteralConjunction)
     heuristic = lambda obs: len([lit for lit in goal.literals if lit not in obs.literals])
 
-    print('Using seed: {:03d}'.format(args.random_seed))
+    print('Using seed: {:03d}'.format(args.seed))
     print('Objects:', sorted(list(start.objects)))
     print('Goal:', goal)
 
@@ -125,9 +124,9 @@ def solve():
     #%% Save the results
     tag = '{}/problem-{}/{}'.format(args.env_name, args.problem_index, args.macro_type)
 
-    results_dir = 'results/pddlgym/{}/{}/'.format(args.search_alg,tag)
+    results_dir = 'results/pddlgym-gen/{}/{}/'.format(args.search_alg,tag)
     os.makedirs(results_dir, exist_ok=True)
-    with open(results_dir+'seed-{:03d}.pickle'.format(args.random_seed), 'wb') as file:
+    with open(results_dir+'seed-{:03d}.pickle'.format(args.seed), 'wb') as file:
         pickle.dump(search_results, file)
 
     plan = search_results[1]
