@@ -1,9 +1,8 @@
 import glob
 import os
 
-filename = 'domains/cube/buchner2018/problems-with-halfturns/id-000_turns-1_problem-0.sas'
 
-def remove_half_turns(filename='domains/cube/buchner2018/problems-with-halfturns/id-000_turns-1_problem-0.sas'):
+def remove_half_turns(filename):
     with open(filename, 'r') as file:
         lines = file.readlines()
 
@@ -40,5 +39,6 @@ def remove_half_turns(filename='domains/cube/buchner2018/problems-with-halfturns
     print('Wrote modified domain file to:', new_filepath)
 
 if __name__ == "__main__":
-    for filename in glob.glob('domains/cube/buchner2018/problems-with-halfturns/id-*.sas'):
+    for filename in glob.glob('domains/cube/buchner2018/original_sas/id-*.sas'):
         remove_half_turns(filename)
+        # break
