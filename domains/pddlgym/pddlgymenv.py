@@ -6,7 +6,7 @@ def generate_initial_states(env, max_steps=10000):
     initial_state, _ = env.reset()
 
     n_steps = 0
-    seen_states = set([])
+    seen_states = set([initial_state])
     frontier = [initial_state]
     while frontier and n_steps < max_steps:
         state = frontier.pop()
@@ -21,6 +21,7 @@ def generate_initial_states(env, max_steps=10000):
             if n_steps >= max_steps:
                 break
 
+    seen_states.remove(initial_state)
     # Sort states using the One True Ordering
     states = sorted(list(seen_states), key=lambda x: sorted(list(x.literals)))
     old_rng_st = random.getstate()
@@ -41,3 +42,7 @@ def scramble(env, seed=0, max_steps=3000):
         initial_state = states[seed-1]
         env.set_state(initial_state)
     return initial_state
+
+def all_scrambles(env, max_steps=3000):
+    states = generate_initial_states(env, max_steps)
+    return states
