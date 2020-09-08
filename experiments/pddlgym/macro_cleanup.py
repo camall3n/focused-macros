@@ -89,26 +89,29 @@ def main():
     """Clean up PDDLGym macros"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env_name', type=str, default='hanoi_operator_actions',
+    parser.add_argument('--env_name', type=str, default='miconic',
                         help='Name of PDDL domain')
-    parser.add_argument('--problem_index', type=int, default=10,
+    parser.add_argument('--seed', '-s', type=int, default=10,
                         help='The index of the particular problem file to use')
     parser.add_argument('-n', type=int, default=16,
                         help='The number of (best) macros to output')
     args = parser.parse_args()
 
-    results_dir = 'results/macros/pddlgym/{}/problem-{:02d}/'.format(args.env_name, args.problem_index)
+    results_dir = 'results/macros/pddlgym-gen/{}/problem-{:02d}/'.format(args.env_name, args.seed)
     filenames = glob.glob(results_dir+'seed*-macros.pickle')
     assert(len(filenames)==1)
     filename = filenames[0]
     with open(filename, 'rb') as file:
         search_results = pickle.load(file)
+    n_transitions = search_results[2]
+    print('Macro search generated', n_transitions, 'states.')
+    print()
     best_n = search_results[-1]
     best_n = [(score, [a[0] for a in macro]) for score, macro in sorted(best_n)]
     raw_macros = [macro for (_, macro) in best_n if len(macro) > 1]
 
-    env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
-    env.fix_problem_index(args.problem_index)
+    env = gym.make("PDDLEnv-Gen-{}-v0".format(args.env_name.capitalize()))
+    env.fix_problem_index(args.seed)
     operators = env.action_space._action_predicate_to_operators
     start, _ = env.reset()
 
@@ -133,10 +136,10 @@ def main():
     insertion_point = domain_pddl.rfind(')')
     header, footer = domain_pddl[:insertion_point], domain_pddl[insertion_point:]
     body = ''.join([macro.pddl_str().replace('\t', '  ') for macro in macros])+'\n'
-    macro_dir = env._domain_file.split('.')[0]+'/macros/'
-    os.makedirs(macro_dir, exist_ok=True)
-    problem_filename = env.problems[args.problem_index].problem_fname.split('/')[-1]
-    macro_file = macro_dir+problem_filename
+    macro_file = os.path.join(os.path.split(env._domain_file)[0],'macros-gen.pddl')
+    # os.makedirs(macro_dir, exist_ok=True)
+    # problem_filename = env.problems[args.seed].problem_fname.split('/')[-1]
+    # macro_file = macro_dir+problem_filename
     with open(macro_file, 'w') as file:
         file.write(header+body+footer)
     print('Wrote macro-augmented domain to file: {}'.format(macro_file))

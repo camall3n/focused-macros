@@ -20,12 +20,10 @@ def main():
     if 'ipykernel' in sys.argv[0]:
         sys.argv = [sys.argv[0]]
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env_name', type=str, default='hanoi_operator_actions',
+    parser.add_argument('--env_name', type=str, default='miconic',
                         help='Name of PDDL domain')
-    parser.add_argument('--problem_index', type=int, default=None,
-                        help='The index of the particular problem file to use')
-    parser.add_argument('--random_seed','-s', type=int, default=1,
-                        help='Seed to use for RNGs')
+    parser.add_argument('--seed','-s', type=int, default=1,
+                        help='Seed to use for RNGs and problem index')
     parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=100000,
                         help='Maximum number of simulator transitions')
     parser.add_argument('--save_best_n', type=int, default=1000,
@@ -33,21 +31,21 @@ def main():
     args = parser.parse_args()
 
     # Set up the domain
-    random.seed(args.random_seed)
-    env = gym.make("PDDLEnv{}-v0".format(args.env_name.capitalize()))
+    random.seed(args.seed)
+    env = gym.make("PDDLEnv-Gen-{}-v0".format(args.env_name.capitalize()))
     env._render = None
-    env.fix_problem_index(args.problem_index)
-    env.seed(args.random_seed)
+    env.fix_problem_index(args.seed)
+    env.seed(args.seed)
 
     start, _ = env.reset()
-    env.action_space.seed(args.random_seed)
+    env.action_space.seed(args.seed)
     goal = start.goal
 
-    print('Using seed: {:03d}'.format(args.random_seed))
+    print('Using seed: {:03d}'.format(args.seed))
     print('Objects:', sorted(list(start.objects)))
     print('Goal:', goal)
 
-    tag = '{}/problem-{:02d}'.format(args.env_name, args.problem_index)
+    tag = '{}/problem-{:02d}'.format(args.env_name, args.seed)
 
     #%% Configure the search
     def heuristic(state):
@@ -79,9 +77,9 @@ def main():
                                   save_best_n = args.save_best_n)
 
     #%% Save the results
-    results_dir = 'results/macros/pddlgym/{}/'.format(tag)
+    results_dir = 'results/macros/pddlgym-gen/{}/'.format(tag)
     os.makedirs(results_dir, exist_ok=True)
-    macros_filename = results_dir+'seed{:03d}-macros.pickle'.format(args.random_seed, tag)
+    macros_filename = results_dir+'seed{:03d}-macros.pickle'.format(args.seed, tag)
     with open(macros_filename, 'wb') as file:
         pickle.dump(search_results, file)
 

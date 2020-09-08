@@ -13,7 +13,7 @@ def load_learned_macros(env, problem_index):
 
     # Modify domain file to use macros
     if 'generated-pddl' in env._problem_dir:
-        domain_macros_file = env._problem_dir+'/old_macros.pddl'
+        domain_macros_file = env._problem_dir+'/macros-gen.pddl'
     else:
         domain_macros_file = env._problem_dir+'/macros/'+env.problems[problem_index].problem_fname.split('/')[-1]
     spec._kwargs['domain_file'] = domain_macros_file
