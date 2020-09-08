@@ -50,8 +50,6 @@ def solve():
 
     # Set up the scramble
     if args.buchner2018:
-        if args.random_goal:
-            raise RuntimeError('--random_goal is incompatible with --buchner2018')
         scramble = pattern.buchner2018pattern(args.seed)
     else:
         scramble = pattern.scramble(args.seed)
