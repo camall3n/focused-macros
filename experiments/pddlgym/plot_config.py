@@ -2,11 +2,11 @@ from collections import namedtuple
 
 import numpy as np
 
-NAME = 'pddlgym'
-DIR = 'pddlgym/{}'
+NAME = 'pddlgym-gen'
+DIR = 'pddlgym-gen/{}'
 PLOTS = ['learning_curves', 'planning_boxes']
 SUMMARIES = ['macro_type']
-FIELDS = 'alg', 'pddl_env', 'problem_id', 'macro_type', 'seed'
+FIELDS = 'alg', 'pddl_env', 'macro_type', 'seed'
 FIGSIZE = (8,6)
 FONTSIZE = 18
 HLINE = None
@@ -14,10 +14,10 @@ TRANSITION_CAP = 1e5
 XLIM = [-100,TRANSITION_CAP]
 YLIM = [0,16]
 
-PlotVars = namedtuple('PlotVars', ['macro_type', 'problem_id', 'color', 'zorder'])
+PlotVars = namedtuple('PlotVars', ['macro_type', 'color', 'zorder'])
 PLOT_VARS = [
-    PlotVars('primitive', 10, 'C0', 10),
-    PlotVars('learned', 10, 'C3', 10),
+    PlotVars('primitive', 'C0', 10),
+    PlotVars('learned', 'C3', 10),
 ]
 
 
