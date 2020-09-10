@@ -1,19 +1,46 @@
 import os
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 from domains import cube
 from domains.cube import macros
 
+def jitter(arr, sd=None):
+    if sd is None:
+        sd = 0
+    return arr + np.random.randn(len(arr)) * sd
+
 def load_and_plot_macros():
     """Load and plot Rubik's cube macros"""
 
-    plt.rcParams.update({'font.size': 18})
+    plt.rcParams.update({'font.size': 20})
     _, ax = plt.subplots(figsize=(8,6))
-    macro_names = ['primitive', 'expert', 'random', 'learned']
+    macro_names = [
+        'random',
+        'primitive',
+        'focused',
+        'expert',
+    ]
     macros.generate_random_macro_set(14)
-    macro_types = [macros.primitive, macros.expert, macros.random, macros.learned]
-    marker_styles = ['o','x','^','+']
+    macro_types = [
+        macros.random,
+        macros.primitive,
+        macros.learned,
+        macros.expert,
+    ]
+    marker_styles = [
+        '^',
+        'o',
+        '+',
+        'x',
+    ]
+    colors = [
+        'C2',#r
+        'C0',#p
+        'C3',#l
+        'C1',#e
+    ]
     for i, macro_type in enumerate(macro_types):
         if macro_names[i] == 'random':
             for j in range(1,11):
@@ -21,7 +48,7 @@ def load_and_plot_macros():
                 lengths = [len(macro) for macro in macros.random.macros]
                 effects = [len(cube.Cube().apply(swap_list=model).summarize_effects())
                            for model in macros.random.models]
-                plt.scatter(lengths, effects, c='C{}'.format(i), marker='^',
+                plt.scatter(lengths, effects, c=colors[i], marker='^',
                             facecolor='none', s=150, linewidths=1)
             macros.generate_random_macro_set(0)
         try:
@@ -31,20 +58,28 @@ def load_and_plot_macros():
         effects = [len(cube.Cube().apply(swap_list=model).summarize_effects())
                    for model in macro_type.models]
         label = macro_names[i]
-        plt.scatter(lengths, effects, c='C{}'.format(i), marker=marker_styles[i],
+        # if macro_names[i] == 'primitive':
+        #     jx, jy = None, None
+        # else:
+        #     jx, jy = 0.05, 0.25
+        jx, jy = None, None
+        plt.scatter(jitter(lengths,jx), jitter(effects,jy), c=colors[i], marker=marker_styles[i],
                     facecolor='none', s=150, label=label, linewidths=1)
-    plt.hlines(48, 0, 25, linestyles='dotted', linewidths=2)
+    plt.hlines(48, 0, 26, linestyles='dashed', linewidths=2)
     handles, labels = ax.get_legend_handles_labels()
-    handles = [handles[0], handles[1],handles[3], handles[2]]
-    labels = [labels[0], labels[1],labels[3], labels[2]]
+    # handles = [handles[0], handles[1], handles[2], handles[3]]
+    # labels = [labels[0], labels[1], labels[2], labels[3]]
     plt.legend(handles, labels)
     plt.ylim([0,50])
-    plt.xlim([0,25])
-    plt.xticks(range(1,25,3))
-    plt.xlabel('Number of steps per macro-action')
-    plt.ylabel('Number of variables modified')
-    os.makedirs('results/plots/cube/', exist_ok=True)
-    plt.savefig('results/plots/cube/cube_entanglement.png')
+    plt.xlim([0,26])
+    plt.xticks(range(1,26,4))
+    plt.xlabel('Macro-action length')
+    plt.ylabel('Effect size')
+    plt.tight_layout()
+    plt.subplots_adjust(top = .96, bottom = .12, right = .95, left = 0.11,
+        hspace = 0, wspace = 0)
+    os.makedirs('results/plots/cube-buchner2018/', exist_ok=True)
+    plt.savefig('results/plots/cube-buchner2018/cube_entanglement.png')
     plt.show()
 
 if __name__ == '__main__':
