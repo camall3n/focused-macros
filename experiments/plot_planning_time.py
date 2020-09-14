@@ -39,8 +39,6 @@ def parse_args():
                         help='Name of experiment to plot')
     parser.add_argument('--pddl_env', type=str, required=False,
                         help='Name of pddl environment (used with PDDLGym)')
-    parser.add_argument('--seed', type=int, required=False,
-                        help='ID of pddl problem (used with PDDLGym)')
     parser.add_argument('--alg', type=str, default='gbfs',
                         choices=['gbfs', 'astar', 'weighted_astar', 'bfws_r0', 'bfws_rg'],
                         help='Search algorithm')

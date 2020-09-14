@@ -75,6 +75,7 @@ def compute_cost_matrix(lock, n=6, v=4, k=1):
     return min_path_length
 
 def compute_apsp_floyd_warshall(lock, n=6, v=2, k=1):
+    """Compute all-pairs shortest path matrix"""
     actions = lock.actions()[:n]
 
     print('Computing the adjacency matrix')

@@ -91,7 +91,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_name', type=str, default='miconic',
                         help='Name of PDDL domain')
-    parser.add_argument('--seed', '-s', type=int, default=10,
+    parser.add_argument('--seed', '-s', type=int, default=1,
                         help='The index of the particular problem file to use')
     parser.add_argument('-n', type=int, default=16,
                         help='The number of (best) macros to output')

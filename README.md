@@ -18,21 +18,32 @@ pip install -r requirements.txt
 
 ## Experiments
 ### SuitcaseLock
+Analyze heuristic:
+```
+# for K in 1..9:
+# for SEED in 1..10:
+python3 -m experiments.heuristic.heuristic_vs_cost -n 10 -v 2 -k K -s SEED
+
+# for K in 1..4:
+# for SEED in 1..10:
+python3 -m experiments.heuristic.heuristic_vs_cost -n 5 -v 4 -k K -s SEED
+```
+
+Plot results:
+```
+python3 -m experiments.heuristic.plot_accuracy -n 10 -v 2
+python3 -m experiments.heuristic.plot_accuracy -n 5 -v 4
+```
+
 Solve SuitcaseLock:
 ```
-python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=1 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=4 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=7 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=10 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=13 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=16 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=19 -s SEED
+# for K in [1,4,7,10,13,16,19]:
+# for SEED in 1..100:
+python3 -m experiments.suitcaselock.solve --n_vars=20 --n_values=2 --max_transitions=1e8 --entanglement=K -s SEED
 
-python3 -m experiments.suitcaselock.solve --n_vars=10 --n_values=4 --max_transitions=1e8 --entanglement=1 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=10 --n_values=4 --max_transitions=1e8 --entanglement=3 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=10 --n_values=4 --max_transitions=1e8 --entanglement=5 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=10 --n_values=4 --max_transitions=1e8 --entanglement=7 -s SEED
-python3 -m experiments.suitcaselock.solve --n_vars=10 --n_values=4 --max_transitions=1e8 --entanglement=9 -s SEED
+# for K in [1,3,5,7,9]:
+# for SEED in 1..100:
+python3 -m experiments.suitcaselock.solve --n_vars=10 --n_values=4 --max_transitions=1e8 --entanglement=K -s SEED
 ```
 
 Plot results:
@@ -40,26 +51,50 @@ Plot results:
 python3 -m experiments.plot_planning_time suitcaselock
 ```
 
+### PDDLGym
+Search for PDDLGym macro-actions:
+```
+# for ENV_NAME, MACRO_BUDGET in [
+#    ('depot',         50000),
+#    ('doors',          5000),
+#    ('ferry',          5000),
+#    ('gripper',        5000),
+#    ('hanoi',        100000),
+#    ('miconic',        5000),
+# ]:
+python3 -m experiments.pddlgym.macro_search --env_name ENV_NAME --max_transitions MACRO_BUDGET
+
+python3 -m experiments.pddlgym.macro_cleanup --env_name ENV_NAME -n 8
+```
+
+Solve PDDLGym domains:
+```
+# for ENV_NAME, BFWS_PREC in [
+#    ('depot',          2),
+#    ('doors',          3),
+#    ('ferry',          3),
+#    ('gripper',        3),
+#    ('hanoi',          3),
+#    ('miconic',        3),
+# ]:
+# for ALG in ['gbfs', 'bfws_rg']:
+# for MACRO_TYPE in ['primitive', 'learned']:
+# for SEED in 1..100:
+python3 -m experiments.pddlgym.solve --max_transitions 1e5 -m MACRO_TYPE --env_name ENV_NAME  --search_alg ALG --bfws_precision BFWS_PREC -s SEED
+```
+
+Plot PDDLGym results:
+```
+python3 -m experiments.plot_planning_time pddlgym --pddl_env ENV_NAME --alg ALG
+```
+
 
 ### 15-Puzzle
 Search for 15-Puzzle macro-actions:
 ```
-python3 -m experiments.npuzzle.macro_search -r 0 -c 0
-python3 -m experiments.npuzzle.macro_search -r 0 -c 1
-python3 -m experiments.npuzzle.macro_search -r 0 -c 2
-python3 -m experiments.npuzzle.macro_search -r 0 -c 3
-python3 -m experiments.npuzzle.macro_search -r 1 -c 0
-python3 -m experiments.npuzzle.macro_search -r 1 -c 1
-python3 -m experiments.npuzzle.macro_search -r 1 -c 2
-python3 -m experiments.npuzzle.macro_search -r 1 -c 3
-python3 -m experiments.npuzzle.macro_search -r 2 -c 0
-python3 -m experiments.npuzzle.macro_search -r 2 -c 1
-python3 -m experiments.npuzzle.macro_search -r 2 -c 2
-python3 -m experiments.npuzzle.macro_search -r 2 -c 3
-python3 -m experiments.npuzzle.macro_search -r 3 -c 0
-python3 -m experiments.npuzzle.macro_search -r 3 -c 1
-python3 -m experiments.npuzzle.macro_search -r 3 -c 2
-python3 -m experiments.npuzzle.macro_search -r 3 -c 3
+# for ROW in 0..3:
+# for COL in 0..3:
+python3 -m experiments.npuzzle.macro_search -r ROW -c COL
 
 python3 -m experiments.npuzzle.macro_cleanup
 ```
@@ -71,16 +106,18 @@ python3 -m experiments.npuzzle.plot_entanglement
 
 Solve 15-puzzle:
 ```
-python3 -m experiments.npuzzle.solve -m primitive --max_transitions=1e6 -s SEED
-python3 -m experiments.npuzzle.solve -m random --max_transitions=1e6 -s SEED
-python3 -m experiments.npuzzle.solve -m learned --max_transitions=1e6 -s SEED
+# for ALG in ['gbfs', 'bfws_rg']:
+# for SEED in 1..100:
+python3 -m experiments.npuzzle.solve --max_transitions=1e6 --search_alg ALG -m primitive -s SEED
+python3 -m experiments.npuzzle.solve --max_transitions=1e6 --search_alg ALG -m random -s SEED
+python3 -m experiments.npuzzle.solve --max_transitions=1e6 --search_alg ALG -m learned -s SEED
 
-python3 -m experiments.npuzzle.solve -m learned --max_transitions=1e6 --random_goal -s SEED
+python3 -m experiments.npuzzle.solve --max_transitions=1e6 --search_alg ALG -m learned --random_goal -s SEED
 ```
 
 Plot 15-puzzle results:
 ```
-python3 -m experiments.plot_planning_time npuzzle
+python3 -m experiments.plot_planning_time npuzzle --alg ALG
 ```
 
 
@@ -98,15 +135,17 @@ python3 -m experiments.cube.plot_entanglement
 
 Solve Rubik's cube:
 ```
-python3 -m experiments.cube.solve -m primitive --max_transitions=2e6 -s SEED
-python3 -m experiments.cube.solve -m random --max_transitions=2e6 -s SEED
-python3 -m experiments.cube.solve -m learned --max_transitions=2e6 -s SEED
-python3 -m experiments.cube.solve -m expert --max_transitions=2e6 -s SEED
+# for ALG in ['gbfs', 'bfws_rg']:
+# for SEED in 1..100:
+python3 -m experiments.cube.solve --buchner2018 --max_transitions=2e6 --search_alg ALG --bfws_precision 2 -m primitive -s SEED
+python3 -m experiments.cube.solve --buchner2018 --max_transitions=2e6 --search_alg ALG --bfws_precision 2 -m random -s SEED
+python3 -m experiments.cube.solve --buchner2018 --max_transitions=2e6 --search_alg ALG --bfws_precision 2 -m learned -s SEED
+python3 -m experiments.cube.solve --buchner2018 --max_transitions=2e6 --search_alg ALG --bfws_precision 2 -m expert -s SEED
 
-python3 -m experiments.cube.solve -m learned --max_transitions=2e6 --random_goal -s SEED
+python3 -m experiments.cube.solve --buchner2018 --max_transitions=2e6 --search_alg ALG --bfws_precision 2 -m learned --random_goal -s SEED
 ```
 
 Plot Rubik's cube results:
 ```
-python3 -m experiments.plot_planning_time cube
+python3 -m experiments.plot_planning_time cube-buchner2018 --alg ALG
 ```

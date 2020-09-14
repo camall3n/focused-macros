@@ -25,8 +25,6 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_name', type=str, default='hanoi',
                         help='Name of PDDL domain')
-    parser.add_argument('--problem_index', type=int, default=None,
-                        help='The index of the particular problem file to use')
     parser.add_argument('--seed','-s', type=int, default=0,
                         help='Seed to use for RNGs and problem index')
     parser.add_argument('--macro_type','-m', type=str, default='primitive',
@@ -123,8 +121,6 @@ def solve():
 
     #%% Save the results
     tag = '{}'.format(args.env_name)
-    if args.problem_index is not None:
-        tag += '/problem-{}'.format(args.problem_index)
     tag += '/{}'.format(args.macro_type)
 
     results_dir = 'results/pddlgym-gen/{}/{}/'.format(args.search_alg,tag)
