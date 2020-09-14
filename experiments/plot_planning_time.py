@@ -99,7 +99,7 @@ def load_data(alg, pddl_env=None, pddl_problem_id=None):
     result_files = sorted(glob.glob(RESULTS_DIR+'/**', recursive=True))
 
     learning_curves = []
-    # macro_data = []
+    macro_data = []
     final_results = []
     for filepath in result_files:
         if not os.path.isfile(filepath) or os.path.splitext(filepath)[-1] != '.pickle':
@@ -299,6 +299,9 @@ def get_summary(results, category):
 def make_plots():
     """Make the plots and print summaries"""
     learning_curves, final_results = load_data(alg=args.alg, pddl_env=args.pddl_env)
+    # learning_curves, final_results, macro_data = load_data(alg=args.alg, pddl_env=args.pddl_env)
+    # print(macro_data.query("macro_type=='focused' and goal_type=='default_goal'").groupby('seed').sum().mean())
+    # print(macro_data.query("macro_type=='expert' and goal_type=='default_goal'").groupby('seed').sum().mean())#
     os.makedirs('results/plots/'+cfg.DIR+'/', exist_ok=True)
     if 'learning_curves' in cfg.PLOTS and not args.summary:
         try:
