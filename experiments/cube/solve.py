@@ -57,11 +57,13 @@ def solve():
     start = cube.Cube()
     start.apply(sequence=scramble)
     print('Using scramble: {:03d}'.format(args.seed))
+    print(' '.join(scramble))
     start.render()
 
     if args.random_goal:
         goal = cube.Cube().apply(sequence=pattern.scramble(args.seed+1000))
         print('Using goal pattern: {:03d}'.format(args.seed+1000))
+        print(' '.join(pattern.scramble(args.seed+1000)))
     else:
         goal = cube.Cube()
 

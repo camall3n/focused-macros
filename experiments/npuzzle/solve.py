@@ -62,6 +62,8 @@ def solve():
     print('Using seed: {:03d}'.format(args.random_seed))
     print('Start:', start)
     print('Goal:', goal)
+    print('Start:', ' '.join(map(str,list(start))))
+    print('Goal: ', ' '.join(map(str,list(goal))))
 
     # Define the macros / models
     if args.macro_type == 'random':
