@@ -1,4 +1,4 @@
-# Finding Disentangled Macro-Actions for Efficient Planning with the Goal-Count Heuristic
+# Efficient Black-Box Planning Using Macro-Actions with Focused Effects
 https://arxiv.org/abs/2004.13242
 
 ### Installation
