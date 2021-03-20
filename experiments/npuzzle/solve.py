@@ -126,7 +126,7 @@ def solve():
     search_results = search_fn(**search_dict)
 
     #%% Save the results
-    tag = '{}-puzzle/'.format(args.n)
+    tag = '{}-puzzle-set12/'.format(args.n)
     if args.random_goal:
         tag += 'random_goal/'
     else:
