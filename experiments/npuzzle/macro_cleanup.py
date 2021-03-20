@@ -6,7 +6,8 @@ import os
 def main():
     """Combine N-Puzzle macros for different starting positions into a single file"""
     results_dir = 'results/macros/npuzzle/'
-    filenames = glob.glob(results_dir+'macro-*-results.pickle')
+    set_suffix = '-set12'
+    filenames = glob.glob(results_dir+'macro{}-n15-*-results.pickle'.format(set_suffix))
     macros = OrderedDict()
     for filename in filenames:
         row = int(filename.split('/')[-1].split('-')[-3][1:])
@@ -28,7 +29,7 @@ def main():
 
     #%% Save the results
     os.makedirs('results/macros/npuzzle/', exist_ok=True)
-    with open('results/macros/npuzzle/clean_macros.pickle', 'wb') as file:
+    with open('results/macros/npuzzle/clean_macros{}.pickle'.format(set_suffix), 'wb') as file:
         pickle.dump(macros, file)
 
 if __name__ == '__main__':

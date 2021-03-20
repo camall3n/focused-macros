@@ -22,15 +22,15 @@ def main():
                         help='Initial row for blank space')
     parser.add_argument('-c', type=int, default=0,
                         help='Initial col for blank space')
-    parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=62500,
+    parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=2000,
                         help='Maximum number of variables changed per primitive action')
-    parser.add_argument('--save_best_n', type=int, default=100,
+    parser.add_argument('--save_best_n', type=int, default=12,
                         help='Number of best macros to save')
     args = parser.parse_args()
 
     #%% Make n-puzzle and set initial blank location
     puzzle = npuzzle.NPuzzle(n=15, start_blank=(args.r, args.c))
-    tag = 'n{}-r{}-c{}'.format(args.n, *puzzle.blank_idx)
+    tag = 'set{}-n{}-r{}-c{}'.format(args.save_best_n, args.n, *puzzle.blank_idx)
 
     #%% Configure the search
     def heuristic(puz):

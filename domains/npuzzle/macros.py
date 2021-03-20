@@ -13,7 +13,7 @@ class learned:
 def load_learned_macros():
     """Load the set of learned macro-actions"""
     results_dir = 'results/macros/npuzzle/'
-    filename = results_dir+'clean_macros.pickle'
+    filename = results_dir+'clean_macros-set12.pickle'
     try:
         with open(filename, 'rb') as file:
             _macros = pickle.load(file)
