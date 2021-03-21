@@ -2,7 +2,7 @@ from collections import namedtuple
 
 import numpy as np
 
-NAME = 'npuzzle'
+NAME = 'npuzzle-set12'
 DIR = NAME
 PLOTS = ['learning_curves', 'planning_boxes']
 SUMMARIES = ['macro_type', 'goal_type']
@@ -11,7 +11,7 @@ FIGSIZE = (8,6)
 FONTSIZE = 20
 HLINE = None
 TRANSITION_CAP = 5e5
-XLIM = [-100, 3.5e5]
+XLIM = [-100, 2e5]
 YLIM = [0,16]
 
 PlotVars = namedtuple('PlotVars', ['macro_type', 'goal_type', 'color', 'zorder', 'tick_size'])
