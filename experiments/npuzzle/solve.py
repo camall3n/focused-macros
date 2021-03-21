@@ -35,7 +35,7 @@ def parse_args():
                         help='Weight for h-score in weighted A*')
     parser.add_argument('--random_goal','-r', action='store_true', default=False,
                         help='Generate a random goal instead of the default solve configuration')
-    parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=1e5,
+    parser.add_argument('--max_transitions', type=lambda x: int(float(x)), default=5e5,
                         help='Maximum number of state transitions')
     parser.add_argument('--bfws_precision', type=int, default=3,
                         help='The number of width values, w \in {1,...,P}, to use when the search algorithm is best-first width search')
