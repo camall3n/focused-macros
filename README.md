@@ -1,11 +1,11 @@
 # Efficient Black-Box Planning Using Macro-Actions with Focused Effects
-https://arxiv.org/abs/2004.13242
+http://cs.brown.edu/~gdk/pubs/focused_macros.pdf
 
 ### Installation
 
 Download the repo:
 ```
-git clone https://github.com/camall3n/skills-for-planning.git
+git clone https://github.com/camall3n/focused-macros.git
 ```
 
 Install the dependencies:
