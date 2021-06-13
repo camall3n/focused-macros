@@ -1,5 +1,5 @@
 # Efficient Black-Box Planning Using Macro-Actions with Focused Effects
-http://cs.brown.edu/~gdk/pubs/focused_macros.pdf
+http://irl.cs.brown.edu/pubs/focused_macros.pdf
 
 ### Installation
 
