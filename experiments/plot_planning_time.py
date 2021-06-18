@@ -188,30 +188,38 @@ def plot_learning_curves(data, plot_var_list, category, save=True):
     lines = []
     names = []
     for plot_vars in plot_var_list:
-        value = plot_vars._asdict()[category]
+        label = plot_vars._asdict()[category]
+        value = label.lower()
+        if label == 'Primitive':
+            label = 'Base Actions'
+        else:
+            label = '+ ' + label + ' Macros'
         if len(data.query(category+'==@value')) > 0:
             sns.lineplot(data=data.query(category+'==@value'),
                          x='transitions', y='n_errors',
                          legend=False, estimator=None, units='seed',
-                         ax=ax, linewidth=2, alpha=.6,
+                         ax=ax, linewidth=1, alpha=1,
                          color=plot_vars.color, zorder=plot_vars.zorder)
             lines.append(ax.get_lines()[-1])
-            names.append(value)
+            names.append(label)
 
-    ax.legend(lines, names, framealpha=1, borderpad=0.7)
+    for _, spine in ax.spines.items():  #ax.spines is a dictionary
+        spine.set_zorder(100)
+    leg = ax.legend(lines, names, framealpha=1, borderpad=0.5)
+    leg.set_draggable(True)
     ax.set_ylim(cfg.YLIM)
     ax.set_xlim(cfg.XLIM)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(plot_vars.tick_size))
-    ax.set_xlabel('Generated states' + autoscale_xticks(ax, dtype=float))
+    ax.set_xlabel('States considered' + autoscale_xticks(ax, dtype=float))
     ax.set_ylabel('Remaining errors')
     ax.set_axisbelow(False)
     plt.tight_layout()
-    plt.subplots_adjust(top = .96, bottom = .12, right = .95, left = 0.11,
+    plt.subplots_adjust(top = .96, bottom = .19, right = .95, left = 0.14,
             hspace = 0, wspace = 0)
 
     # [i.set_linewidth(1) for i in ax.spines.values()]
     if cfg.HLINE:
-        ax.hlines(cfg.HLINE, 0, cfg.TRANSITION_CAP, linestyles='dashed', linewidths=2)
+        ax.hlines(cfg.HLINE, 0, cfg.TRANSITION_CAP, linestyles='dashed', linewidths=1)
     if save:
         plt.savefig('results/plots/{}/{}_planning_curves_by_{}.png'.format(
             cfg.DIR, cfg.NAME, category), dpi=100)
@@ -250,7 +258,7 @@ def plot_planning_boxes(data, plot_var_list, category, save=True):
     ax.xaxis.set_major_locator(ticker.MultipleLocator(plot_vars.tick_size))
     ax.set_xlabel('Generated states' + autoscale_xticks(ax, dtype=int))
     plt.tight_layout()
-    plt.subplots_adjust(top = .96, bottom = .12, right = .95, left = 0.06,
+    plt.subplots_adjust(top = .96, bottom = .19, right = .95, left = 0.09,
             hspace = 0, wspace = 0)
     ax.legend(handles, labels, loc='lower right')
     if save:
@@ -265,7 +273,8 @@ def plot_entanglement_boxes(data, plot_vars, save=True):
         return
     plt.rcParams.update({'font.size': cfg.FONTSIZE})
     _, ax = plt.subplots(figsize=cfg.FIGSIZE)
-    sns.boxenplot(x='entanglement', y='transitions', data=data, color='C0', ax=ax, showfliers=False)
+    blue, _ = sns.color_palette('deep', n_colors=2)
+    sns.boxenplot(x='entanglement', y='transitions', data=data, color=blue+(1,), ax=ax, showfliers=False)
     n_values = list(data['n_values'])[0]
 
     ax.set_ylim(plot_vars.ylim)

@@ -1,24 +1,27 @@
 from collections import namedtuple
 
 import numpy as np
+import seaborn as sns
 
 NAME = 'npuzzle'
 DIR = NAME
 PLOTS = ['learning_curves', 'planning_boxes']
 SUMMARIES = ['macro_type', 'goal_type']
 FIELDS = 'alg', 'puzzle_size', 'goal_type', 'macro_type', 'seed'
-FIGSIZE = (8,6)
-FONTSIZE = 20
+FIGSIZE = (4,3)
+FONTSIZE = 12
 HLINE = None
 TRANSITION_CAP = 5e5
 XLIM = [-100, 2e5]
 YLIM = [0,16]
 
+blue, orange, green, red, purple, brown, pink, gray, yellow, teal  = sns.color_palette('deep', n_colors=10)
+
 PlotVars = namedtuple('PlotVars', ['macro_type', 'goal_type', 'color', 'zorder', 'tick_size'])
 PLOT_VARS = [
-    PlotVars('random', 'default_goal', 'C2', 5, 100e3),
-    PlotVars('primitive', 'default_goal', 'C0', 10, 100e3),
-    PlotVars('focused', 'default_goal', 'C3', 10, 100e3),
+    PlotVars('Random', 'default_goal', teal, 5, 100e3),
+    PlotVars('Primitive', 'default_goal', blue, 10, 100e3),
+    PlotVars('Focused', 'default_goal', red, 10, 100e3),
 ]
 
 

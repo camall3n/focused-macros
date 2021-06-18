@@ -19,18 +19,18 @@ def load_and_plot_macros():
 
     noise = 0.
     offset = 0.1
-    plt.rcParams.update({'font.size': 18})
-    plt.subplots(figsize=(8,6))
+    plt.rcParams.update({'font.size': 12})
+    plt.subplots(figsize=(4,3))
     # plt.grid('on')
     x = [1-offset]
     y = [2]
-    plt.scatter(x,y, c='C0', s=150, marker='o', label='primitive')
+    plt.scatter(x,y, c='C0', s=150, marker='o', label='Primitive')
     x = np.asarray(rnd_macro_len)+offset+np.random.normal(0,noise,len(rnd_macro_len))
     y = np.asarray(rnd_macro_ent)+np.random.normal(0,noise,len(rnd_macro_ent))
-    plt.scatter(x,y, c='C2', s=150, marker='^', label='random')
+    plt.scatter(x,y, c='C2', s=150, marker='^', label='Random')
     x = np.asarray(gen_macro_len)+np.random.normal(0,noise,len(gen_macro_len))
     y = np.asarray(gen_macro_ent)+np.random.normal(0,noise,len(gen_macro_ent))
-    plt.scatter(x,y, c='C3', s=150, marker='+', label='learned')
+    plt.scatter(x,y, c='C3', s=150, marker='+', label='Learned')
     plt.xlabel('Number of steps per macro-action')
     plt.ylabel('Number of variables modified')
     plt.gcf().set_size_inches(8,6)
