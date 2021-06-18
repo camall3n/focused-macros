@@ -43,7 +43,7 @@ def load_and_plot_macros():
     plt.tight_layout()
     # plt.title('Entanglement by macro-action type (15-puzzle)')
     os.makedirs('results/plots/npuzzle/', exist_ok=True)
-    plt.savefig('results/plots/npuzzle/npuzzle_entanglement-set12.png')
+    plt.savefig('results/plots/npuzzle/npuzzle_entanglement.png')
     plt.show()
 
 def visualize():

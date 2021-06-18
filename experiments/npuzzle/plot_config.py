@@ -2,7 +2,7 @@ from collections import namedtuple
 
 import numpy as np
 
-NAME = 'npuzzle-set12'
+NAME = 'npuzzle'
 DIR = NAME
 PLOTS = ['learning_curves', 'planning_boxes']
 SUMMARIES = ['macro_type', 'goal_type']

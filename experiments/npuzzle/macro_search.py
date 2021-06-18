@@ -30,7 +30,7 @@ def main():
 
     #%% Make n-puzzle and set initial blank location
     puzzle = npuzzle.NPuzzle(n=15, start_blank=(args.r, args.c))
-    tag = 'set{}-n{}-r{}-c{}'.format(args.save_best_n, args.n, *puzzle.blank_idx)
+    tag = 'n{}-r{}-c{}'.format(args.save_best_n, args.n, *puzzle.blank_idx)
 
     #%% Configure the search
     def heuristic(puz):

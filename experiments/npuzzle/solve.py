@@ -133,7 +133,7 @@ def solve():
         tag += 'default_goal/'
     tag += args.macro_type
 
-    results_dir = 'results/npuzzle-set12/{}/{}/'.format(args.search_alg,tag)
+    results_dir = 'results/npuzzle/{}/{}/'.format(args.search_alg,tag)
     os.makedirs(results_dir, exist_ok=True)
     with open(results_dir+'seed-{:03d}.pickle'.format(args.random_seed), 'wb') as file:
         pickle.dump(search_results, file)
