@@ -1,5 +1,9 @@
 # Efficient Black-Box Planning Using Macro-Actions with Focused Effects
-http://irl.cs.brown.edu/pubs/focused_macros.pdf
+
+In Proceedings of the 30th International Joint Conference on Artificial Intelligence, August 2021.
+
+Paper available at https://arxiv.org/abs/2004.13242
+
 
 ### Installation
 
