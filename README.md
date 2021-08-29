@@ -1,9 +1,21 @@
 # Efficient Black-Box Planning Using Macro-Actions with Focused Effects
 
-In Proceedings of the 30th International Joint Conference on Artificial Intelligence, August 2021.
+Code for reproducing the experiments in our [IJCAI'21 paper](https://camallen.net/files/focused_macros.pdf) about making black-box planning more efficient through the discovery and use of "focused" macro-actions that intentionally modify a small number of state variables.
 
-Paper available at https://arxiv.org/abs/2004.13242
+[[Project page](https://camallen.net/blog/focused-macros.html)] [[Paper](https://camallen.net/files/focused_macros.pdf)]
 
+Please cite this work as follows:
+```
+@inproceedings{allen2021focused_macros,
+  title={Efficient Black-Box Planning Using Macro-Actions with Focused Effects},
+  author={Allen, Cameron and Katz, Michael and Klinger, Tim and Konidaris, George and Riemer, Matthew and Tesauro, Gerald},
+  booktitle={Proceedings of the Thirtieth International Joint Conference on Artificial Intelligence},
+  pages={4024--4031},
+  year={2021},
+}
+```
+
+---
 
 ### Installation
 
