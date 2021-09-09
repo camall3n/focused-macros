@@ -67,7 +67,7 @@ def load_and_plot_macros():
         jx, jy = None, None
         plt.scatter(jitter(lengths,jx), jitter(effects,jy), c=colors[i], marker=marker_styles[i],
                     facecolor='none', s=75, label=label, linewidths=1)
-    plt.hlines(48, 0, 26, linestyles='dashed', linewidths=1)
+    plt.hlines(48, 0, 26, linestyles='dashed', linewidths=1, colors='k')
     handles, labels = ax.get_legend_handles_labels()
     # handles = [handles[0], handles[1], handles[2], handles[3]]
     # labels = [labels[0], labels[1], labels[2], labels[3]]

@@ -219,7 +219,7 @@ def plot_learning_curves(data, plot_var_list, category, save=True):
 
     # [i.set_linewidth(1) for i in ax.spines.values()]
     if cfg.HLINE:
-        ax.hlines(cfg.HLINE, 0, cfg.TRANSITION_CAP, linestyles='dashed', linewidths=1)
+        ax.hlines(cfg.HLINE, 0, cfg.TRANSITION_CAP, linestyles='dashed', linewidths=1, colors='k')
     if save:
         plt.savefig('results/plots/{}/{}_planning_curves_by_{}.png'.format(
             cfg.DIR, cfg.NAME, category), dpi=100)
