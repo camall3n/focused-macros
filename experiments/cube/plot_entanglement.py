@@ -59,7 +59,7 @@ def load_and_plot_macros():
             lengths = [len(a) for a in macro_type.actions]
         effects = [len(cube.Cube().apply(swap_list=model).summarize_effects())
                    for model in macro_type.models]
-        label = macro_names[i] + ' Macros' if macro_names[i] != 'Primitive' else 'Base Actions'
+        label = macro_names[i]# + ' Macros' if macro_names[i] != 'Primitive' else 'Base Actions'
         # if macro_names[i] == 'primitive':
         #     jx, jy = None, None
         # else:
