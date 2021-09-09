@@ -190,10 +190,10 @@ def plot_learning_curves(data, plot_var_list, category, save=True):
     for plot_vars in plot_var_list:
         label = plot_vars._asdict()[category]
         value = label.lower()
-        if label == 'Primitive':
-            label = 'Base Actions'
-        else:
-            label = '+ ' + label + ' Macros'
+        # if label == 'Primitive':
+        #     label = 'Base Actions'
+        # else:
+        #     label = '+ ' + label + ' Macros'
         if len(data.query(category+'==@value')) > 0:
             sns.lineplot(data=data.query(category+'==@value'),
                          x='transitions', y='n_errors',
