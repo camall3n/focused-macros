@@ -21,8 +21,8 @@ blue, orange, green, red, purple, brown, pink, gray, yellow, teal  = sns.color_p
 
 PlotVars = namedtuple('PlotVars', ['macro_type', 'goal_type', 'color', 'zorder', 'tick_size'])
 PLOT_VARS = [
-    PlotVars('Primitive', 'default_goal', blue, 15, 0.5e6),
     PlotVars('Random', 'default_goal', teal, 5, 0.5e6),
+    PlotVars('Primitive', 'default_goal', blue, 15, 0.5e6),
     PlotVars('Focused', 'default_goal', red, 10, 0.5e6),
     PlotVars('Expert', 'default_goal', orange, 20, 0.5e6),
 ]
