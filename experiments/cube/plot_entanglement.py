@@ -76,8 +76,8 @@ def load_and_plot_macros():
     plt.ylim([0,50])
     plt.xlim([0,26])
     plt.xticks(range(1,26,4))
-    plt.xlabel('Length of Action Sequence')
-    plt.ylabel('Stickers Modified')
+    plt.xlabel('Macro-action length')
+    plt.ylabel('Effect size')
     plt.tight_layout()
     plt.subplots_adjust(top = .96, bottom = .19, right = .95, left = 0.14,
         hspace = 0, wspace = 0)

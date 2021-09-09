@@ -210,7 +210,7 @@ def plot_learning_curves(data, plot_var_list, category, save=True):
     ax.set_ylim(cfg.YLIM)
     ax.set_xlim(cfg.XLIM)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(plot_vars.tick_size))
-    ax.set_xlabel('States considered' + autoscale_xticks(ax, dtype=float))
+    ax.set_xlabel('Generated states' + autoscale_xticks(ax, dtype=float))
     ax.set_ylabel('Remaining errors')
     ax.set_axisbelow(False)
     plt.tight_layout()
