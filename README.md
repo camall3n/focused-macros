@@ -26,7 +26,7 @@ git clone https://github.com/camall3n/focused-macros.git
 
 Install the dependencies:
 ```
-cd skills-for-planning
+cd focused-macros
 git submodule init
 git submodule update
 python3 -m venv venv
